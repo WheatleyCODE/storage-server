@@ -15,3 +15,9 @@ export enum FolderColors {
   RED = 'RED',
   BLUE = 'BLUE',
 }
+
+export enum UserRoles {
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+  EMPLOYEE = 'EMPLOYEE',
+}
