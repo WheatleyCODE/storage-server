@@ -1,10 +1,10 @@
-import { CreateUserDto } from './dto/CreateUserDto';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { IUserService } from 'src/core';
 import { UserRoles } from 'src/types';
 import { CreateUserOptions, UpdateUserOptions } from 'src/types';
+import { CreateUserDto } from './dto/CreateUser.dto';
 import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()

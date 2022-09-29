@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { UserModule } from './user/user.module';
 import { TokensModule } from './tokens/tokens.module';
 import { MailModule } from './mail/mail.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { MailModule } from './mail/mail.module';
     UserModule,
     TokensModule,
     MailModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [],

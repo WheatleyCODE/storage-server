@@ -23,7 +23,7 @@ export type UpdateUserOptions = {
 };
 
 export class UserTransferData {
-  readonly id: string;
+  readonly id: Types.ObjectId;
   readonly name: string;
   readonly email: string;
   readonly isActivated: boolean;
