@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { IUserService } from 'src/core';
-import { UserRoles } from 'src/types';
+import { UserRoles, UserTransferData } from 'src/types';
 import { CreateUserOptions, UpdateUserOptions } from 'src/types';
 import { User, UserDocument } from './schemas/user.schema';
 
@@ -31,41 +31,36 @@ export class UserService extends IUserService<UserDocument, UpdateUserOptions> {
     }
   }
 
-  async changeRole(id: Types.ObjectId, role: UserRoles): Promise<UserDocument> {
-    throw new Error('Method not implemented.');
-  }
-
-  async changePassword(
-    id: Types.ObjectId,
-    password: string,
-  ): Promise<UserDocument> {
-    throw new Error('Method not implemented.');
-  }
-
-  async changeActivated(
-    id: Types.ObjectId,
-    value: boolean,
-  ): Promise<UserDocument> {
-    throw new Error('Method not implemented.');
-  }
-
-  async createActivationLink(id: Types.ObjectId): Promise<UserDocument> {
-    throw new Error('Method not implemented.');
-  }
-
-  async deleteActivationLink(id: Types.ObjectId): Promise<UserDocument> {
-    throw new Error('Method not implemented.');
-  }
-
-  async createResetPasswordLink(id: Types.ObjectId): Promise<UserDocument> {
-    throw new Error('Method not implemented.');
-  }
-
-  async deleteResetPasswordLink(id: Types.ObjectId): Promise<UserDocument> {
-    throw new Error('Method not implemented.');
-  }
-
   async delete(id: Types.ObjectId): Promise<UserDocument> {
-    throw new Error('Method not implemented.');
+    try {
+      const user = await this.userModel.findById(id);
+
+      if (!user)
+        throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+
+      return await this.userModel.findByIdAndDelete({ id });
+    } catch (e) {
+      throw new HttpException(
+        'Ошибка при удалении пользователя',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async changeRole(
+    id: Types.ObjectId,
+    role: UserRoles[],
+  ): Promise<UserTransferData> {
+    try {
+      const user = await this.getOneById(id);
+      if (!user)
+        throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+
+      user.role = role;
+      await user.save();
+      return new UserTransferData(user);
+    } catch (e) {
+      throw e;
+    }
   }
 }
