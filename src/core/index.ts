@@ -3,3 +3,4 @@ export * from './AbstractClasses/IDefaultService';
 export * from './AbstractClasses/IFolderService';
 export * from './AbstractClasses/IStorageService';
 export * from './AbstractClasses/IUserService';
+export * from './AbstractClasses/IToken';

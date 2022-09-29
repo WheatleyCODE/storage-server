@@ -1,10 +1,11 @@
+import * as path from 'path';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import * as path from 'path';
-import { AppController } from './app.controller';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { AppController } from './app.controller';
 import { UserModule } from './user/user.module';
+import { TokensModule } from './tokens/tokens.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UserModule } from './user/user.module';
     }),
     MongooseModule.forRoot(process.env.URL_MONGO),
     UserModule,
+    TokensModule,
   ],
   controllers: [AppController],
   providers: [],

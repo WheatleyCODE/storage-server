@@ -7,11 +7,21 @@ export abstract class IDefaultService<T, O> {
 
   abstract create(dto: any, options?: { [key in keyof O]: any }): Promise<T>;
   abstract delete(id: Types.ObjectId): Promise<T>;
-  abstract update(
+
+  async update(
     id: Types.ObjectId,
     dto: any,
     options?: { [key in keyof O]: any },
-  ): Promise<T>;
+  ) {
+    try {
+      return await this.model.findByIdAndUpdate(id, options);
+    } catch (e) {
+      throw new HttpException(
+        `Ошибка при update, ${this.model.modelName}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   async rename(id: Types.ObjectId, name: string): Promise<T> {
     try {

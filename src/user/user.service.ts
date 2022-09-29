@@ -1,11 +1,20 @@
+import { CreateUserDto } from './dto/CreateUserDto';
 import { Injectable } from '@nestjs/common';
-import { Types } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
 import { IUserService } from 'src/core';
 import { UserRoles } from 'src/types';
-import { UserDocument } from './schemas/user.schema';
+import { CreateUserOptions, UpdateUserOptions } from 'src/types';
+import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
-export class UserService extends IUserService<UserDocument, any> {
+export class UserService extends IUserService<UserDocument, UpdateUserOptions> {
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+  ) {
+    super(userModel);
+  }
+
   async changeRole(id: Types.ObjectId, role: UserRoles): Promise<UserDocument> {
     throw new Error('Method not implemented.');
   }
@@ -41,21 +50,13 @@ export class UserService extends IUserService<UserDocument, any> {
   }
 
   async create(
-    dto: any,
-    options?: { [x: string]: any },
+    dto: CreateUserDto,
+    options?: CreateUserOptions,
   ): Promise<UserDocument> {
     throw new Error('Method not implemented.');
   }
 
   async delete(id: Types.ObjectId): Promise<UserDocument> {
-    throw new Error('Method not implemented.');
-  }
-
-  async update(
-    id: Types.ObjectId,
-    dto: any,
-    options?: { [x: string]: any },
-  ): Promise<UserDocument> {
     throw new Error('Method not implemented.');
   }
 }
