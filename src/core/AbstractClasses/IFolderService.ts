@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
 import { FolderColors } from 'src/types';
-import { DefaultObject } from './DefaultObject';
+import { IDefaultObject } from './IDefaultObject';
 
-export abstract class FolderService<T, O> extends DefaultObject<T, O> {
+export abstract class IFolderService<T, O> extends IDefaultObject<T, O> {
   abstract addParent(id: Types.ObjectId, parent: Types.ObjectId): Promise<T>;
   abstract getParents(id: Types.ObjectId): Promise<T>;
   abstract getChildrens(parent: Types.ObjectId): Promise<T>;

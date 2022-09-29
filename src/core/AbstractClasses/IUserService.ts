@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
 import { UserRoles } from 'src/types';
-import { DefaultService } from './DefaultService';
+import { IDefaultService } from './IDefaultService';
 
-export abstract class UserService<T, O> extends DefaultService<T, O> {
+export abstract class IUserService<T, O> extends IDefaultService<T, O> {
   abstract changeRole(id: Types.ObjectId, role: UserRoles): Promise<T>;
   abstract changePassword(id: Types.ObjectId, password: string): Promise<T>;
   abstract changeActivated(id: Types.ObjectId, value: boolean): Promise<T>;

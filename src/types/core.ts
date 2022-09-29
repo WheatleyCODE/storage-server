@@ -1,6 +1,6 @@
 export type Pagination = { count: number; offset: number };
 
-export enum AccessType {
+export enum AccessTypes {
   PRIVATE = 'PRIVATE',
   PUBLIC = 'PUBLIC',
   LINK = 'LINK',

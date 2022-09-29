@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import * as path from 'path';
 import { AppController } from './app.controller';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
       rootPath: path.resolve(__dirname, 'static'),
     }),
     MongooseModule.forRoot(process.env.URL_MONGO),
+    UserModule,
   ],
   controllers: [AppController],
   providers: [],

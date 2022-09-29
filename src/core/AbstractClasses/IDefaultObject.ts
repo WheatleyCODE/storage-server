@@ -1,9 +1,9 @@
 import { Types } from 'mongoose';
-import { AccessType } from 'src/types';
-import { DefaultService } from './DefaultService';
+import { AccessTypes } from 'src/types';
+import { IDefaultService } from './IDefaultService';
 
-export abstract class DefaultObject<T, O> extends DefaultService<T, O> {
-  abstract changeAccessType(id: Types.ObjectId, type: AccessType): Promise<T>;
+export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
+  abstract changeAccessType(id: Types.ObjectId, type: AccessTypes): Promise<T>;
   abstract changeAccessLink(id: Types.ObjectId): Promise<T>;
   abstract changeOpenDate(id: Types.ObjectId): Promise<T>;
   abstract changeIsTrash(id: Types.ObjectId): Promise<T>;

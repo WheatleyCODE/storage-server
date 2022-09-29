@@ -1,13 +1,13 @@
 import { Types } from 'mongoose';
 import { ItemTypes } from 'src/types';
-import { DefaultService } from './DefaultService';
+import { IDefaultService } from './IDefaultService';
 
 // ! Change
 export type FolderDemo = {
   hellO: 'World';
 };
 
-export abstract class StorageService<T, O> extends DefaultService<T, O> {
+export abstract class IStorageService<T, O> extends IDefaultService<T, O> {
   abstract changeDiskSpace(id: Types.ObjectId, bytes: number): Promise<T>;
   abstract changeUsedSpace(id: Types.ObjectId, bytes: number): Promise<T>;
   abstract addItem(
