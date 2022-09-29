@@ -1,12 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, Res } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
+  @ApiOperation({ summary: 'Редирект на фронтенд' })
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  redirect(@Res() res): void {
+    res.redirect(process.env.URL_CLIENT);
   }
 }
