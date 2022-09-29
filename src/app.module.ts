@@ -6,6 +6,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
 import { UserModule } from './user/user.module';
 import { TokensModule } from './tokens/tokens.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TokensModule } from './tokens/tokens.module';
     MongooseModule.forRoot(process.env.URL_MONGO),
     UserModule,
     TokensModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [],

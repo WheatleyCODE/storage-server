@@ -1,15 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserTransferData } from 'src/types';
+import { AccRefTokens, UpdateTokenOptions, UserTransferData } from 'src/types';
 import { RefreshTokenService } from './refresh-token/refresh-token.service';
 import { AccessTokenService } from './access-token/access-token.service';
 import { Tokens, TokensDocument } from './schemas/tokens.schema';
-
-export interface AccRefTokens {
-  accessToken: string;
-  refreshToken: string;
-}
 
 @Injectable()
 export class TokensService {
@@ -20,7 +15,7 @@ export class TokensService {
     private readonly tokensModel: Model<TokensDocument>,
   ) {}
 
-  generateTokens(data: { [key: string]: any }): AccRefTokens {
+  generateTokens(data: UserTransferData): AccRefTokens {
     const accessToken = this.accessTokenService.generateToken(data);
     const refreshToken = this.refreshTokenService.generateToken(data);
 
@@ -31,7 +26,7 @@ export class TokensService {
   }
 
   async saveTokens(
-    userId: string,
+    userId: Types.ObjectId,
     tokens: AccRefTokens,
   ): Promise<TokensDocument> {
     try {
@@ -63,7 +58,7 @@ export class TokensService {
     }
   }
 
-  async findTokensBy(options: { [key: string]: any }): Promise<TokensDocument> {
+  async findTokensBy(options: UpdateTokenOptions): Promise<TokensDocument> {
     try {
       return await this.tokensModel.findOne({ ...options });
     } catch (e) {
