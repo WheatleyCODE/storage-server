@@ -22,21 +22,18 @@ export class StorageService extends IStorageService<
     super(storageModel);
   }
 
-  async create(
-    dto: CreateStorageDto,
-    options?: CreateStorageOptions,
-  ): Promise<StorageDocument> {
+  async create(options: CreateStorageOptions): Promise<StorageDocument> {
     try {
-      const storage = await this.storageModel.findOne({ user: dto.user });
+      const storage = await this.storageModel.findOne({ user: options.user });
 
       if (storage) {
         throw new HttpException(
-          'Хранилище уже существует',
+          'Хранилище c таким пользователем уже существует',
           HttpStatus.CONFLICT,
         );
       }
 
-      return await this.storageModel.create({ user: dto.user });
+      return await this.storageModel.create({ ...options });
     } catch (e) {
       throw e;
     }

@@ -5,14 +5,13 @@ import { Pagination } from 'src/types';
 export abstract class IDefaultService<T, O> {
   constructor(protected readonly model: Model<any>) {}
 
-  abstract create(dto: any, options?: { [key in keyof O]: any }): Promise<T>;
+  abstract create(options: { [key in keyof O]: any }): Promise<T>;
   abstract delete(id: Types.ObjectId): Promise<T>;
 
   async update(
     id: Types.ObjectId,
-    dto: any,
-    options?: { [key in keyof O]: any },
-  ) {
+    options: { [key in keyof O]: any },
+  ): Promise<T> {
     try {
       return await this.model.findByIdAndUpdate(id, options);
     } catch (e) {

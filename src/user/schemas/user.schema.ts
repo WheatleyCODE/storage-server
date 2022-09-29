@@ -13,7 +13,7 @@ export class User {
   name: string;
 
   @ApiProperty({ example: [ 'USER', 'ADMIN' ], description: 'Роли пользователя' })
-  @Prop({ default: [UserRoles.USER], type: String })
+  @Prop({ default: [UserRoles.USER], type: [String] })
   role: UserRoles[];
 
   @ApiProperty({ example: 'qb.wheatley@gmail.com', description: 'Email пользователя' })

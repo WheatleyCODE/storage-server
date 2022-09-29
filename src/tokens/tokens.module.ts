@@ -1,4 +1,4 @@
-import { Tokens, UserSchema } from './schemas/tokens.schema';
+import { Tokens, TokensSchema } from './schemas/tokens.schema';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AccessTokenModule } from './access-token/access-token.module';
@@ -9,7 +9,7 @@ import { TokensService } from './tokens.service';
   imports: [
     AccessTokenModule,
     RefreshTokenModule,
-    MongooseModule.forFeature([{ name: Tokens.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Tokens.name, schema: TokensSchema }]),
   ],
   providers: [TokensService],
   exports: [TokensService, AccessTokenModule, RefreshTokenModule],

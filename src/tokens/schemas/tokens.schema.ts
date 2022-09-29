@@ -28,4 +28,4 @@ export class Tokens {
   refreshToken: string;
 }
 
-export const UserSchema = SchemaFactory.createForClass(Tokens);
+export const TokensSchema = SchemaFactory.createForClass(Tokens);

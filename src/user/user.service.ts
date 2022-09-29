@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { IUserService } from 'src/core';
 import { UserRoles } from 'src/types';
 import { CreateUserOptions, UpdateUserOptions } from 'src/types';
-import { CreateUserDto } from './dto/CreateUser.dto';
 import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
@@ -13,6 +12,23 @@ export class UserService extends IUserService<UserDocument, UpdateUserOptions> {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {
     super(userModel);
+  }
+
+  async create(options: CreateUserOptions): Promise<UserDocument> {
+    try {
+      const user = await this.userModel.findOne({ email: options.email });
+
+      if (user) {
+        throw new HttpException(
+          'Пользователь с таким Email уже существует',
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      return await this.userModel.create({ ...options });
+    } catch (e) {
+      throw e;
+    }
   }
 
   async changeRole(id: Types.ObjectId, role: UserRoles): Promise<UserDocument> {
@@ -46,13 +62,6 @@ export class UserService extends IUserService<UserDocument, UpdateUserOptions> {
   }
 
   async deleteResetPasswordLink(id: Types.ObjectId): Promise<UserDocument> {
-    throw new Error('Method not implemented.');
-  }
-
-  async create(
-    dto: CreateUserDto,
-    options?: CreateUserOptions,
-  ): Promise<UserDocument> {
     throw new Error('Method not implemented.');
   }
 
