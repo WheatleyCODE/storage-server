@@ -9,6 +9,7 @@ import { TokensModule } from './tokens/tokens.module';
 import { MailModule } from './mail/mail.module';
 import { StorageModule } from './storage/storage.module';
 import { AuthModule } from './auth/auth.module';
+import { FolderModule } from './folder/folder.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuthModule } from './auth/auth.module';
     MailModule,
     StorageModule,
     AuthModule,
+    FolderModule,
   ],
   controllers: [AppController],
   providers: [],

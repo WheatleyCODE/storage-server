@@ -23,9 +23,9 @@ export class TokensTransferData {
   readonly accessToken: string;
   readonly refreshToken: string;
 
-  constructor(userDocument: TokensDocument) {
-    this.id = userDocument._id;
-    this.accessToken = userDocument.accessToken;
-    this.refreshToken = userDocument.refreshToken;
+  constructor(tokensDocument: TokensDocument) {
+    this.id = tokensDocument._id;
+    this.accessToken = tokensDocument.accessToken;
+    this.refreshToken = tokensDocument.refreshToken;
   }
 }
