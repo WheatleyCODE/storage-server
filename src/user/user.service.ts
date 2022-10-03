@@ -33,11 +33,6 @@ export class UserService extends IUserService<UserDocument, UpdateUserOptions> {
 
   async delete(id: Types.ObjectId): Promise<UserDocument> {
     try {
-      const user = await this.userModel.findById(id);
-
-      if (!user)
-        throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
-
       return await this.userModel.findByIdAndDelete({ id });
     } catch (e) {
       throw new HttpException(
@@ -52,10 +47,7 @@ export class UserService extends IUserService<UserDocument, UpdateUserOptions> {
     role: UserRoles[],
   ): Promise<UserTransferData> {
     try {
-      const user = await this.getOneById(id);
-      if (!user)
-        throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
-
+      const user = await this.findByIdAndCheck(id);
       user.role = role;
       await user.save();
       return new UserTransferData(user);

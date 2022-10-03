@@ -44,7 +44,10 @@ export class FolderService extends IFolderService<
       this.recDelFolders(children, folder);
       return folder;
     } catch (e) {
-      throw e;
+      throw new HttpException(
+        'Ошибка при удалении папки',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -71,11 +74,7 @@ export class FolderService extends IFolderService<
     parent: Types.ObjectId,
   ): Promise<FolderDocument> {
     try {
-      const folder = await this.folderModel.findById(id);
-
-      if (!folder)
-        throw new HttpException('Папка не найдена', HttpStatus.BAD_REQUEST);
-
+      const folder = await this.findByIdAndCheck(id);
       folder.parent = parent;
       return folder.save();
     } catch (e) {
@@ -86,10 +85,7 @@ export class FolderService extends IFolderService<
   async getParents(id: Types.ObjectId): Promise<FolderDocument[]> {
     try {
       const parents = [];
-      const folder = await this.folderModel.findById(id);
-
-      if (!folder)
-        throw new HttpException('Папка не найдена', HttpStatus.BAD_REQUEST);
+      const folder = await this.findByIdAndCheck(id);
 
       parents.push(folder);
       let isParent = false;
@@ -118,7 +114,7 @@ export class FolderService extends IFolderService<
       return await this.folderModel.find({ parent });
     } catch (e) {
       throw new HttpException(
-        'Ошибка при дочерних папок',
+        'Ошибка при поиске дочерних папок',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -129,10 +125,7 @@ export class FolderService extends IFolderService<
     color: FolderColors,
   ): Promise<FolderDocument> {
     try {
-      const folder = await this.folderModel.findById(id);
-
-      if (!folder)
-        throw new HttpException('Папка не найдена', HttpStatus.BAD_REQUEST);
+      const folder = await this.findByIdAndCheck(id);
 
       folder.color = color;
       return folder.save();

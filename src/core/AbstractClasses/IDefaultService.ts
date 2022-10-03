@@ -1,9 +1,12 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { Pagination } from 'src/types';
+import { IDefaultHelpers } from './IDefaultHelpers';
 
-export abstract class IDefaultService<T, O> {
-  constructor(protected readonly model: Model<any>) {}
+export abstract class IDefaultService<T, O> extends IDefaultHelpers<T, O> {
+  constructor(model: Model<any>) {
+    super(model);
+  }
 
   abstract create(options: { [key in keyof O]: any }): Promise<T>;
   abstract delete(id: Types.ObjectId): Promise<T>;

@@ -56,6 +56,7 @@ export class AuthService {
     text: string,
   ): Promise<UserDocument> {
     const user = await this.userService.getOneBy({ ...by });
+
     if (!user) throw new HttpException(text, httpStatus);
     return user;
   }
