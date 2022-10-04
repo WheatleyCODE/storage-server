@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 import { FolderService } from 'src/folder/folder.service';
+import { FolderDocument } from 'src/folder/schemas/folder.schema';
 
 export type Pagination = { count: number; offset: number };
 
@@ -35,3 +36,5 @@ export type DeleteItems = {
   deleteCount: number;
   deleteItems: Types.ObjectId[];
 };
+
+export type ItemDocument = FolderDocument;

@@ -71,13 +71,6 @@ export class Folder {
   listenCount: number;
 
   @ApiProperty({
-    example: '[507f191e810c19729de860ea]',
-    description: 'ID Массив просмотревших пользователей пользователей',
-  })
-  @Prop({ type: [Types.ObjectId], ref: 'User' })
-  listenedUsers: Types.ObjectId[];
-
-  @ApiProperty({
     example: 1235,
     description: 'Количество звезд',
   })
@@ -85,18 +78,11 @@ export class Folder {
   starredCount: number;
 
   @ApiProperty({
-    example: '[507f191e810c19729de860ea]',
-    description: 'ID Массив starred пользователей',
-  })
-  @Prop({ type: [Types.ObjectId], ref: 'User' })
-  starredUser: Types.ObjectId[];
-
-  @ApiProperty({
     example: 'http://localhost:3000/share/folder/somerandomtext',
     description: 'Ссылка доступа к элементу хранилища',
   })
   @Prop({ type: String })
-  accesLink: string;
+  accessLink: string;
 
   @ApiProperty({
     example: 'PUBLIC',

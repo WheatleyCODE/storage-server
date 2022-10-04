@@ -36,9 +36,7 @@ export class FolderTransferData {
   readonly likeCount: number;
   readonly likedUsers: Types.ObjectId[];
   readonly listenCount: number;
-  readonly listenedUsers: Types.ObjectId[];
   readonly starredCount: number;
-  readonly starredUser: Types.ObjectId[];
   readonly accesLink: string;
   readonly accessType: AccessTypes;
   readonly creationDate: number;
@@ -54,9 +52,8 @@ export class FolderTransferData {
     this.likeCount = folderDocument.likeCount;
     this.likedUsers = folderDocument.likedUsers;
     this.listenCount = folderDocument.listenCount;
-    this.listenedUsers = folderDocument.listenedUsers;
     this.starredCount = folderDocument.starredCount;
-    this.accesLink = folderDocument.accesLink;
+    this.accesLink = folderDocument.accessLink;
     this.accessType = folderDocument.accessType;
     this.creationDate = folderDocument.creationDate;
     this.openDate = folderDocument.openDate;

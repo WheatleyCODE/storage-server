@@ -1,4 +1,3 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { Types } from 'mongoose';
 import * as uuid from 'uuid';
 import { AccessTypes } from 'src/types';
@@ -9,10 +8,7 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
 
   async changeAccessType(id: Types.ObjectId, type: AccessTypes): Promise<T> {
     try {
-      const item = await this.model.findById(id);
-
-      if (!item)
-        throw new HttpException('Item не найден', HttpStatus.BAD_REQUEST);
+      const item: any = await this.findByIdAndCheck(id);
 
       item.accessType = type;
       return await item.save();
@@ -23,14 +19,11 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
 
   async changeAccessLink(id: Types.ObjectId): Promise<T> {
     try {
-      const item = await this.model.findById(id);
-
-      if (!item)
-        throw new HttpException('Item не найден', HttpStatus.BAD_REQUEST);
+      const item: any = await this.findByIdAndCheck(id);
 
       const link = uuid.v4();
-      const type = item.accessType.toLoverCase();
-      item.accessLink = `${process.env.URL_CLIENT}/share/${type}}/${link}`;
+      const type = item.type.toLowerCase();
+      item.accessLink = `${process.env.URL_CLIENT}/share/${type}/${link}`;
       return await item.save();
     } catch (e) {
       throw e;
@@ -39,13 +32,10 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
 
   async changeOpenDate(id: Types.ObjectId): Promise<T> {
     try {
-      const item = await this.model.findById(id);
-
-      if (!item)
-        throw new HttpException('Item не найден', HttpStatus.BAD_REQUEST);
+      const item: any = await this.findByIdAndCheck(id);
 
       item.openDate = Date.now();
-      return item.save();
+      return await item.save();
     } catch (e) {
       throw e;
     }
@@ -53,102 +43,71 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
 
   async changeIsTrash(id: Types.ObjectId, isTrash: boolean): Promise<T> {
     try {
-      const item = await this.model.findById(id);
-
-      if (!item)
-        throw new HttpException('Item не найден', HttpStatus.BAD_REQUEST);
+      const item: any = await this.findByIdAndCheck(id);
 
       item.isTrash = isTrash;
-      return item.save();
+      return await item.save();
     } catch (e) {
       throw e;
     }
   }
 
-  async addLike(id: Types.ObjectId, user: Types.ObjectId): Promise<T> {
+  async changeLike(
+    id: Types.ObjectId,
+    user: Types.ObjectId,
+    isLike: boolean,
+  ): Promise<T> {
     try {
-      const item = await this.model.findById(id);
+      const item: any = await this.findByIdAndCheck(id);
 
-      if (!item)
-        throw new HttpException('Item не найден', HttpStatus.BAD_REQUEST);
-
-      item.likeCount++;
-      item.likedUsers.push(user);
-      return item.save();
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async subLike(id: Types.ObjectId, user: Types.ObjectId): Promise<T> {
-    try {
-      const item = await this.model.findById(id);
-
-      if (!item)
-        throw new HttpException('Item не найден', HttpStatus.BAD_REQUEST);
+      if (isLike) {
+        item.likeCount++;
+        item.likedUsers.push(user);
+        return await item.save();
+      }
 
       item.likeCount--;
       item.likedUsers = item.likedUsers.filter(
-        (likedUser) => likedUser !== user,
+        (likedUser) => likedUser.toString() !== user.toString(),
       );
-      return item.save();
+      return await item.save();
     } catch (e) {
       throw e;
     }
   }
 
-  async addListen(id: Types.ObjectId, user: Types.ObjectId): Promise<T> {
+  // ! Локально расширить user?: Types.ObjectId
+  async addListen(id: Types.ObjectId, user?: Types.ObjectId): Promise<T> {
     try {
-      const item = await this.model.findById(id);
-
-      if (!item)
-        throw new HttpException('Item не найден', HttpStatus.BAD_REQUEST);
-
+      const item: any = await this.findByIdAndCheck(id);
       item.listenCount++;
-      const index = item.listenedUsers.findIndex(
-        (listenedUser) => listenedUser === user,
-      );
-
-      if (index === -1) item.listenedUsers.push(user);
-
-      return item.save();
+      return await item.save();
     } catch (e) {
       throw e;
     }
   }
 
-  async addStar(id: Types.ObjectId, user: Types.ObjectId): Promise<T> {
+  // ! Локально расширить user?: Types.ObjectId
+  async changeStar(
+    id: Types.ObjectId,
+    isStar: boolean,
+    user?: Types.ObjectId,
+  ): Promise<T> {
     try {
-      const item = await this.model.findById(id);
+      const item: any = await this.findByIdAndCheck(id);
 
-      if (!item)
-        throw new HttpException('Item не найден', HttpStatus.BAD_REQUEST);
-
-      item.starredCount++;
-      item.starredUsers.push(user);
-      return item.save();
+      if (isStar) {
+        item.starredCount++;
+      } else {
+        item.starredCount--;
+      }
+      return await item.save();
     } catch (e) {
       throw e;
     }
   }
 
-  async subStar(id: Types.ObjectId, user: Types.ObjectId): Promise<T> {
-    try {
-      const item = await this.model.findById(id);
-
-      if (!item)
-        throw new HttpException('Item не найден', HttpStatus.BAD_REQUEST);
-
-      item.starredCount--;
-      item.starredUsers = item.starredUsers.filter(
-        (likedUser) => likedUser !== user,
-      );
-      return item.save();
-    } catch (e) {
-      throw e;
-    }
-  }
-
+  // Todo добавить после прототипирования комментраиев
   async addComment(
     id: Types.ObjectId,
     user: Types.ObjectId,

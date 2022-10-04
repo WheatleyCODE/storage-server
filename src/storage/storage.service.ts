@@ -4,9 +4,11 @@ import { Model, Types } from 'mongoose';
 import { IStorageService } from 'src/core';
 import { CreateFolderDto } from 'src/folder/dto/CreateFolder.dto';
 import { FolderService } from 'src/folder/folder.service';
+import { FolderDocument } from 'src/folder/schemas/folder.schema';
 import {
   CreateStorageOptions,
   DeleteItems,
+  ItemDocument,
   ItemTypes,
   ObjectServices,
   StorageTransferData,
@@ -15,6 +17,12 @@ import {
 import { FolderTransferData } from 'src/types/folder';
 import { dtoToOjbectId, getStorageCollectionName } from 'src/utils';
 import { AddDeleteItemDto } from './dto/AddDeleteItem.dto';
+import { AddListenDto } from './dto/AddListen.dto';
+import { ChangeAccessTypeDto } from './dto/ChangeAccessType.dto';
+import { ChangeIsTrashDto } from './dto/ChangeIsTrash.dto';
+import { ChangeLikeDto } from './dto/ChangeLike.dto';
+import { ChangeOpenDateDto } from './dto/ChangeOpenDate.dto';
+import { CreateAccessLinkDto } from './dto/CreateAccessLink.dto';
 import { SearchItemDto } from './dto/SearchItem.dto';
 import { Storage, StorageDocument } from './schemas/storage.schema';
 
@@ -83,7 +91,7 @@ export class StorageService extends IStorageService<
     }
   }
 
-  delete(id: Types.ObjectId): Promise<StorageDocument & DeleteItems> {
+  async delete(id: Types.ObjectId): Promise<StorageDocument & DeleteItems> {
     throw new Error('Method not implemented.');
   }
 
@@ -149,10 +157,68 @@ export class StorageService extends IStorageService<
     throw new Error('Method not implemented.');
   }
 
+  async changeLike(dto: ChangeLikeDto): Promise<ItemDocument> {
+    try {
+      const { id, user, itemType, isLike } = dtoToOjbectId(dto, ['id', 'user']);
+      return await this.objectServices[itemType].changeLike(id, user, isLike);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async getOneBy(options: UpdateStorageOptions): Promise<StorageDocument> {
     try {
       const storage = await this.getOneByAndCheck(options);
       return await storage.populate('folders');
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemDocument> {
+    try {
+      const { id, accessType, itemType } = dtoToOjbectId(dto, ['id']);
+
+      return await this.objectServices[itemType].changeAccessType(
+        id,
+        accessType,
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async createAccessLink(dto: CreateAccessLinkDto): Promise<ItemDocument> {
+    try {
+      const { id, itemType } = dtoToOjbectId(dto, ['id']);
+      return await this.objectServices[itemType].changeAccessLink(id);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemDocument> {
+    try {
+      const { id, itemType, isTrash } = dtoToOjbectId(dto, ['id']);
+      return await this.objectServices[itemType].changeIsTrash(id, isTrash);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async addListen(dto: AddListenDto): Promise<ItemDocument> {
+    try {
+      const { id, itemType } = dtoToOjbectId(dto, ['id']);
+      return await this.objectServices[itemType].addListen(id);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeOpenDate(dto: ChangeOpenDateDto): Promise<ItemDocument> {
+    try {
+      const { id, itemType } = dtoToOjbectId(dto, ['id']);
+      return await this.objectServices[itemType].changeOpenDate(id);
     } catch (e) {
       throw e;
     }
