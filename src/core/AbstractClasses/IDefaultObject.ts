@@ -5,6 +5,8 @@ import { AccessTypes } from 'src/types';
 import { IDefaultService } from './IDefaultService';
 
 export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
+  readonly ITEM_WIEGTH = 8;
+
   async changeAccessType(id: Types.ObjectId, type: AccessTypes): Promise<T> {
     try {
       const item = await this.model.findById(id);

@@ -51,11 +51,11 @@ export class AuthService {
   }
 
   private async getUserByAndCheck(
-    by: UpdateUserOptions,
+    options: UpdateUserOptions,
     httpStatus: HttpStatus,
     text: string,
   ): Promise<UserDocument> {
-    const user = await this.userService.getOneBy({ ...by });
+    const user = await this.userService.getOneBy({ ...options });
 
     if (!user) throw new HttpException(text, httpStatus);
     return user;

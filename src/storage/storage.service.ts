@@ -2,12 +2,20 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { IStorageService } from 'src/core';
+import { CreateFolderDto } from 'src/folder/dto/CreateFolder.dto';
+import { FolderService } from 'src/folder/folder.service';
 import {
   CreateStorageOptions,
+  DeleteItems,
   ItemTypes,
+  ObjectServices,
+  StorageTransferData,
   UpdateStorageOptions,
 } from 'src/types';
-import { CreateStorageDto } from './dto/CreateStorage.dto';
+import { FolderTransferData } from 'src/types/folder';
+import { dtoToOjbectId, getStorageCollectionName } from 'src/utils';
+import { AddDeleteItemDto } from './dto/AddDeleteItem.dto';
+import { SearchItemDto } from './dto/SearchItem.dto';
 import { Storage, StorageDocument } from './schemas/storage.schema';
 
 @Injectable()
@@ -15,11 +23,47 @@ export class StorageService extends IStorageService<
   StorageDocument,
   UpdateStorageOptions
 > {
+  private readonly objectServices: ObjectServices;
   constructor(
     @InjectModel(Storage.name)
     private readonly storageModel: Model<StorageDocument>,
+    private readonly folderService: FolderService,
   ) {
     super(storageModel);
+
+    this.objectServices = {
+      [ItemTypes.FOLDER]: folderService,
+    };
+  }
+
+  async getStorage(user: Types.ObjectId): Promise<StorageTransferData> {
+    try {
+      const storage = await this.getOneByAndCheck({ user });
+      return new StorageTransferData(storage);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async createFolder(dto: CreateFolderDto): Promise<FolderTransferData> {
+    try {
+      const correctDto = dtoToOjbectId(dto, ['storage', 'user', 'parent']);
+      const folder = await this.folderService.create({
+        ...correctDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+      });
+
+      await this.addItem({
+        id: dto.storage,
+        item: folder._id,
+        itemType: folder.type,
+      });
+
+      return new FolderTransferData(folder);
+    } catch (e) {
+      throw e;
+    }
   }
 
   async create(options: CreateStorageOptions): Promise<StorageDocument> {
@@ -39,7 +83,7 @@ export class StorageService extends IStorageService<
     }
   }
 
-  async delete(id: Types.ObjectId): Promise<StorageDocument> {
+  delete(id: Types.ObjectId): Promise<StorageDocument & DeleteItems> {
     throw new Error('Method not implemented.');
   }
 
@@ -54,41 +98,61 @@ export class StorageService extends IStorageService<
     id: Types.ObjectId,
     bytes: number,
   ): Promise<StorageDocument> {
-    throw new Error('Method not implemented.');
+    try {
+      const storage = await this.findByIdAndCheck(id);
+      storage.usedSpace += bytes;
+      return storage.save();
+    } catch (e) {
+      throw e;
+    }
   }
 
-  async addItem(
-    id: Types.ObjectId,
-    item: Types.ObjectId,
-    type: ItemTypes,
-  ): Promise<StorageDocument> {
-    throw new Error('Method not implemented.');
+  async addItem(dto: AddDeleteItemDto): Promise<StorageDocument> {
+    try {
+      const { id, item, itemType } = dtoToOjbectId(dto, ['id', 'item']);
+
+      const storage = await this.findByIdAndCheck(id);
+      const collection = getStorageCollectionName(itemType);
+      storage[collection].push(item);
+      storage.usedSpace += this.objectServices[itemType].ITEM_WIEGTH;
+      return storage.save();
+    } catch (e) {
+      throw e;
+    }
   }
 
-  async deleteItem(
-    id: Types.ObjectId,
-    item: Types.ObjectId,
-  ): Promise<StorageDocument> {
-    throw new Error('Method not implemented.');
+  async deleteItem(dto: AddDeleteItemDto): Promise<StorageDocument> {
+    try {
+      const { id, item, itemType } = dtoToOjbectId(dto, ['id', 'item']);
+
+      const storage = await this.findByIdAndCheck(id);
+      const collection = getStorageCollectionName(itemType);
+
+      const delFolder = await this.objectServices[itemType].delete(item);
+      const { deleteCount, deleteItems } = delFolder;
+
+      const delItems = deleteItems.map((ids) => ids.toString());
+
+      storage[collection] = storage[collection].filter(
+        (itm) => !delItems.includes(itm.toString()),
+      );
+
+      // eslint-disable-next-line prettier/prettier
+      storage.usedSpace -= deleteCount * this.objectServices[itemType].ITEM_WIEGTH;
+      return await storage.save();
+    } catch (e) {
+      throw e;
+    }
   }
 
-  async searchItems(
-    id: Types.ObjectId,
-    options: { hellO: any },
-  ): Promise<StorageDocument[]> {
+  async searchItems(dto: SearchItemDto): Promise<StorageDocument[]> {
     throw new Error('Method not implemented.');
   }
 
   async getOneBy(options: UpdateStorageOptions): Promise<StorageDocument> {
     try {
-      const storage = await super.getOneBy(options);
-
-      if (!storage)
-        throw new HttpException('Хранилище не найдено', HttpStatus.BAD_REQUEST);
-
-      await storage.populate('folders');
-
-      return storage;
+      const storage = await this.getOneByAndCheck(options);
+      return await storage.populate('folders');
     } catch (e) {
       throw e;
     }

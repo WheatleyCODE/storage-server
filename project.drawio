@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="QstOeuKcosQrX5n12OCk" name="Описание сущностей">
-        <mxGraphModel dx="2615" dy="1713" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="2670" dy="1679" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -77,22 +77,25 @@
                     <mxGeometry y="120" width="220" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="33" value="Хранилище" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=14;" parent="1" vertex="1">
-                    <mxGeometry x="-1400" y="-740" width="220" height="180" as="geometry"/>
+                    <mxGeometry x="-1400" y="-740" width="220" height="210" as="geometry"/>
                 </mxCell>
-                <mxCell id="34" value="Изменение общего места" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;fontSize=14;" parent="33" vertex="1">
+                <mxCell id="dYAD8u-LjJir7ZVHPMpE-77" value="Получение (Для клиента)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;fontSize=14;" parent="33" vertex="1">
                     <mxGeometry y="30" width="220" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="35" value="Измнение занятого места" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;fontSize=14;" parent="33" vertex="1">
+                <mxCell id="34" value="Изменение общего места" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;fontSize=14;" parent="33" vertex="1">
                     <mxGeometry y="60" width="220" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="36" value="Складирование сущностей" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;fontSize=14;" parent="33" vertex="1">
+                <mxCell id="35" value="Измнение занятого места" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;fontSize=14;" parent="33" vertex="1">
                     <mxGeometry y="90" width="220" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="37" value="Удаление сущностей" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;fontSize=14;" parent="33" vertex="1">
+                <mxCell id="36" value="Складирование сущностей" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;fontSize=14;" parent="33" vertex="1">
                     <mxGeometry y="120" width="220" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="38" value="Поиск сущностей" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;fontSize=14;" parent="33" vertex="1">
+                <mxCell id="37" value="Удаление сущностей" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;fontSize=14;" parent="33" vertex="1">
                     <mxGeometry y="150" width="220" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="38" value="Поиск сущностей" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;fontSize=14;" parent="33" vertex="1">
+                    <mxGeometry y="180" width="220" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="42" value=" Пользователь" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="-1654" y="-740" width="220" height="240" as="geometry"/>
@@ -182,7 +185,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="kmRpLjEmesRpYeFqjM-m" name="База данных">
-        <mxGraphModel dx="961" dy="544" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1016" dy="510" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="AtOWPyeC-1iKILgJ75GM-0"/>
                 <mxCell id="AtOWPyeC-1iKILgJ75GM-1" parent="AtOWPyeC-1iKILgJ75GM-0"/>
@@ -286,7 +289,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="eNYzZdLLntBak_q6CY_c" name="Схема">
-        <mxGraphModel dx="1788" dy="1713" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1843" dy="1679" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="2eQ13ibKChI6Upjx3wWA-0"/>
                 <mxCell id="2eQ13ibKChI6Upjx3wWA-1" parent="2eQ13ibKChI6Upjx3wWA-0"/>

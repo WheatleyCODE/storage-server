@@ -1,3 +1,6 @@
+import { Types } from 'mongoose';
+import { FolderService } from 'src/folder/folder.service';
+
 export type Pagination = { count: number; offset: number };
 
 export enum AccessTypes {
@@ -21,3 +24,14 @@ export enum UserRoles {
   ADMIN = 'ADMIN',
   EMPLOYEE = 'EMPLOYEE',
 }
+
+export type ObjectServices = {
+  [ItemTypes.FOLDER]: FolderService;
+};
+
+export type StorageCollectionNames = 'folders';
+
+export type DeleteItems = {
+  deleteCount: number;
+  deleteItems: Types.ObjectId[];
+};

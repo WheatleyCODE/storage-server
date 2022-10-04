@@ -1,6 +1,7 @@
 export * from './AbstractClasses/IDefaultObject';
 export * from './AbstractClasses/IDefaultService';
-export * from './AbstractClasses/IFolderService';
-export * from './AbstractClasses/IStorageService';
-export * from './AbstractClasses/IUserService';
 export * from './AbstractClasses/IToken';
+
+export * from './Interfaces/IStorageService';
+export * from './Interfaces/IUserService';
+export * from './Interfaces/IFolderService';
