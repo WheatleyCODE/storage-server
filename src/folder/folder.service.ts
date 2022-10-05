@@ -62,6 +62,21 @@ export class FolderService extends IFolderService<FolderDocument, UpdateFolderOp
     }
   }
 
+  async deleteByIds(ids: Types.ObjectId[]): Promise<FolderDocument[]> {
+    try {
+      const deleteFolders: FolderDocument[] = [];
+
+      for await (const id of ids) {
+        const folder = await this.folderModel.findByIdAndDelete(id);
+        deleteFolders.push(folder);
+      }
+
+      return deleteFolders;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   private async recDelFolders(childs: FolderDocument[], prevChild: FolderDocument): Promise<void> {
     this.deleteCounter += 1;
 

@@ -1,5 +1,7 @@
 import { Types } from 'mongoose';
+import { FolderDocument } from 'src/folder/schemas/folder.schema';
 import { StorageDocument } from 'src/storage/schemas/storage.schema';
+import { Modify } from './core';
 
 export type CreateStorageOptions = {
   user: Types.ObjectId;
@@ -32,3 +34,9 @@ export class StorageTransferData {
     this.folders = storageDocument.folders;
   }
 }
+
+export type PopulatedCollections = {
+  folders: FolderDocument[];
+};
+
+export type StorageCollectionsPopulated = Modify<StorageDocument, PopulatedCollections>;

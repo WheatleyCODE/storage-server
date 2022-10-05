@@ -32,9 +32,13 @@ export type ObjectServices = {
 
 export type StorageCollectionNames = 'folders';
 
+export const StorageItemTypes: ItemTypes[] = [ItemTypes.FOLDER];
+
 export type DeleteItems = {
   deleteCount: number;
   deleteItems: Types.ObjectId[];
 };
 
 export type ItemDocument = FolderDocument;
+
+export type Modify<T, R> = Omit<T, keyof R> & R;

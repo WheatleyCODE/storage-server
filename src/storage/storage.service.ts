@@ -12,6 +12,8 @@ import {
   ItemDocument,
   ItemTypes,
   ObjectServices,
+  StorageCollectionsPopulated,
+  StorageItemTypes,
   StorageTransferData,
   TrackTransferData,
   UpdateStorageOptions,
@@ -119,11 +121,31 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
   }
 
   async delete(id: Types.ObjectId): Promise<StorageDocument & DeleteItems> {
-    throw new Error('Method not implemented.');
+    try {
+      const storage = await this.findByIdAndCheck(id);
+
+      for await (const itemType of StorageItemTypes) {
+        await this.objectServices[itemType].deleteByIds(
+          storage[getStorageCollectionName(itemType)],
+        );
+      }
+
+      const deletedStorage = await this.storageModel.findByIdAndDelete(id);
+
+      return Object.assign(deletedStorage, { deleteCount: 1, deleteItems: [deletedStorage._id] });
+    } catch (e) {
+      throw e;
+    }
   }
 
   async changeDiskSpace(id: Types.ObjectId, bytes: number): Promise<StorageDocument> {
-    throw new Error('Method not implemented.');
+    try {
+      const storage = await this.findByIdAndCheck(id);
+      storage.diskSpace = bytes;
+      return await storage.save();
+    } catch (e) {
+      throw e;
+    }
   }
 
   async changeUsedSpace(id: Types.ObjectId, bytes: number): Promise<StorageDocument> {
@@ -172,8 +194,22 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async searchItems(dto: SearchItemDto): Promise<StorageDocument[]> {
-    throw new Error('Method not implemented.');
+  async searchItems(dto: SearchItemDto): Promise<ItemDocument[]> {
+    try {
+      const { id, text } = dtoToOjbectId(dto, ['id']);
+      let allItems: ItemDocument[] = [];
+      const storage = await this.findByIdAndCheck(id);
+      const strg = await this.populateCollections(storage);
+
+      StorageItemTypes.forEach((itemType) => {
+        const collectionName = getStorageCollectionName(itemType);
+        allItems = [...allItems, ...strg[collectionName]];
+      });
+
+      return allItems.filter((item) => item.name.toLowerCase().includes(text.toLowerCase()));
+    } catch (e) {
+      throw e;
+    }
   }
 
   async changeLike(dto: ChangeLikeDto): Promise<ItemDocument> {
@@ -191,6 +227,20 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       return await storage.populate('folders');
     } catch (e) {
       throw e;
+    }
+  }
+
+  private async populateCollections(
+    storage: StorageDocument,
+  ): Promise<StorageCollectionsPopulated> {
+    try {
+      for await (const itemType of StorageItemTypes) {
+        await storage.populate<ItemDocument>(getStorageCollectionName(itemType));
+      }
+
+      return storage as any;
+    } catch (e) {
+      throw new HttpException('Ошибка при populateCollections', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

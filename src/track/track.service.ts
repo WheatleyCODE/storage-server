@@ -58,4 +58,8 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
   async getOneByIdToDto(correctId: any): Promise<TrackTransferData> {
     throw new Error('Method not implemented.');
   }
+
+  deleteByIds(ids: Types.ObjectId[]): Promise<TrackDocument[]> {
+    throw new Error('Method not implemented.');
+  }
 }
