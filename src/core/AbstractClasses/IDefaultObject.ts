@@ -52,11 +52,7 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
     }
   }
 
-  async changeLike(
-    id: Types.ObjectId,
-    user: Types.ObjectId,
-    isLike: boolean,
-  ): Promise<T> {
+  async changeLike(id: Types.ObjectId, user: Types.ObjectId, isLike: boolean): Promise<T> {
     try {
       const item: any = await this.findByIdAndCheck(id);
 
@@ -88,11 +84,7 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
   }
 
   // ! Локально расширить user?: Types.ObjectId
-  async changeStar(
-    id: Types.ObjectId,
-    isStar: boolean,
-    user?: Types.ObjectId,
-  ): Promise<T> {
+  async changeStar(id: Types.ObjectId, isStar: boolean, user?: Types.ObjectId): Promise<T> {
     try {
       const item: any = await this.findByIdAndCheck(id);
 
@@ -108,11 +100,7 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
   }
 
   // Todo добавить после прототипирования комментраиев
-  async addComment(
-    id: Types.ObjectId,
-    user: Types.ObjectId,
-    text: string,
-  ): Promise<T> {
+  async addComment(id: Types.ObjectId, user: Types.ObjectId, text: string): Promise<T> {
     throw new Error('Method not implemented.');
   }
 }

@@ -8,9 +8,7 @@ import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UserService extends IUserService<UserDocument, UpdateUserOptions> {
-  constructor(
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-  ) {
+  constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {
     super(userModel);
   }
 
@@ -19,10 +17,7 @@ export class UserService extends IUserService<UserDocument, UpdateUserOptions> {
       const user = await this.userModel.findOne({ email: options.email });
 
       if (user) {
-        throw new HttpException(
-          'Пользователь с таким Email уже существует',
-          HttpStatus.CONFLICT,
-        );
+        throw new HttpException('Пользователь с таким Email уже существует', HttpStatus.CONFLICT);
       }
 
       return await this.userModel.create({ ...options });
@@ -35,17 +30,11 @@ export class UserService extends IUserService<UserDocument, UpdateUserOptions> {
     try {
       return await this.userModel.findByIdAndDelete({ id });
     } catch (e) {
-      throw new HttpException(
-        'Ошибка при удалении пользователя',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('Ошибка при удалении пользователя', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async changeRole(
-    id: Types.ObjectId,
-    role: UserRoles[],
-  ): Promise<UserTransferData> {
+  async changeRole(id: Types.ObjectId, role: UserRoles[]): Promise<UserTransferData> {
     try {
       const user = await this.findByIdAndCheck(id);
       user.role = role;

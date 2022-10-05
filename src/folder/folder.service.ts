@@ -7,10 +7,7 @@ import { DeleteItems, FolderColors } from 'src/types';
 import { CreateFolderOptions, UpdateFolderOptions } from 'src/types/folder';
 
 @Injectable()
-export class FolderService extends IFolderService<
-  FolderDocument,
-  UpdateFolderOptions
-> {
+export class FolderService extends IFolderService<FolderDocument, UpdateFolderOptions> {
   private deleteCounter = 0;
   private deleteFolders: Types.ObjectId[] = [];
 
@@ -26,10 +23,7 @@ export class FolderService extends IFolderService<
       return await this.folderModel.create({ ...options });
     } catch (e) {
       console.log(e);
-      throw new HttpException(
-        'Ошибка при создании папки',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Ошибка при создании папки', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -64,17 +58,11 @@ export class FolderService extends IFolderService<
       return Object.assign(folder, deleteItems);
     } catch (e) {
       console.log(e);
-      throw new HttpException(
-        'Ошибка при удалении папки',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Ошибка при удалении папки', HttpStatus.BAD_REQUEST);
     }
   }
 
-  private async recDelFolders(
-    childs: FolderDocument[],
-    prevChild: FolderDocument,
-  ): Promise<void> {
+  private async recDelFolders(childs: FolderDocument[], prevChild: FolderDocument): Promise<void> {
     this.deleteCounter += 1;
 
     for await (const child of childs) {
@@ -94,10 +82,7 @@ export class FolderService extends IFolderService<
     }
   }
 
-  async addParent(
-    id: Types.ObjectId,
-    parent: Types.ObjectId,
-  ): Promise<FolderDocument> {
+  async changeParent(id: Types.ObjectId, parent: Types.ObjectId): Promise<FolderDocument> {
     try {
       const folder = await this.findByIdAndCheck(id);
       folder.parent = parent;
@@ -138,17 +123,11 @@ export class FolderService extends IFolderService<
     try {
       return await this.folderModel.find({ parent });
     } catch (e) {
-      throw new HttpException(
-        'Ошибка при поиске дочерних папок',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Ошибка при поиске дочерних папок', HttpStatus.BAD_REQUEST);
     }
   }
 
-  async changeColor(
-    id: Types.ObjectId,
-    color: FolderColors,
-  ): Promise<FolderDocument> {
+  async changeColor(id: Types.ObjectId, color: FolderColors): Promise<FolderDocument> {
     try {
       const folder = await this.findByIdAndCheck(id);
 

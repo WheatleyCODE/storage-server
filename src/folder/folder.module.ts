@@ -6,10 +6,7 @@ import { TokensModule } from 'src/tokens/tokens.module';
 import { Folder, FolderSchema } from './schemas/folder.schema';
 
 @Module({
-  imports: [
-    TokensModule,
-    MongooseModule.forFeature([{ name: Folder.name, schema: FolderSchema }]),
-  ],
+  imports: [TokensModule, MongooseModule.forFeature([{ name: Folder.name, schema: FolderSchema }])],
   providers: [FolderService],
   controllers: [FolderController],
   exports: [FolderService],

@@ -15,7 +15,7 @@ export abstract class IStorageService<T, O> extends IDefaultService<T, O> {
   abstract deleteItem(dto: AddDeleteItemDto): Promise<T>;
   abstract searchItems(dto: SearchItemDto): Promise<T[]>;
   abstract changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemDocument>;
-  abstract createAccessLink(dto: CreateAccessLinkDto): Promise<ItemDocument>;
+  abstract changeAccessLink(dto: CreateAccessLinkDto): Promise<ItemDocument>;
   abstract changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemDocument>;
   abstract changeLike(dto: ChangeLikeDto): Promise<ItemDocument>;
 }

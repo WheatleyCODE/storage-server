@@ -27,10 +27,7 @@ import { SearchItemDto } from './dto/SearchItem.dto';
 import { Storage, StorageDocument } from './schemas/storage.schema';
 
 @Injectable()
-export class StorageService extends IStorageService<
-  StorageDocument,
-  UpdateStorageOptions
-> {
+export class StorageService extends IStorageService<StorageDocument, UpdateStorageOptions> {
   private readonly objectServices: ObjectServices;
   constructor(
     @InjectModel(Storage.name)
@@ -95,17 +92,11 @@ export class StorageService extends IStorageService<
     throw new Error('Method not implemented.');
   }
 
-  async changeDiskSpace(
-    id: Types.ObjectId,
-    bytes: number,
-  ): Promise<StorageDocument> {
+  async changeDiskSpace(id: Types.ObjectId, bytes: number): Promise<StorageDocument> {
     throw new Error('Method not implemented.');
   }
 
-  async changeUsedSpace(
-    id: Types.ObjectId,
-    bytes: number,
-  ): Promise<StorageDocument> {
+  async changeUsedSpace(id: Types.ObjectId, bytes: number): Promise<StorageDocument> {
     try {
       const storage = await this.findByIdAndCheck(id);
       storage.usedSpace += bytes;
@@ -141,9 +132,7 @@ export class StorageService extends IStorageService<
 
       const delItems = deleteItems.map((ids) => ids.toString());
 
-      storage[collection] = storage[collection].filter(
-        (itm) => !delItems.includes(itm.toString()),
-      );
+      storage[collection] = storage[collection].filter((itm) => !delItems.includes(itm.toString()));
 
       // eslint-disable-next-line prettier/prettier
       storage.usedSpace -= deleteCount * this.objectServices[itemType].ITEM_WIEGTH;
@@ -179,16 +168,13 @@ export class StorageService extends IStorageService<
     try {
       const { id, accessType, itemType } = dtoToOjbectId(dto, ['id']);
 
-      return await this.objectServices[itemType].changeAccessType(
-        id,
-        accessType,
-      );
+      return await this.objectServices[itemType].changeAccessType(id, accessType);
     } catch (e) {
       throw e;
     }
   }
 
-  async createAccessLink(dto: CreateAccessLinkDto): Promise<ItemDocument> {
+  async changeAccessLink(dto: CreateAccessLinkDto): Promise<ItemDocument> {
     try {
       const { id, itemType } = dtoToOjbectId(dto, ['id']);
       return await this.objectServices[itemType].changeAccessLink(id);

@@ -1,9 +1,4 @@
-import {
-  ChangePassword,
-  ResetPassword,
-  AuthData,
-  TokensTransferData,
-} from 'src/types';
+import { ChangePassword, ResetPassword, AuthData, TokensTransferData } from 'src/types';
 import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -28,20 +23,14 @@ export class AuthController {
   }
 
   @Post('/login')
-  async login(
-    @Body() dto: LoginDto,
-    @Res() res: Response,
-  ): Promise<Response<AuthData>> {
+  async login(@Body() dto: LoginDto, @Res() res: Response): Promise<Response<AuthData>> {
     const userData = await this.authService.login(dto);
     setRefTokenInCookie(res, userData.refreshToken);
     return res.json(userData);
   }
 
   @Post('/logout')
-  async logout(
-    @Req() req: Request,
-    @Res() res: Response,
-  ): Promise<Response<TokensTransferData>> {
+  async logout(@Req() req: Request, @Res() res: Response): Promise<Response<TokensTransferData>> {
     const { refreshToken } = req.cookies;
     const token = await this.authService.logout(refreshToken);
     res.clearCookie('refreshToken');
@@ -54,10 +43,7 @@ export class AuthController {
   }
 
   @Get('/refresh')
-  async refresh(
-    @Req() req: Request,
-    @Res() res: Response,
-  ): Promise<Response<AuthData>> {
+  async refresh(@Req() req: Request, @Res() res: Response): Promise<Response<AuthData>> {
     const { refreshToken } = req.cookies;
     const userData = await this.authService.refresh(refreshToken);
     setRefTokenInCookie(res, userData.refreshToken);

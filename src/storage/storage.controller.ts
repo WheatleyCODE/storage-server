@@ -45,7 +45,7 @@ export class StorageController {
 
   @Post('/create/access-link')
   createAccessLink(@Body() dto: CreateAccessLinkDto): Promise<ItemDocument> {
-    return this.storageService.createAccessLink(dto);
+    return this.storageService.changeAccessLink(dto);
   }
 
   @Post('/change/like')

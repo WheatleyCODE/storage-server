@@ -9,10 +9,7 @@ export abstract class IToken {
     try {
       return this.jwtService.verify<UserTransferData>(token);
     } catch (e) {
-      throw new HttpException(
-        'Пользователь не авторизован (Token)',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Пользователь не авторизован (Token)', HttpStatus.UNAUTHORIZED);
     }
   }
 

@@ -11,10 +11,7 @@ export abstract class IDefaultService<T, O> extends IDefaultHelpers<T, O> {
   abstract create(options: { [key in keyof O]: any }): Promise<T>;
   abstract delete(id: Types.ObjectId): Promise<T & DeleteItems>;
 
-  async update(
-    id: Types.ObjectId,
-    options: { [key in keyof O]: any },
-  ): Promise<T> {
+  async update(id: Types.ObjectId, options: { [key in keyof O]: any }): Promise<T> {
     try {
       return await this.model.findByIdAndUpdate(id, options);
     } catch (e) {

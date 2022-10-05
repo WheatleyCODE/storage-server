@@ -12,9 +12,7 @@ import { AccessTokenService } from 'src/tokens/access-token/access-token.service
 export class JwtAuthGuard implements CanActivate {
   constructor(private accessTokenService: AccessTokenService) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     try {
       const req = context.switchToHttp().getRequest();
       const authHeader: string = req.headers.authorization || '';

@@ -9,11 +9,7 @@ import { ChangePassword, ResetPassword, AuthData } from 'src/types/auth';
 import { LoginDto } from './dto/Login.dto';
 import { UserDocument } from 'src/user/schemas/user.schema';
 import { StorageService } from 'src/storage/storage.service';
-import {
-  TokensTransferData,
-  UpdateUserOptions,
-  UserTransferData,
-} from 'src/types';
+import { TokensTransferData, UpdateUserOptions, UserTransferData } from 'src/types';
 import { getStorageName } from 'src/utils/getStorageName';
 
 @Injectable()
@@ -72,10 +68,7 @@ export class AuthService {
 
       const isPassEqueals = await bcrypt.compare(password, user.password);
       if (!isPassEqueals) {
-        throw new HttpException(
-          'Неверная почта или пароль',
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new HttpException('Неверная почта или пароль', HttpStatus.BAD_REQUEST);
       }
 
       return await this.getTokensAndAuthData(user);
@@ -129,10 +122,7 @@ export class AuthService {
   async refresh(refreshToken: string): Promise<AuthData> {
     try {
       if (!refreshToken) {
-        throw new HttpException(
-          'Пользователь не авторизован (Refresh)',
-          HttpStatus.UNAUTHORIZED,
-        );
+        throw new HttpException('Пользователь не авторизован (Refresh)', HttpStatus.UNAUTHORIZED);
       }
 
       const userTData = this.tokensService.validateRefreshToken(refreshToken);
@@ -147,8 +137,7 @@ export class AuthService {
 
       const user = await this.userService.getOneById(tokensDoc.user);
 
-      if (!user)
-        throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+      if (!user) throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
 
       return await this.getTokensAndAuthData(user);
     } catch (e) {
@@ -171,8 +160,7 @@ export class AuthService {
       await this.mailService.sendResetPasswordMail(email, link);
 
       return {
-        message:
-          'На вашу почту было оправлено письмо с ссылкой для сброса пароля',
+        message: 'На вашу почту было оправлено письмо с ссылкой для сброса пароля',
         email,
         status: HttpStatus.OK,
       };
@@ -181,10 +169,7 @@ export class AuthService {
     }
   }
 
-  async changePassword(
-    password: string,
-    resetPasswordLink: string,
-  ): Promise<ChangePassword> {
+  async changePassword(password: string, resetPasswordLink: string): Promise<ChangePassword> {
     try {
       const user = await this.getUserByAndCheck(
         { resetPasswordLink },
