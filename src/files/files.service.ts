@@ -31,7 +31,14 @@ export class FilesService {
     }
   }
 
-  async removeFile(file): Promise<any> {
-    throw new Error('Method not implemented.');
+  async removeFile(pathDB: string): Promise<boolean> {
+    try {
+      const filePath = path.resolve(__dirname, '..', 'static', pathDB);
+      fs.unlinkSync(filePath);
+
+      return true;
+    } catch (e) {
+      throw new HttpException('Ошибка при удалении файла', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

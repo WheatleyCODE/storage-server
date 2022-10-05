@@ -43,6 +43,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
     this.objectServices = {
       [ItemTypes.FOLDER]: folderService,
+      [ItemTypes.TRACK]: trackService,
     };
   }
 
@@ -65,7 +66,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       });
 
       await this.addItem({
-        id: dto.storage,
+        storage: dto.storage,
         item: folder._id,
         itemType: folder.type,
       });
@@ -92,7 +93,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       });
 
       await this.addItem({
-        id: dto.storage,
+        storage: dto.storage,
         item: track._id,
         itemType: track.type,
       });
@@ -160,13 +161,13 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async addItem(dto: AddDeleteItemDto): Promise<StorageDocument> {
     try {
-      const { id, item, itemType } = dtoToOjbectId(dto, ['id', 'item']);
+      const { storage, item, itemType } = dtoToOjbectId(dto, ['storage', 'item']);
 
-      const storage = await this.findByIdAndCheck(id);
+      const strg = await this.findByIdAndCheck(storage);
       const collection = getStorageCollectionName(itemType);
-      storage[collection].push(item);
-      storage.usedSpace += this.objectServices[itemType].ITEM_WIEGTH;
-      return storage.save();
+      strg[collection].push(item);
+      strg.usedSpace += this.objectServices[itemType].ITEM_WIEGTH;
+      return strg.save();
     } catch (e) {
       throw e;
     }
@@ -174,9 +175,9 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async deleteItem(dto: AddDeleteItemDto): Promise<StorageDocument> {
     try {
-      const { id, item, itemType } = dtoToOjbectId(dto, ['id', 'item']);
+      const { storage, item, itemType } = dtoToOjbectId(dto, ['storage', 'item']);
 
-      const storage = await this.findByIdAndCheck(id);
+      const strg = await this.findByIdAndCheck(storage);
       const collection = getStorageCollectionName(itemType);
 
       const delFolder = await this.objectServices[itemType].delete(item);
@@ -184,11 +185,10 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
       const delItems = deleteItems.map((ids) => ids.toString());
 
-      storage[collection] = storage[collection].filter((itm) => !delItems.includes(itm.toString()));
+      strg[collection] = strg[collection].filter((itm) => !delItems.includes(itm.toString()));
 
-      // eslint-disable-next-line prettier/prettier
-      storage.usedSpace -= deleteCount * this.objectServices[itemType].ITEM_WIEGTH;
-      return await storage.save();
+      strg.usedSpace -= deleteCount * this.objectServices[itemType].ITEM_WIEGTH;
+      return await strg.save();
     } catch (e) {
       throw e;
     }
@@ -196,14 +196,14 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async searchItems(dto: SearchItemDto): Promise<ItemDocument[]> {
     try {
-      const { id, text } = dtoToOjbectId(dto, ['id']);
+      const { storage, text } = dtoToOjbectId(dto, ['storage']);
       let allItems: ItemDocument[] = [];
-      const storage = await this.findByIdAndCheck(id);
-      const strg = await this.populateCollections(storage);
+      const strg = await this.findByIdAndCheck(storage);
+      const populatedStrg = await this.populateCollections(strg);
 
       StorageItemTypes.forEach((itemType) => {
         const collectionName = getStorageCollectionName(itemType);
-        allItems = [...allItems, ...strg[collectionName]];
+        allItems = [...allItems, ...populatedStrg[collectionName]];
       });
 
       return allItems.filter((item) => item.name.toLowerCase().includes(text.toLowerCase()));
@@ -214,8 +214,8 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async changeLike(dto: ChangeLikeDto): Promise<ItemDocument> {
     try {
-      const { id, user, itemType, isLike } = dtoToOjbectId(dto, ['id', 'user']);
-      return await this.objectServices[itemType].changeLike(id, user, isLike);
+      const { item, user, itemType, isLike } = dtoToOjbectId(dto, ['item', 'user']);
+      return await this.objectServices[itemType].changeLike(item, user, isLike);
     } catch (e) {
       throw e;
     }
@@ -246,9 +246,9 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemDocument> {
     try {
-      const { id, accessType, itemType } = dtoToOjbectId(dto, ['id']);
+      const { item, accessType, itemType } = dtoToOjbectId(dto, ['item']);
 
-      return await this.objectServices[itemType].changeAccessType(id, accessType);
+      return await this.objectServices[itemType].changeAccessType(item, accessType);
     } catch (e) {
       throw e;
     }
@@ -256,8 +256,8 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async changeAccessLink(dto: CreateAccessLinkDto): Promise<ItemDocument> {
     try {
-      const { id, itemType } = dtoToOjbectId(dto, ['id']);
-      return await this.objectServices[itemType].changeAccessLink(id);
+      const { item, itemType } = dtoToOjbectId(dto, ['item']);
+      return await this.objectServices[itemType].changeAccessLink(item);
     } catch (e) {
       throw e;
     }
@@ -265,8 +265,8 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemDocument> {
     try {
-      const { id, itemType, isTrash } = dtoToOjbectId(dto, ['id']);
-      return await this.objectServices[itemType].changeIsTrash(id, isTrash);
+      const { item, itemType, isTrash } = dtoToOjbectId(dto, ['item']);
+      return await this.objectServices[itemType].changeIsTrash(item, isTrash);
     } catch (e) {
       throw e;
     }
@@ -274,8 +274,8 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async addListen(dto: AddListenDto): Promise<ItemDocument> {
     try {
-      const { id, itemType } = dtoToOjbectId(dto, ['id']);
-      return await this.objectServices[itemType].addListen(id);
+      const { item, itemType } = dtoToOjbectId(dto, ['item']);
+      return await this.objectServices[itemType].addListen(item);
     } catch (e) {
       throw e;
     }
@@ -283,8 +283,8 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async changeOpenDate(dto: ChangeOpenDateDto): Promise<ItemDocument> {
     try {
-      const { id, itemType } = dtoToOjbectId(dto, ['id']);
-      return await this.objectServices[itemType].changeOpenDate(id);
+      const { item, itemType } = dtoToOjbectId(dto, ['item']);
+      return await this.objectServices[itemType].changeOpenDate(item);
     } catch (e) {
       throw e;
     }

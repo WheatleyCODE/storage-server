@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 import { FolderDocument } from 'src/folder/schemas/folder.schema';
 import { StorageDocument } from 'src/storage/schemas/storage.schema';
+import { TrackDocument } from 'src/track/schemas/track.schema';
 import { Modify } from './core';
 
 export type CreateStorageOptions = {
@@ -37,6 +38,7 @@ export class StorageTransferData {
 
 export type PopulatedCollections = {
   folders: FolderDocument[];
+  tracks: TrackDocument[];
 };
 
 export type StorageCollectionsPopulated = Modify<StorageDocument, PopulatedCollections>;

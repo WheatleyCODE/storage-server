@@ -2,11 +2,19 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document, Types } from 'mongoose';
 import { DefaultObjectSchema } from 'src/core';
+import { ItemTypes } from 'src/types';
 
 export type TrackDocument = Track & Document;
 
 @Schema()
 export class Track extends DefaultObjectSchema {
+  @ApiProperty({
+    example: 'FOLDER',
+    description: 'Тип Элемента хранилища | ItemTypes',
+  })
+  @Prop({ default: ItemTypes.TRACK, type: String })
+  type: ItemTypes;
+
   @ApiProperty({
     example: 'Oxxymiron',
     description: 'Автор трека',

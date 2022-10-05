@@ -8,7 +8,7 @@ export class RenameItemDto {
     description: 'ID Элемента хранилища | StorageItems',
   })
   @IsString({ message: 'Должно быть строкой' })
-  readonly id: Types.ObjectId;
+  readonly item: Types.ObjectId;
 
   @ApiProperty({
     example: 'Новая папка 2345',

@@ -40,6 +40,13 @@ export class Storage {
   })
   @Prop({ type: [Types.ObjectId], ref: 'Folder' })
   folders: Types.ObjectId[];
+
+  @ApiProperty({
+    example: '[507f191e810c19729de860ea]',
+    description: 'Треки в хранилище',
+  })
+  @Prop({ type: [Types.ObjectId], ref: 'Track' })
+  tracks: Types.ObjectId[];
 }
 
 export const StorageSchema = SchemaFactory.createForClass(Storage);

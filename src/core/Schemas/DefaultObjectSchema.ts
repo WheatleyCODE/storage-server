@@ -1,16 +1,9 @@
 import { Prop } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Types } from 'mongoose';
-import { AccessTypes, ItemTypes } from 'src/types';
+import { AccessTypes } from 'src/types';
 
 export class DefaultObjectSchema {
-  @ApiProperty({
-    example: 'FOLDER',
-    description: 'Тип Элемента хранилища | ItemTypes',
-  })
-  @Prop({ default: ItemTypes.FOLDER, type: String })
-  type: ItemTypes;
-
   @ApiProperty({
     example: '507f191e810c19729de860ea',
     description: 'ID Пользователя',

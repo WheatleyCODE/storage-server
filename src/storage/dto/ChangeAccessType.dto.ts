@@ -9,7 +9,7 @@ export class ChangeAccessTypeDto {
     description: 'ID Элемента хранилища | StorageItems',
   })
   @IsString({ message: 'Должно быть строкой' })
-  readonly id: Types.ObjectId;
+  readonly item: Types.ObjectId;
 
   @ApiProperty({
     example: 'FOLDER',

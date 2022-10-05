@@ -1,6 +1,8 @@
 import { Types } from 'mongoose';
 import { FolderService } from 'src/folder/folder.service';
 import { FolderDocument } from 'src/folder/schemas/folder.schema';
+import { TrackDocument } from 'src/track/schemas/track.schema';
+import { TrackService } from 'src/track/track.service';
 
 export type Pagination = { count: number; offset: number };
 
@@ -12,6 +14,7 @@ export enum AccessTypes {
 
 export enum ItemTypes {
   FOLDER = 'FOLDER',
+  TRACK = 'TRACK',
 }
 
 export enum FolderColors {
@@ -28,17 +31,18 @@ export enum UserRoles {
 
 export type ObjectServices = {
   [ItemTypes.FOLDER]: FolderService;
+  [ItemTypes.TRACK]: TrackService;
 };
 
-export type StorageCollectionNames = 'folders';
+export type StorageCollectionNames = 'folders' | 'tracks';
 
-export const StorageItemTypes: ItemTypes[] = [ItemTypes.FOLDER];
+export const StorageItemTypes: ItemTypes[] = [ItemTypes.FOLDER, ItemTypes.TRACK];
 
 export type DeleteItems = {
   deleteCount: number;
   deleteItems: Types.ObjectId[];
 };
 
-export type ItemDocument = FolderDocument;
+export type ItemDocument = FolderDocument | TrackDocument;
 
 export type Modify<T, R> = Omit<T, keyof R> & R;

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { TrackTransferData } from 'src/types';
 import { stringToOjbectId } from 'src/utils';
 import { TrackService } from './track.service';

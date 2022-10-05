@@ -8,7 +8,7 @@ export class SearchItemDto {
     description: 'ID Стораджа',
   })
   @IsString({ message: 'Должно быть строкой' })
-  readonly id: Types.ObjectId;
+  readonly storage: Types.ObjectId;
 
   @ApiProperty({
     example: 'Новая папк...',

@@ -9,7 +9,7 @@ export class AddDeleteItemDto {
     description: 'ID Стораджа',
   })
   @IsString({ message: 'Должно быть строкой' })
-  readonly id: Types.ObjectId;
+  readonly storage: Types.ObjectId;
 
   @ApiProperty({
     example: '507f191e810c19729de860ea',

@@ -1,7 +1,7 @@
 import { CreateTrackOptions, TrackTransferData } from './../types/track';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Document, Model, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ITrackService } from 'src/core/Interfaces/ITrackService';
 import { FilesService, FileType } from 'src/files/files.service';
 import { DeleteItems, ItemTypes, Pagination, UpdateTrackOptions } from 'src/types';
@@ -31,23 +31,36 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
     }
   }
 
-  changeImage(id: Types.ObjectId): Promise<TrackDocument> {
+  async delete(id: Types.ObjectId): Promise<TrackDocument & DeleteItems> {
+    try {
+      const deletedTrack = await this.trackModel.findByIdAndDelete(id);
+      await this.filesService.removeFile(deletedTrack.audio);
+      await this.filesService.removeFile(deletedTrack.image);
+
+      const deleteItems = {
+        deleteCount: 1,
+        deleteItems: [deletedTrack._id],
+      };
+
+      return Object.assign(deletedTrack, deleteItems);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeImage(id: Types.ObjectId): Promise<TrackDocument> {
     throw new Error('Method not implemented.');
   }
 
-  changeAudio(id: Types.ObjectId): Promise<TrackDocument> {
+  async changeAudio(id: Types.ObjectId): Promise<TrackDocument> {
     throw new Error('Method not implemented.');
   }
 
-  download(id: Types.ObjectId, type: ItemTypes): Promise<TrackDocument> {
+  async download(id: Types.ObjectId, type: ItemTypes): Promise<TrackDocument> {
     throw new Error('Method not implemented.');
   }
 
-  copy(id: Types.ObjectId, type: ItemTypes): Promise<TrackDocument> {
-    throw new Error('Method not implemented.');
-  }
-
-  delete(id: Types.ObjectId): Promise<Track & Document<any, any, any> & DeleteItems> {
+  async copy(id: Types.ObjectId, type: ItemTypes): Promise<TrackDocument> {
     throw new Error('Method not implemented.');
   }
 
@@ -59,7 +72,24 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
     throw new Error('Method not implemented.');
   }
 
-  deleteByIds(ids: Types.ObjectId[]): Promise<TrackDocument[]> {
-    throw new Error('Method not implemented.');
+  async deleteByIds(ids: Types.ObjectId[]): Promise<TrackDocument[]> {
+    try {
+      const deletedTracks: TrackDocument[] = [];
+
+      for await (const id of ids) {
+        const deleteTrack = await this.delete(id);
+        deleteTrack.deleteCount = undefined;
+        deleteTrack.deleteItems = undefined;
+
+        deletedTracks.push(deleteTrack);
+      }
+
+      return deletedTracks;
+    } catch (e) {
+      throw new HttpException(
+        'Ошибка при удалении треков по IDS',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
