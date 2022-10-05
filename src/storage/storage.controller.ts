@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CreateFolderDto } from 'src/folder/dto/CreateFolder.dto';
+import { CreateTrackDto } from 'src/track/dto/createTrackDto';
 import { ItemDocument, StorageTransferData } from 'src/types';
 import { FolderTransferData } from 'src/types/folder';
 import { stringToOjbectId } from 'src/utils';
@@ -26,6 +28,28 @@ export class StorageController {
   @Post('/create/folder')
   createFolder(@Body() dto: CreateFolderDto): Promise<FolderTransferData> {
     return this.storageService.createFolder(dto);
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // @Put(':id')
+  // updateOneTrack(@Param() param: { id: string }, @Body() dto: CreateTrackDto): Promise<TrackDocument> {
+  //   return this.trackService.updateOneTrack(param.id, dto);
+  // }
+
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'image', maxCount: 1 },
+      { name: 'audio', maxCount: 1 },
+    ]),
+  )
+  @Post('/create/track')
+  createTrack(
+    @UploadedFiles() files: { image?: Express.Multer.File[]; audio?: Express.Multer.File[] },
+    @Body() dto: CreateTrackDto,
+  ): Promise<any> {
+    const { image, audio } = files;
+    return this.storageService.createTrack(dto, image[0], audio[0]);
   }
 
   @Post('/delete/item')

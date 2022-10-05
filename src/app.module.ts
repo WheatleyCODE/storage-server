@@ -10,6 +10,7 @@ import { MailModule } from './mail/mail.module';
 import { StorageModule } from './storage/storage.module';
 import { AuthModule } from './auth/auth.module';
 import { FolderModule } from './folder/folder.module';
+import { TrackModule } from './track/track.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { FolderModule } from './folder/folder.module';
     StorageModule,
     AuthModule,
     FolderModule,
+    TrackModule,
   ],
   controllers: [AppController],
   providers: [],

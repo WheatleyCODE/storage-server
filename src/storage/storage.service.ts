@@ -4,7 +4,8 @@ import { Model, Types } from 'mongoose';
 import { IStorageService } from 'src/core';
 import { CreateFolderDto } from 'src/folder/dto/CreateFolder.dto';
 import { FolderService } from 'src/folder/folder.service';
-import { FolderDocument } from 'src/folder/schemas/folder.schema';
+import { CreateTrackDto } from 'src/track/dto/createTrackDto';
+import { TrackService } from 'src/track/track.service';
 import {
   CreateStorageOptions,
   DeleteItems,
@@ -12,6 +13,7 @@ import {
   ItemTypes,
   ObjectServices,
   StorageTransferData,
+  TrackTransferData,
   UpdateStorageOptions,
 } from 'src/types';
 import { FolderTransferData } from 'src/types/folder';
@@ -33,6 +35,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     @InjectModel(Storage.name)
     private readonly storageModel: Model<StorageDocument>,
     private readonly folderService: FolderService,
+    private readonly trackService: TrackService,
   ) {
     super(storageModel);
 
@@ -66,6 +69,33 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       });
 
       return new FolderTransferData(folder);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async createTrack(
+    dto: CreateTrackDto,
+    image: Express.Multer.File,
+    audio: Express.Multer.File,
+  ): Promise<any> {
+    try {
+      const correctDto = dtoToOjbectId(dto, ['user', 'parent', 'album']);
+      const track = await this.trackService.create({
+        ...correctDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+        image,
+        audio,
+      });
+
+      await this.addItem({
+        id: dto.storage,
+        item: track._id,
+        itemType: track.type,
+      });
+
+      return new TrackTransferData(track);
     } catch (e) {
       throw e;
     }
