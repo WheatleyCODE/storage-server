@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { TrackTransferData } from 'src/types';
 import { stringToOjbectId } from 'src/utils';
+import { Body, Param, Controller, Get, Post, Query, StreamableFile } from '@nestjs/common';
+import { TrackTransferData } from 'src/types';
+import { SearchTrackDto } from './dto/SerchTrack.dto';
 import { TrackService } from './track.service';
 
 @Controller('/api/track')
@@ -12,17 +13,15 @@ export class TrackController {
     @Query('count') count: number,
     @Query('offset') offset: number,
   ): Promise<TrackTransferData[]> {
-    return this.trackService.getAllToDto({ count, offset });
+    return this.trackService.getAllPublicTracks({ count, offset });
   }
 
-  @Get('/:id')
-  getOneTrack(@Param() param: { id: string }): Promise<TrackTransferData> {
-    const correctId = stringToOjbectId(param.id);
-    return this.trackService.getOneByIdToDto(correctId);
-  }
-
-  @Get('/search')
-  search(@Query('query') query: string): void {
-    throw new Error('Method not implemented.');
+  @Post('/search')
+  search(
+    @Query('count') count: number,
+    @Query('offset') offset: number,
+    @Body() dto: SearchTrackDto,
+  ): Promise<TrackTransferData[]> {
+    return this.trackService.searchPublicTracks(dto.text, { count, offset });
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { join } from 'path';
 import * as uuid from 'uuid';
 
 export enum FileType {
@@ -12,12 +13,7 @@ export enum FileType {
 export class FilesService {
   async createFile(type: FileType, file: Express.Multer.File): Promise<string> {
     try {
-      // Todo переписать на асинхронные методы
-
-      const randomString = uuid.v4();
-      const fileExtension = file.originalname.split('.').pop();
-      const fileName = `${randomString}.${fileExtension}`;
-      const filePath = path.resolve(__dirname, '..', 'static', type);
+      const { fileName, filePath } = this.generateFileName(file.originalname, type);
 
       if (!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, { recursive: true });
@@ -39,6 +35,61 @@ export class FilesService {
       return true;
     } catch (e) {
       throw new HttpException('Ошибка при удалении файла', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async changeFile(type: FileType, file: Express.Multer.File, pathDB: string): Promise<string> {
+    try {
+      const success = await this.removeFile(pathDB);
+
+      if (success) {
+        const path = await this.createFile(type, file);
+        return path;
+      }
+
+      throw new HttpException('Ошибка при изменении файла', HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private generateFileName(
+    prevFileName: string,
+    type: FileType,
+  ): { fileName: string; filePath: string } {
+    const randomString = uuid.v4();
+    const fileExtension = prevFileName.split('.').pop();
+    const fileName = `${randomString}.${fileExtension}`;
+    const filePath = path.resolve(__dirname, '..', 'static', type);
+
+    return {
+      fileName,
+      filePath,
+    };
+  }
+
+  async copyFile(pathDB: string, type: FileType): Promise<string> {
+    try {
+      const { fileName, filePath } = this.generateFileName(pathDB, type);
+      const srcPath = path.resolve(__dirname, '..', 'static', pathDB);
+      const destPath = path.resolve(filePath, fileName);
+
+      fs.copyFileSync(srcPath, destPath);
+
+      return type + '/' + fileName;
+    } catch (e) {
+      throw new HttpException('Ошибка при копировании файла', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async downloadFile(pathDB: string): Promise<fs.ReadStream> {
+    try {
+      const srcPath = path.resolve(__dirname, '..', 'static', pathDB);
+      const file = fs.createReadStream(srcPath);
+
+      return file;
+    } catch (e) {
+      throw new HttpException('Ошибка скачке файла', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

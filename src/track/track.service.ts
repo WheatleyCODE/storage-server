@@ -4,8 +4,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ITrackService } from 'src/core/Interfaces/ITrackService';
 import { FilesService, FileType } from 'src/files/files.service';
-import { DeleteItems, ItemTypes, Pagination, UpdateTrackOptions } from 'src/types';
+import { AccessTypes, DeleteItems, Pagination, UpdateTrackOptions } from 'src/types';
 import { Track, TrackDocument } from './schemas/track.schema';
+import { ReadStream } from 'fs';
 
 @Injectable()
 export class TrackService extends ITrackService<TrackDocument, UpdateTrackOptions> {
@@ -48,28 +49,90 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
     }
   }
 
-  async changeImage(id: Types.ObjectId): Promise<TrackDocument> {
-    throw new Error('Method not implemented.');
+  async searchPublicTracks(text: string, pag?: Pagination): Promise<TrackTransferData[]> {
+    try {
+      if (pag) {
+        const tracks = await this.trackModel.find({ name: text }).skip(pag.offset).limit(pag.count);
+        return tracks.map((track) => new TrackTransferData(track));
+      }
+
+      const tracks = await this.trackModel.find({ name: text });
+      return tracks.map((track) => new TrackTransferData(track));
+    } catch (e) {
+      throw new HttpException('Ошибка при поиске треков', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  async changeAudio(id: Types.ObjectId): Promise<TrackDocument> {
-    throw new Error('Method not implemented.');
+  async changeFile(
+    id: Types.ObjectId,
+    file: Express.Multer.File,
+    fileType: FileType,
+  ): Promise<TrackDocument> {
+    try {
+      const track = await this.findByIdAndCheck(id);
+
+      if (!track[fileType])
+        throw new HttpException('Ошибка при изменении файла', HttpStatus.BAD_REQUEST);
+
+      const newPath = await this.filesService.changeFile(fileType, file, track[fileType]);
+      track[fileType] = newPath;
+      return track.save();
+    } catch (e) {
+      throw e;
+    }
   }
 
-  async download(id: Types.ObjectId, type: ItemTypes): Promise<TrackDocument> {
-    throw new Error('Method not implemented.');
+  async copy(id: Types.ObjectId): Promise<TrackDocument> {
+    try {
+      const track = await this.findByIdAndCheck(id);
+      const { user, name, author, isTrash, text } = track;
+
+      const imageNewPath = await this.filesService.copyFile(track.image, FileType.IMAGE);
+      const audioNewPath = await this.filesService.copyFile(track.audio, FileType.AUDIO);
+
+      return await this.trackModel.create({
+        user,
+        name: `${name} copy`,
+        author,
+        text,
+        isTrash,
+        audio: imageNewPath,
+        image: audioNewPath,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+      });
+    } catch (e) {
+      throw e;
+    }
   }
 
-  async copy(id: Types.ObjectId, type: ItemTypes): Promise<TrackDocument> {
-    throw new Error('Method not implemented.');
+  async download(id: Types.ObjectId): Promise<ReadStream> {
+    try {
+      const track = await this.findByIdAndCheck(id);
+      const file = await this.filesService.download(track.audio);
+      return file;
+    } catch (e) {
+      throw e;
+    }
   }
 
-  async getAllToDto(pag: Pagination): Promise<TrackTransferData[]> {
-    throw new Error('Method not implemented.');
-  }
+  async getAllPublicTracks(pag?: Pagination): Promise<TrackTransferData[]> {
+    try {
+      if (pag) {
+        const tracks = await this.trackModel
+          .find({ type: AccessTypes.PUBLIC })
+          .skip(pag.offset)
+          .limit(pag.count);
 
-  async getOneByIdToDto(correctId: any): Promise<TrackTransferData> {
-    throw new Error('Method not implemented.');
+        return tracks.map((track) => new TrackTransferData(track));
+      }
+
+      const tracks = await this.trackModel.find({ type: AccessTypes.PUBLIC });
+
+      return tracks.map((track) => new TrackTransferData(track));
+    } catch (e) {
+      throw new HttpException('Ошибка при поиске треков', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async deleteByIds(ids: Types.ObjectId[]): Promise<TrackDocument[]> {
