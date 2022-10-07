@@ -10,7 +10,9 @@ import {
   CreateStorageOptions,
   DeleteItems,
   ItemDocument,
+  ItemFileTypes,
   ItemTypes,
+  ObjectFileServices,
   ObjectServices,
   StorageCollectionsPopulated,
   StorageItemTypes,
@@ -30,10 +32,13 @@ import { ChangeOpenDateDto } from './dto/ChangeOpenDate.dto';
 import { CreateAccessLinkDto } from './dto/CreateAccessLink.dto';
 import { SearchItemDto } from './dto/SearchItem.dto';
 import { Storage, StorageDocument } from './schemas/storage.schema';
+import { CopyFileDto } from './dto/CopyFile.dto';
 
 @Injectable()
 export class StorageService extends IStorageService<StorageDocument, UpdateStorageOptions> {
   private readonly objectServices: ObjectServices;
+  private readonly objectFileServices: ObjectFileServices;
+
   constructor(
     @InjectModel(Storage.name)
     private readonly storageModel: Model<StorageDocument>,
@@ -46,12 +51,35 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       [ItemTypes.FOLDER]: folderService,
       [ItemTypes.TRACK]: trackService,
     };
+
+    this.objectFileServices = {
+      [ItemFileTypes.TRACK]: trackService,
+    };
   }
 
   async getStorage(user: Types.ObjectId): Promise<StorageTransferData> {
     try {
       const storage = await this.getOneByAndCheck({ user });
       return new StorageTransferData(storage);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async copyFile(dto: CopyFileDto): Promise<ItemDocument> {
+    try {
+      const { storage, item, itemType } = dtoToOjbectId(dto, ['item', 'storage']);
+
+      const strg = await this.findByIdAndCheck(storage);
+
+      const newItemFile = await this.objectFileServices[itemType].copy(item);
+      const collection = getStorageCollectionName(itemType);
+
+      strg[collection].push(newItemFile._id);
+      strg.usedSpace += newItemFile.size;
+
+      await strg.save();
+      return newItemFile;
     } catch (e) {
       throw e;
     }

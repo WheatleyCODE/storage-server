@@ -15,6 +15,10 @@ export enum ItemTypes {
   TRACK = 'TRACK',
 }
 
+export enum ItemFileTypes {
+  TRACK = 'TRACK',
+}
+
 export enum FolderColors {
   GREY = 'GREY',
   RED = 'RED',
@@ -29,6 +33,10 @@ export enum UserRoles {
 
 export type ObjectServices = {
   [ItemTypes.FOLDER]: FolderService;
+  [ItemTypes.TRACK]: TrackService;
+};
+
+export type ObjectFileServices = {
   [ItemTypes.TRACK]: TrackService;
 };
 

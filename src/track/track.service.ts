@@ -92,25 +92,29 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
     }
   }
 
-  async copy(id: Types.ObjectId): Promise<TrackDocument> {
+  async copy(id: Types.ObjectId): Promise<TrackDocument & { size: number }> {
     try {
       const track = await this.findByIdAndCheck(id);
-      const { user, name, author, isTrash, text } = track;
+      const { user, name, author, isTrash, text, imageSize, audioSize } = track;
 
       const imageNewPath = await this.filesService.copyFile(track.image, FileType.IMAGE);
       const audioNewPath = await this.filesService.copyFile(track.audio, FileType.AUDIO);
 
-      return await this.trackModel.create({
+      const newTrack = await this.trackModel.create({
         user,
         name: `${name} copy`,
         author,
         text,
+        imageSize,
+        audioSize,
         isTrash,
         audio: imageNewPath,
         image: audioNewPath,
         creationDate: Date.now(),
         openDate: Date.now(),
       });
+
+      return Object.assign(newTrack, { size: audioSize + (imageSize || 0) });
     } catch (e) {
       throw e;
     }

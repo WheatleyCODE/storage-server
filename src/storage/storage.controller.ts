@@ -17,6 +17,7 @@ import { CreateStorageDto } from './dto/CreateStorage.dto';
 import { SearchItemDto } from './dto/SearchItem.dto';
 import { StorageDocument } from './schemas/storage.schema';
 import { StorageService } from './storage.service';
+import { CopyFileDto } from './dto/CopyFile.dto';
 
 @Controller('/api/storage')
 export class StorageController {
@@ -73,6 +74,11 @@ export class StorageController {
       files?.audio && files.audio[0],
       files?.image && files.image[0],
     );
+  }
+
+  @Post('/copy/file')
+  copyFile(@Body() dto: CopyFileDto): Promise<ItemDocument> {
+    return this.storageService.copyFile(dto);
   }
 
   @Post('/change/trash')
