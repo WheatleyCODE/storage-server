@@ -14,8 +14,10 @@ export type CreateTrackOptions = {
   openDate: number;
   author: string;
   text: string;
-  image: Express.Multer.File;
+  image?: Express.Multer.File;
+  imageSize?: number;
   audio: Express.Multer.File;
+  audioSize: number;
 };
 
 export type UpdateTrackOptions = {
@@ -31,7 +33,9 @@ export type UpdateTrackOptions = {
   author?: string;
   text?: string;
   image?: Express.Multer.File;
+  imageSize?: number;
   audio?: Express.Multer.File;
+  audioSize?: number;
 };
 
 export class TrackTransferData {
@@ -51,7 +55,9 @@ export class TrackTransferData {
   readonly author: string;
   readonly text: string;
   readonly image: string;
+  readonly imageSize: number;
   readonly audio: string;
+  readonly audioSize: number;
 
   constructor(trackDocument: TrackDocument) {
     this.id = trackDocument._id;
@@ -70,6 +76,8 @@ export class TrackTransferData {
     this.author = trackDocument.author;
     this.text = trackDocument.text;
     this.image = trackDocument.image;
+    this.imageSize = trackDocument.imageSize;
     this.audio = trackDocument.audio;
+    this.audioSize = trackDocument.audioSize;
   }
 }

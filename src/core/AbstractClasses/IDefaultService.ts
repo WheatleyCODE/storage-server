@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
-import { DeleteItems, Pagination } from 'src/types';
+import { DeleteItems } from 'src/types';
 import { IDefaultHelpers } from './IDefaultHelpers';
 
 export abstract class IDefaultService<T, O> extends IDefaultHelpers<T, O> {
@@ -36,11 +36,9 @@ export abstract class IDefaultService<T, O> extends IDefaultHelpers<T, O> {
     }
   }
 
-  async getAll(pag?: Pagination): Promise<T[]> {
+  async getAll(count = 10, offset = 0): Promise<T[]> {
     try {
-      if (pag) return await this.model.find().skip(pag.offset).limit(pag.count);
-
-      return await this.model.find();
+      return await this.model.find().skip(offset).limit(count);
     } catch (e) {
       throw new HttpException(
         `Ошибка при getAll, ${this.model.modelName}`,

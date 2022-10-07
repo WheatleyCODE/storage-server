@@ -37,11 +37,25 @@ export class Track extends DefaultObjectSchema {
   image: string;
 
   @ApiProperty({
+    example: 123456,
+    description: 'Вес картинки',
+  })
+  @Prop({ type: Number })
+  imageSize: number;
+
+  @ApiProperty({
     example: 'static/audio/fsad-sdsa.mp4',
     description: 'Путь к аудио на сервере',
   })
   @Prop({ required: true, type: String })
   audio: string;
+
+  @ApiProperty({
+    example: 123456,
+    description: 'Вес аудио',
+  })
+  @Prop({ required: true, type: Number })
+  audioSize: number;
 
   @ApiProperty({
     example: '507f191e810c19729de860ea',

@@ -23,6 +23,7 @@ import { dtoToOjbectId, getStorageCollectionName } from 'src/utils';
 import { AddDeleteItemDto } from './dto/AddDeleteItem.dto';
 import { AddListenDto } from './dto/AddListen.dto';
 import { ChangeAccessTypeDto } from './dto/ChangeAccessType.dto';
+import { ChangeTrackFilesDto } from './dto/ChangeTrackFiles.dto';
 import { ChangeIsTrashDto } from './dto/ChangeIsTrash.dto';
 import { ChangeLikeDto } from './dto/ChangeLike.dto';
 import { ChangeOpenDateDto } from './dto/ChangeOpenDate.dto';
@@ -79,9 +80,9 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async createTrack(
     dto: CreateTrackDto,
-    image: Express.Multer.File,
     audio: Express.Multer.File,
-  ): Promise<any> {
+    image?: Express.Multer.File,
+  ): Promise<TrackTransferData> {
     try {
       const correctDto = dtoToOjbectId(dto, ['user', 'parent', 'album']);
       const track = await this.trackService.create({
@@ -89,16 +90,50 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
         creationDate: Date.now(),
         openDate: Date.now(),
         image,
+        imageSize: image?.size,
         audio,
+        audioSize: audio.size,
       });
 
-      await this.addItem({
-        storage: dto.storage,
-        item: track._id,
-        itemType: track.type,
-      });
+      let size = audio.size;
+      if (image?.size) size += image.size;
+
+      await this.addItem(
+        {
+          storage: dto.storage,
+          item: track._id,
+          itemType: track.type,
+        },
+        size,
+      );
 
       return new TrackTransferData(track);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeTrackFiles(
+    dto: ChangeTrackFilesDto,
+    audio?: Express.Multer.File,
+    image?: Express.Multer.File,
+  ): Promise<TrackTransferData> {
+    try {
+      const { track, storage } = dtoToOjbectId(dto, ['track', 'storage']);
+      const strg = await this.findByIdAndCheck(storage);
+      const prevTrack = await this.trackService.getOneById(track);
+
+      if (!prevTrack) throw new HttpException('Трек не найден', HttpStatus.BAD_REQUEST);
+
+      const newTrack = await this.trackService.changeFiles(track, audio, image);
+      const prevSize = prevTrack.audioSize + (prevTrack.imageSize || 0);
+      const newSize = newTrack.audioSize + (newTrack.imageSize || 0);
+
+      strg.usedSpace -= prevSize;
+      strg.usedSpace += newSize;
+      await strg.save();
+
+      return new TrackTransferData(newTrack);
     } catch (e) {
       throw e;
     }
@@ -132,8 +167,13 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       }
 
       const deletedStorage = await this.storageModel.findByIdAndDelete(id);
+      const deleteItem = {
+        deleteCount: 1,
+        deleteItems: [deletedStorage._id],
+        deleteSize: storage.usedSpace,
+      };
 
-      return Object.assign(deletedStorage, { deleteCount: 1, deleteItems: [deletedStorage._id] });
+      return Object.assign(deletedStorage, deleteItem);
     } catch (e) {
       throw e;
     }
@@ -159,14 +199,15 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async addItem(dto: AddDeleteItemDto): Promise<StorageDocument> {
+  async addItem(dto: AddDeleteItemDto, size?: number): Promise<StorageDocument> {
     try {
       const { storage, item, itemType } = dtoToOjbectId(dto, ['storage', 'item']);
 
       const strg = await this.findByIdAndCheck(storage);
       const collection = getStorageCollectionName(itemType);
       strg[collection].push(item);
-      strg.usedSpace += this.objectServices[itemType].ITEM_WIEGTH;
+      strg.usedSpace += size || this.objectServices[itemType].ITEM_WIEGTH;
+
       return strg.save();
     } catch (e) {
       throw e;
@@ -178,19 +219,56 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       const { storage, item, itemType } = dtoToOjbectId(dto, ['storage', 'item']);
 
       const strg = await this.findByIdAndCheck(storage);
+      const prevFolderCount = strg.folders.length;
       const collection = getStorageCollectionName(itemType);
 
-      const delFolder = await this.objectServices[itemType].delete(item);
-      const { deleteCount, deleteItems } = delFolder;
+      const delItem = await this.objectServices[itemType].delete(item);
+      const { deleteItems, deleteSize } = delItem;
 
       const delItems = deleteItems.map((ids) => ids.toString());
 
       strg[collection] = strg[collection].filter((itm) => !delItems.includes(itm.toString()));
 
-      strg.usedSpace -= deleteCount * this.objectServices[itemType].ITEM_WIEGTH;
+      strg.usedSpace -= deleteSize;
+
+      if (prevFolderCount > strg.folders.length) {
+        await strg.save();
+
+        const stg = await this.checkParentsAndDelete(strg._id);
+        return stg;
+      }
+
       return await strg.save();
     } catch (e) {
       throw e;
+    }
+  }
+
+  async checkParentsAndDelete(storage: Types.ObjectId): Promise<StorageDocument> {
+    try {
+      const deletedTracks: Types.ObjectId[] = [];
+
+      let size = 0;
+      const strg = await this.findByIdAndCheck(storage);
+
+      for await (const id of strg.tracks) {
+        const track = await this.trackService.getOneById(id);
+        const parent = await this.trackService.getOneBy({ parent: track._id });
+
+        if (!parent) {
+          const deletedTrack = await this.trackService.delete(track._id);
+          deletedTracks.push(deletedTrack._id);
+          size += deletedTrack.deleteSize;
+        }
+      }
+
+      const delTracks = deletedTracks.map((ids) => ids.toString());
+      strg.tracks = strg.tracks.filter((itm) => !delTracks.includes(itm.toString()));
+
+      strg.usedSpace -= size;
+      return await strg.save();
+    } catch (e) {
+      throw new HttpException('Ошибка при проверки родителей', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

@@ -40,6 +40,11 @@ export class FilesService {
 
   async changeFile(type: FileType, file: Express.Multer.File, pathDB: string): Promise<string> {
     try {
+      if (!pathDB) {
+        const path = await this.createFile(type, file);
+        return path;
+      }
+
       const success = await this.removeFile(pathDB);
 
       if (success) {

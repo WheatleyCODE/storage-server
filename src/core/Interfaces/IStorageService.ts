@@ -13,7 +13,7 @@ export abstract class IStorageService<T, O> extends IDefaultService<T, O> {
   abstract changeUsedSpace(id: Types.ObjectId, bytes: number): Promise<T>;
   abstract addItem(dto: AddDeleteItemDto): Promise<T>;
   abstract deleteItem(dto: AddDeleteItemDto): Promise<T>;
-  abstract searchItems(dto: SearchItemDto): Promise<ItemDocument[]>;
+  abstract searchItems(dto: SearchItemDto, size?: number): Promise<ItemDocument[]>;
   abstract changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemDocument>;
   abstract changeAccessLink(dto: CreateAccessLinkDto): Promise<ItemDocument>;
   abstract changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemDocument>;

@@ -4,8 +4,6 @@ import { FolderDocument } from 'src/folder/schemas/folder.schema';
 import { TrackDocument } from 'src/track/schemas/track.schema';
 import { TrackService } from 'src/track/track.service';
 
-export type Pagination = { count: number; offset: number };
-
 export enum AccessTypes {
   PRIVATE = 'PRIVATE',
   PUBLIC = 'PUBLIC',
@@ -41,6 +39,7 @@ export const StorageItemTypes: ItemTypes[] = [ItemTypes.FOLDER, ItemTypes.TRACK]
 export type DeleteItems = {
   deleteCount: number;
   deleteItems: Types.ObjectId[];
+  deleteSize: number;
 };
 
 export type ItemDocument = FolderDocument | TrackDocument;

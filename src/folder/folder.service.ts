@@ -8,9 +8,6 @@ import { CreateFolderOptions, UpdateFolderOptions } from 'src/types/folder';
 
 @Injectable()
 export class FolderService extends IFolderService<FolderDocument, UpdateFolderOptions> {
-  private deleteCounter = 0;
-  private deleteFolders: Types.ObjectId[] = [];
-
   constructor(
     @InjectModel(Folder.name)
     private readonly folderModel: Model<FolderDocument>,
@@ -22,42 +19,42 @@ export class FolderService extends IFolderService<FolderDocument, UpdateFolderOp
     try {
       return await this.folderModel.create({ ...options });
     } catch (e) {
-      console.log(e);
       throw new HttpException('Ошибка при создании папки', HttpStatus.BAD_REQUEST);
     }
   }
-
   async delete(id: Types.ObjectId): Promise<FolderDocument & DeleteItems> {
     try {
-      const children = await this.folderModel.find({
-        parent: id,
-      });
+      const deletedFolders: Types.ObjectId[] = [];
 
-      const folder = await this.folderModel.findById(id);
+      const firstFolder = await this.findByIdAndCheck(id);
+      deletedFolders.push(firstFolder._id);
 
-      if (children.length === 0) {
-        const deletedFolder: FolderDocument = await folder.delete();
-        const deleteItems = {
-          deleteCount: 1,
-          deleteItems: [deletedFolder._id],
-        };
+      const firstChildrens = await this.folderModel.find({ parent: id });
 
-        return Object.assign(deletedFolder, deleteItems);
-      }
+      const reqDel = async (childrens: FolderDocument[]) => {
+        for await (const children of childrens) {
+          deletedFolders.push(children._id);
 
-      await this.recDelFolders(children, folder);
+          const childs = await this.folderModel.find({ parent: children._id });
 
-      const deleteItems = {
-        deleteCount: this.deleteCounter,
-        deleteItems: this.deleteFolders,
+          if (childs.length !== 0) {
+            await reqDel(childs);
+          }
+        }
       };
 
-      this.deleteCounter = 0;
-      this.deleteFolders = [];
+      await reqDel(firstChildrens);
 
-      return Object.assign(folder, deleteItems);
+      await this.deleteByIds(deletedFolders);
+
+      const deleteItem = {
+        deleteCount: deletedFolders.length,
+        deleteItems: deletedFolders,
+        deleteSize: deletedFolders.length * this.ITEM_WIEGTH,
+      };
+
+      return Object.assign(firstFolder, deleteItem);
     } catch (e) {
-      console.log(e);
       throw new HttpException('Ошибка при удалении папки', HttpStatus.BAD_REQUEST);
     }
   }
@@ -74,26 +71,6 @@ export class FolderService extends IFolderService<FolderDocument, UpdateFolderOp
       return deleteFolders;
     } catch (e) {
       throw e;
-    }
-  }
-
-  private async recDelFolders(childs: FolderDocument[], prevChild: FolderDocument): Promise<void> {
-    this.deleteCounter += 1;
-
-    for await (const child of childs) {
-      const newChilds = await this.folderModel.find({
-        parent: new Types.ObjectId(child._id),
-      });
-
-      this.recDelFolders(newChilds, child);
-
-      if (newChilds.length === 0) {
-        this.deleteFolders.push(child._id);
-        this.deleteFolders.push(prevChild._id);
-
-        child.delete();
-        prevChild.delete();
-      }
     }
   }
 

@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ITrackService } from 'src/core/Interfaces/ITrackService';
 import { FilesService, FileType } from 'src/files/files.service';
-import { AccessTypes, DeleteItems, Pagination, UpdateTrackOptions } from 'src/types';
+import { AccessTypes, DeleteItems, UpdateTrackOptions } from 'src/types';
 import { Track, TrackDocument } from './schemas/track.schema';
 import { ReadStream } from 'fs';
 
@@ -19,7 +19,11 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
 
   async create(options: CreateTrackOptions): Promise<TrackDocument> {
     try {
-      const pathImage = await this.filesService.createFile(FileType.IMAGE, options.image);
+      let pathImage: string;
+
+      if (options.image)
+        pathImage = await this.filesService.createFile(FileType.IMAGE, options.image);
+
       const pathAudio = await this.filesService.createFile(FileType.AUDIO, options.audio);
 
       return await this.trackModel.create({
@@ -41,6 +45,7 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
       const deleteItems = {
         deleteCount: 1,
         deleteItems: [deletedTrack._id],
+        deleteSize: deletedTrack.audioSize + (deletedTrack.imageSize || 0),
       };
 
       return Object.assign(deletedTrack, deleteItems);
@@ -49,33 +54,38 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
     }
   }
 
-  async searchPublicTracks(text: string, pag?: Pagination): Promise<TrackTransferData[]> {
+  async searchPublicTracks(text: string, count = 10, offset = 0): Promise<TrackTransferData[]> {
     try {
-      if (pag) {
-        const tracks = await this.trackModel.find({ name: text }).skip(pag.offset).limit(pag.count);
-        return tracks.map((track) => new TrackTransferData(track));
-      }
-
-      const tracks = await this.trackModel.find({ name: text });
+      const tracks = await this.trackModel
+        .find({ name: { $regex: new RegExp(text, 'i') } })
+        .skip(offset)
+        .limit(count);
       return tracks.map((track) => new TrackTransferData(track));
     } catch (e) {
       throw new HttpException('Ошибка при поиске треков', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async changeFile(
+  async changeFiles(
     id: Types.ObjectId,
-    file: Express.Multer.File,
-    fileType: FileType,
+    audio?: Express.Multer.File,
+    image?: Express.Multer.File,
   ): Promise<TrackDocument> {
     try {
       const track = await this.findByIdAndCheck(id);
 
-      if (!track[fileType])
-        throw new HttpException('Ошибка при изменении файла', HttpStatus.BAD_REQUEST);
+      if (audio) {
+        const newPathAudio = await this.filesService.changeFile(FileType.AUDIO, audio, track.audio);
+        track.audio = newPathAudio;
+        track.audioSize = audio.size;
+      }
 
-      const newPath = await this.filesService.changeFile(fileType, file, track[fileType]);
-      track[fileType] = newPath;
+      if (image) {
+        const newPathImage = await this.filesService.changeFile(FileType.IMAGE, image, track.image);
+        track.image = newPathImage;
+        track.imageSize = image.size;
+      }
+
       return track.save();
     } catch (e) {
       throw e;
@@ -109,25 +119,19 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
   async download(id: Types.ObjectId): Promise<ReadStream> {
     try {
       const track = await this.findByIdAndCheck(id);
-      const file = await this.filesService.download(track.audio);
+      const file = await this.filesService.downloadFile(track.audio);
       return file;
     } catch (e) {
       throw e;
     }
   }
 
-  async getAllPublicTracks(pag?: Pagination): Promise<TrackTransferData[]> {
+  async getAllPublicTracks(count = 10, offset = 0): Promise<TrackTransferData[]> {
     try {
-      if (pag) {
-        const tracks = await this.trackModel
-          .find({ type: AccessTypes.PUBLIC })
-          .skip(pag.offset)
-          .limit(pag.count);
-
-        return tracks.map((track) => new TrackTransferData(track));
-      }
-
-      const tracks = await this.trackModel.find({ type: AccessTypes.PUBLIC });
+      const tracks = await this.trackModel
+        .find({ accessType: AccessTypes.PUBLIC })
+        .skip(offset)
+        .limit(count);
 
       return tracks.map((track) => new TrackTransferData(track));
     } catch (e) {

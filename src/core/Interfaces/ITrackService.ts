@@ -1,14 +1,17 @@
 import { Types } from 'mongoose';
-import { FileType } from 'src/files/files.service';
-import { Pagination, TrackTransferData } from 'src/types';
+import { TrackTransferData } from 'src/types';
 import { IDefaultFile } from '../AbstractClasses/IDefaultFile';
 
 export abstract class ITrackService<T, O> extends IDefaultFile<T, O> {
-  abstract changeFile(
+  abstract changeFiles(
     id: Types.ObjectId,
-    image: Express.Multer.File,
-    fileType: FileType,
+    audio?: Express.Multer.File,
+    image?: Express.Multer.File,
   ): Promise<T>;
-  abstract getAllPublicTracks(pag?: Pagination): Promise<TrackTransferData[]>;
-  abstract searchPublicTracks(text: string, pag?: Pagination): Promise<TrackTransferData[]>;
+  abstract getAllPublicTracks(count: number, offset: number): Promise<TrackTransferData[]>;
+  abstract searchPublicTracks(
+    text: string,
+    count: number,
+    offset: number,
+  ): Promise<TrackTransferData[]>;
 }
