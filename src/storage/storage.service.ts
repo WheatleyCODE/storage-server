@@ -33,6 +33,9 @@ import { CreateAccessLinkDto } from './dto/CreateAccessLink.dto';
 import { SearchItemDto } from './dto/SearchItem.dto';
 import { Storage, StorageDocument } from './schemas/storage.schema';
 import { CopyFileDto } from './dto/CopyFile.dto';
+import { CreateFileDto } from 'src/file/dto/CreateFileDto';
+import { FileTransferData } from 'src/types/file';
+import { FileService } from 'src/file/file.service';
 
 @Injectable()
 export class StorageService extends IStorageService<StorageDocument, UpdateStorageOptions> {
@@ -44,16 +47,19 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     private readonly storageModel: Model<StorageDocument>,
     private readonly folderService: FolderService,
     private readonly trackService: TrackService,
+    private readonly fileService: FileService,
   ) {
     super(storageModel);
 
     this.objectServices = {
       [ItemTypes.FOLDER]: folderService,
       [ItemTypes.TRACK]: trackService,
+      [ItemTypes.FILE]: fileService,
     };
 
     this.objectFileServices = {
       [ItemFileTypes.TRACK]: trackService,
+      [ItemFileTypes.FILE]: fileService,
     };
   }
 
@@ -101,6 +107,33 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       });
 
       return new FolderTransferData(folder);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async createFile(dto: CreateFileDto, file: Express.Multer.File): Promise<FileTransferData> {
+    try {
+      const correctDto = dtoToOjbectId(dto, ['user', 'parent']);
+
+      const fileDoc = await this.fileService.create({
+        ...correctDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+        file,
+        fileSize: file.size,
+      });
+
+      await this.addItem(
+        {
+          storage: dto.storage,
+          item: fileDoc._id,
+          itemType: fileDoc.type,
+        },
+        fileDoc.fileSize,
+      );
+
+      return new FileTransferData(fileDoc);
     } catch (e) {
       throw e;
     }

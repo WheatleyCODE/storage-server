@@ -39,6 +39,9 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
   async delete(id: Types.ObjectId): Promise<TrackDocument & DeleteItems> {
     try {
       const deletedTrack = await this.trackModel.findByIdAndDelete(id);
+
+      if (!deletedTrack) throw new HttpException('Трек не найден', HttpStatus.BAD_REQUEST);
+
       await this.filesService.removeFile(deletedTrack.audio);
       await this.filesService.removeFile(deletedTrack.image);
 
@@ -86,7 +89,7 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
         track.imageSize = image.size;
       }
 
-      return track.save();
+      return await track.save();
     } catch (e) {
       throw e;
     }

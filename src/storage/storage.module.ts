@@ -6,6 +6,7 @@ import { Storage, StorageSchema } from './schemas/storage.schema';
 import { TokensModule } from 'src/tokens/tokens.module';
 import { FolderModule } from 'src/folder/folder.module';
 import { TrackModule } from 'src/track/track.module';
+import { FileModule } from 'src/file/file.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { TrackModule } from 'src/track/track.module';
     MongooseModule.forFeature([{ name: Storage.name, schema: StorageSchema }]),
     FolderModule,
     TrackModule,
+    FileModule,
   ],
   providers: [StorageService],
   controllers: [StorageController],

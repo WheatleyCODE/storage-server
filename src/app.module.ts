@@ -11,6 +11,7 @@ import { StorageModule } from './storage/storage.module';
 import { AuthModule } from './auth/auth.module';
 import { FolderModule } from './folder/folder.module';
 import { TrackModule } from './track/track.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { TrackModule } from './track/track.module';
     AuthModule,
     FolderModule,
     TrackModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -18,6 +18,8 @@ import { SearchItemDto } from './dto/SearchItem.dto';
 import { StorageDocument } from './schemas/storage.schema';
 import { StorageService } from './storage.service';
 import { CopyFileDto } from './dto/CopyFile.dto';
+import { CreateFileDto } from 'src/file/dto/CreateFileDto';
+import { FileTransferData } from 'src/types/file';
 
 @Controller('/api/storage')
 export class StorageController {
@@ -32,6 +34,15 @@ export class StorageController {
   @Post('/create/folder')
   createFolder(@Body() dto: CreateFolderDto): Promise<FolderTransferData> {
     return this.storageService.createFolder(dto);
+  }
+
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'file', maxCount: 1 }]))
+  @Post('/create/file')
+  createFile(
+    @UploadedFiles() files: { file?: Express.Multer.File[] },
+    @Body() dto: CreateFileDto,
+  ): Promise<FileTransferData> {
+    return this.storageService.createFile(dto, files?.file && files.file[0]);
   }
 
   @UseInterceptors(

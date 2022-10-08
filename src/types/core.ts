@@ -1,4 +1,6 @@
 import { Types } from 'mongoose';
+import { FileService } from 'src/file/file.service';
+import { FileDocument } from 'src/file/schemas/file.schema';
 import { FolderService } from 'src/folder/folder.service';
 import { FolderDocument } from 'src/folder/schemas/folder.schema';
 import { TrackDocument } from 'src/track/schemas/track.schema';
@@ -13,10 +15,12 @@ export enum AccessTypes {
 export enum ItemTypes {
   FOLDER = 'FOLDER',
   TRACK = 'TRACK',
+  FILE = 'FILE',
 }
 
 export enum ItemFileTypes {
   TRACK = 'TRACK',
+  FILE = 'FILE',
 }
 
 export enum FolderColors {
@@ -34,15 +38,17 @@ export enum UserRoles {
 export type ObjectServices = {
   [ItemTypes.FOLDER]: FolderService;
   [ItemTypes.TRACK]: TrackService;
+  [ItemTypes.FILE]: FileService;
 };
 
 export type ObjectFileServices = {
   [ItemTypes.TRACK]: TrackService;
+  [ItemTypes.FILE]: FileService;
 };
 
-export type StorageCollectionNames = 'folders' | 'tracks';
+export type StorageCollectionNames = 'folders' | 'tracks' | 'files';
 
-export const StorageItemTypes: ItemTypes[] = [ItemTypes.FOLDER, ItemTypes.TRACK];
+export const StorageItemTypes: ItemTypes[] = [ItemTypes.FOLDER, ItemTypes.TRACK, ItemTypes.FILE];
 
 export type DeleteItems = {
   deleteCount: number;
@@ -50,6 +56,6 @@ export type DeleteItems = {
   deleteSize: number;
 };
 
-export type ItemDocument = FolderDocument | TrackDocument;
+export type ItemDocument = FolderDocument | TrackDocument | FileDocument;
 
 export type Modify<T, R> = Omit<T, keyof R> & R;
