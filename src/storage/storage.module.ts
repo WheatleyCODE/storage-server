@@ -7,6 +7,7 @@ import { TokensModule } from 'src/tokens/tokens.module';
 import { FolderModule } from 'src/folder/folder.module';
 import { TrackModule } from 'src/track/track.module';
 import { FileModule } from 'src/file/file.module';
+import { AlbumModule } from 'src/album/album.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { FileModule } from 'src/file/file.module';
     FolderModule,
     TrackModule,
     FileModule,
+    AlbumModule,
   ],
   providers: [StorageService],
   controllers: [StorageController],

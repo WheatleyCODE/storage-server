@@ -55,8 +55,8 @@ export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
     try {
       const fileDoc = await this.findByIdAndCheck(id);
 
-      const newPathImage = await this.filesService.changeFile(FileType.FILE, file, fileDoc.file);
-      fileDoc.file = newPathImage;
+      const newPathFile = await this.filesService.changeFile(FileType.FILE, file, fileDoc.file);
+      fileDoc.file = newPathFile;
       fileDoc.fileSize = file.size;
 
       return await fileDoc.save();
@@ -103,11 +103,11 @@ export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
       const deletedFiles: FileDocument[] = [];
 
       for await (const id of ids) {
-        const deleteTrack = await this.delete(id);
-        deleteTrack.deleteCount = undefined;
-        deleteTrack.deleteItems = undefined;
+        const deleteFile = await this.delete(id);
+        deleteFile.deleteCount = undefined;
+        deleteFile.deleteItems = undefined;
 
-        deletedFiles.push(deleteTrack);
+        deletedFiles.push(deleteFile);
       }
 
       return deletedFiles;

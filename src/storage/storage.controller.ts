@@ -20,6 +20,8 @@ import { StorageService } from './storage.service';
 import { CopyFileDto } from './dto/CopyFile.dto';
 import { CreateFileDto } from 'src/file/dto/CreateFileDto';
 import { FileTransferData } from 'src/types/file';
+import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
+import { AlbumTransferData } from 'src/types/album';
 
 @Controller('/api/storage')
 export class StorageController {
@@ -43,6 +45,15 @@ export class StorageController {
     @Body() dto: CreateFileDto,
   ): Promise<FileTransferData> {
     return this.storageService.createFile(dto, files?.file && files.file[0]);
+  }
+
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 1 }]))
+  @Post('/create/album')
+  createAlbum(
+    @UploadedFiles() files: { image?: Express.Multer.File[] },
+    @Body() dto: CreateAlbumDto,
+  ): Promise<AlbumTransferData> {
+    return this.storageService.createAlbum(dto, files?.image && files?.image[0]);
   }
 
   @UseInterceptors(

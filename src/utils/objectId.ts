@@ -9,6 +9,14 @@ export const dtoToOjbectId = <T>(obj: T, keys: Array<keyof T>): T => {
   keys.forEach((key) => {
     const value = obj[key];
 
+    if (Array.isArray(value)) {
+      newObj[key] = value.map((val) => {
+        if (typeof val === 'string') return stringToOjbectId(val);
+
+        return val;
+      });
+    }
+
     if (typeof value === 'string') {
       newObj[key] = stringToOjbectId(value);
     }

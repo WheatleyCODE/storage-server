@@ -12,6 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { FolderModule } from './folder/folder.module';
 import { TrackModule } from './track/track.module';
 import { FileModule } from './file/file.module';
+import { AlbumModule } from './album/album.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { FileModule } from './file/file.module';
     FolderModule,
     TrackModule,
     FileModule,
+    AlbumModule,
   ],
   controllers: [AppController],
   providers: [],

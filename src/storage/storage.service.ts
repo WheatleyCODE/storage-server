@@ -36,6 +36,9 @@ import { CopyFileDto } from './dto/CopyFile.dto';
 import { CreateFileDto } from 'src/file/dto/CreateFileDto';
 import { FileTransferData } from 'src/types/file';
 import { FileService } from 'src/file/file.service';
+import { AlbumService } from 'src/album/album.service';
+import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
+import { AlbumTransferData } from 'src/types/album';
 
 @Injectable()
 export class StorageService extends IStorageService<StorageDocument, UpdateStorageOptions> {
@@ -48,6 +51,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     private readonly folderService: FolderService,
     private readonly trackService: TrackService,
     private readonly fileService: FileService,
+    private readonly albumService: AlbumService,
   ) {
     super(storageModel);
 
@@ -55,11 +59,13 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       [ItemTypes.FOLDER]: folderService,
       [ItemTypes.TRACK]: trackService,
       [ItemTypes.FILE]: fileService,
+      [ItemTypes.ALBUM]: albumService,
     };
 
     this.objectFileServices = {
       [ItemFileTypes.TRACK]: trackService,
       [ItemFileTypes.FILE]: fileService,
+      [ItemFileTypes.ALBUM]: albumService,
     };
   }
 
@@ -112,9 +118,36 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
+  async createAlbum(dto: CreateAlbumDto, image: Express.Multer.File): Promise<AlbumTransferData> {
+    try {
+      const correctDto = dtoToOjbectId(dto, ['user', 'parent', 'storage']);
+
+      const album = await this.albumService.create({
+        ...correctDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+        image,
+        imageSize: image.size,
+      });
+
+      await this.addItem(
+        {
+          storage: correctDto.storage,
+          item: album._id,
+          itemType: album.type,
+        },
+        album.imageSize,
+      );
+
+      return new AlbumTransferData(album);
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async createFile(dto: CreateFileDto, file: Express.Multer.File): Promise<FileTransferData> {
     try {
-      const correctDto = dtoToOjbectId(dto, ['user', 'parent']);
+      const correctDto = dtoToOjbectId(dto, ['user', 'parent', 'storage']);
 
       const fileDoc = await this.fileService.create({
         ...correctDto,
@@ -126,7 +159,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
       await this.addItem(
         {
-          storage: dto.storage,
+          storage: correctDto.storage,
           item: fileDoc._id,
           itemType: fileDoc.type,
         },
@@ -145,7 +178,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     image?: Express.Multer.File,
   ): Promise<TrackTransferData> {
     try {
-      const correctDto = dtoToOjbectId(dto, ['user', 'parent', 'album']);
+      const correctDto = dtoToOjbectId(dto, ['user', 'parent', 'album', 'storage']);
       const track = await this.trackService.create({
         ...correctDto,
         creationDate: Date.now(),
@@ -161,7 +194,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
       await this.addItem(
         {
-          storage: dto.storage,
+          storage: correctDto.storage,
           item: track._id,
           itemType: track.type,
         },
