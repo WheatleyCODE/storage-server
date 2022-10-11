@@ -7,14 +7,16 @@ import { FilesService, FileType } from 'src/files/files.service';
 import { AccessTypes, ItemsData, UpdateTrackOptions } from 'src/types';
 import { Track, TrackDocument } from './schemas/track.schema';
 import { ReadStream } from 'fs';
+import { CommentService } from 'src/comment/comment.service';
 
 @Injectable()
 export class TrackService extends ITrackService<TrackDocument, UpdateTrackOptions> {
   constructor(
     @InjectModel(Track.name) private readonly trackModel: Model<TrackDocument>,
     private readonly filesService: FilesService,
+    commentService: CommentService,
   ) {
-    super(trackModel);
+    super(trackModel, commentService);
   }
 
   async create(options: CreateTrackOptions): Promise<TrackDocument> {

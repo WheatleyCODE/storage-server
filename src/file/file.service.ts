@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
+import { CommentService } from 'src/comment/comment.service';
 import { IFileService } from 'src/core/Interfaces/IFileService';
 import { FilesService, FileType } from 'src/files/files.service';
 import { ItemsData } from 'src/types';
@@ -13,8 +14,9 @@ export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
   constructor(
     @InjectModel(File.name) private readonly fileModel: Model<FileDocument>,
     private readonly filesService: FilesService,
+    commentService: CommentService,
   ) {
-    super(fileModel);
+    super(fileModel, commentService);
   }
 
   async create(options: CreateFileOptions): Promise<FileDocument> {

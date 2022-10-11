@@ -5,14 +5,16 @@ import { Folder, FolderDocument } from './schemas/folder.schema';
 import { IFolderService } from 'src/core';
 import { ItemsData, FolderColors } from 'src/types';
 import { CreateFolderOptions, UpdateFolderOptions } from 'src/types/folder';
+import { CommentService } from 'src/comment/comment.service';
 
 @Injectable()
 export class FolderService extends IFolderService<FolderDocument, UpdateFolderOptions> {
   constructor(
     @InjectModel(Folder.name)
     private readonly folderModel: Model<FolderDocument>,
+    commentService: CommentService,
   ) {
-    super(folderModel);
+    super(folderModel, commentService);
   }
 
   async create(options: CreateFolderOptions): Promise<FolderDocument> {

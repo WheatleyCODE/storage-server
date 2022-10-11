@@ -4,9 +4,14 @@ import { FolderService } from './folder.service';
 import { FolderController } from './folder.controller';
 import { TokensModule } from 'src/tokens/tokens.module';
 import { Folder, FolderSchema } from './schemas/folder.schema';
+import { CommentModule } from 'src/comment/comment.module';
 
 @Module({
-  imports: [TokensModule, MongooseModule.forFeature([{ name: Folder.name, schema: FolderSchema }])],
+  imports: [
+    TokensModule,
+    MongooseModule.forFeature([{ name: Folder.name, schema: FolderSchema }]),
+    CommentModule,
+  ],
   providers: [FolderService],
   controllers: [FolderController],
   exports: [FolderService],

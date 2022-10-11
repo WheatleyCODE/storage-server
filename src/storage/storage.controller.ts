@@ -22,6 +22,9 @@ import { CreateFileDto } from 'src/file/dto/CreateFileDto';
 import { FileTransferData } from 'src/types/file';
 import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
 import { AlbumTransferData } from 'src/types/album';
+import { AddCommentDto } from '../comment/dto/AddComment.dto';
+import { CommentTransferData } from 'src/types/comment';
+import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
 
 @Controller('/api/storage')
 export class StorageController {
@@ -131,6 +134,16 @@ export class StorageController {
   @Post('/search/items')
   searchItems(@Body() dto: SearchItemDto): Promise<ItemDocument[]> {
     return this.storageService.searchItems(dto);
+  }
+
+  @Post('/create/comment')
+  createComment(@Body() dto: AddCommentDto): Promise<CommentTransferData> {
+    return this.storageService.createComment(dto);
+  }
+
+  @Post('/delete/comment')
+  deleteComment(@Body() dto: DeleteCommentDto): Promise<CommentTransferData> {
+    return this.storageService.deleteComment(dto);
   }
 
   // * Поинт для тестирования

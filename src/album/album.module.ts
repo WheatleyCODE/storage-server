@@ -1,3 +1,4 @@
+import { CommentModule } from './../comment/comment.module';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FilesModule } from 'src/files/files.module';
@@ -11,6 +12,7 @@ import { Album, AlbumSchema } from './schemas/album.schema';
     MongooseModule.forFeature([{ name: Album.name, schema: AlbumSchema }]),
     FilesModule,
     TrackModule,
+    CommentModule,
   ],
   controllers: [AlbumController],
   providers: [AlbumService],

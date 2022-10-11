@@ -13,6 +13,7 @@ import { FolderModule } from './folder/folder.module';
 import { TrackModule } from './track/track.module';
 import { FileModule } from './file/file.module';
 import { AlbumModule } from './album/album.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AlbumModule } from './album/album.module';
     TrackModule,
     FileModule,
     AlbumModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [],

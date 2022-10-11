@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
+import { CommentService } from 'src/comment/comment.service';
 import { IAlbumService } from 'src/core/Interfaces/IAlbumService';
 import { FilesService, FileType } from 'src/files/files.service';
 import { TrackDocument } from 'src/track/schemas/track.schema';
@@ -14,6 +15,15 @@ import { Album, AlbumDocument } from './schemas/album.schema';
 
 @Injectable()
 export class AlbumService extends IAlbumService<AlbumDocument, UpdateAlbumOptions> {
+  constructor(
+    @InjectModel(Album.name) private readonly albumModel: Model<AlbumDocument>,
+    private readonly filesService: FilesService,
+    private readonly trackService: TrackService,
+    commentService: CommentService,
+  ) {
+    super(albumModel, commentService);
+  }
+
   async changeTracks(dto: ChangeTracksDto): Promise<AlbumDocument> {
     try {
       const { album, tracks, isDelete } = dtoToOjbectId(dto, ['album', 'tracks']);
@@ -40,14 +50,6 @@ export class AlbumService extends IAlbumService<AlbumDocument, UpdateAlbumOption
     } catch (e) {
       throw e;
     }
-  }
-
-  constructor(
-    @InjectModel(Album.name) private readonly albumModel: Model<AlbumDocument>,
-    private readonly filesService: FilesService,
-    private readonly trackService: TrackService,
-  ) {
-    super(albumModel);
   }
 
   async create(options: CreateAlbumOptions): Promise<AlbumDocument> {

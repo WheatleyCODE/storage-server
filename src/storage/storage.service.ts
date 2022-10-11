@@ -39,6 +39,9 @@ import { FileService } from 'src/file/file.service';
 import { AlbumService } from 'src/album/album.service';
 import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
 import { AlbumTransferData } from 'src/types/album';
+import { AddCommentDto } from '../comment/dto/AddComment.dto';
+import { CommentTransferData } from 'src/types/comment';
+import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
 
 @Injectable()
 export class StorageService extends IStorageService<StorageDocument, UpdateStorageOptions> {
@@ -267,7 +270,6 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
       const itemData: ItemsData = {
         count: 1,
-        // items: [deletedStorage],
         items: [],
         size: storage.usedSpace,
       };
@@ -462,6 +464,35 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     try {
       const { item, itemType } = dtoToOjbectId(dto, ['item']);
       return await this.objectServices[itemType].changeOpenDate(item);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async createComment(dto: AddCommentDto): Promise<CommentTransferData> {
+    try {
+      const { item, itemType, user, answer } = dtoToOjbectId(dto, ['item', 'user', 'answer']);
+
+      const comment = await this.objectServices[itemType].addComment(item, {
+        title: dto.title,
+        text: dto.text,
+        answer,
+        user,
+      });
+
+      return new CommentTransferData(comment);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async deleteComment(dto: DeleteCommentDto): Promise<any> {
+    try {
+      const { item, itemType, comment } = dtoToOjbectId(dto, ['item', 'comment']);
+
+      const delComment = await this.objectServices[itemType].deleteComment(item, comment);
+
+      return delComment;
     } catch (e) {
       throw e;
     }

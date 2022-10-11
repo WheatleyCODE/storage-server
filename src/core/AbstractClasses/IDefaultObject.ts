@@ -1,9 +1,15 @@
-import { Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import * as uuid from 'uuid';
-import { AccessTypes } from 'src/types';
+import { AccessTypes, ItemsData } from 'src/types';
 import { IDefaultService } from './IDefaultService';
+import { CommentService } from 'src/comment/comment.service';
+import { CommentDocument } from 'src/comment/schemas/comment.schema';
+import { CreateCommentOptions } from 'src/types/comment';
 
 export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
+  constructor(model: Model<any>, private readonly commentService: CommentService) {
+    super(model);
+  }
   readonly ITEM_WIEGTH = 8;
 
   abstract deleteByIds(ids: Types.ObjectId[]): Promise<T[]>;
@@ -74,8 +80,7 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
     }
   }
 
-  // ! Локально расширить user?: Types.ObjectId
-  async addListen(id: Types.ObjectId, user?: Types.ObjectId): Promise<T> {
+  async addListen(id: Types.ObjectId): Promise<T> {
     try {
       const item: any = await this.findByIdAndCheck(id);
       item.listenCount++;
@@ -101,8 +106,35 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
     }
   }
 
-  // Todo добавить после прототипирования комментраиев
-  async addComment(id: Types.ObjectId, user: Types.ObjectId, text: string): Promise<T> {
-    throw new Error('Method not implemented.');
+  async addComment(id: Types.ObjectId, options: CreateCommentOptions): Promise<CommentDocument> {
+    try {
+      const item: any = await this.findByIdAndCheck(id);
+      const comment = await this.commentService.create(options);
+      item.comments.push(comment._id);
+      await item.save();
+
+      return comment;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async deleteComment(id: Types.ObjectId, comment: Types.ObjectId): Promise<T> {
+    try {
+      const itemDoc: any = await this.findByIdAndCheck(id);
+      const { items } = await this.commentService.delete(comment);
+
+      items.forEach((item) => {
+        itemDoc.comments = itemDoc.comments.filter(
+          (itm) => item._id.toString() !== itm._id.toString(),
+        );
+      });
+
+      await itemDoc.save();
+
+      return itemDoc;
+    } catch (e) {
+      throw e;
+    }
   }
 }
