@@ -8,7 +8,7 @@ import { CreateTrackDto } from 'src/track/dto/createTrackDto';
 import { TrackService } from 'src/track/track.service';
 import {
   CreateStorageOptions,
-  DeleteItems,
+  ItemsData,
   ItemDocument,
   ItemFileTypes,
   ItemTypes,
@@ -85,9 +85,12 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       const strg = await this.findByIdAndCheck(storage);
 
       const newItemFile = await this.objectFileServices[itemType].copy(item);
-      const collection = getStorageCollectionName(itemType);
 
-      strg[collection].push(newItemFile._id);
+      newItemFile.items.forEach((item) => {
+        const collection = getStorageCollectionName(item.type);
+        strg[collection].push(item._id);
+      });
+
       strg.usedSpace += newItemFile.size;
 
       await strg.save();
@@ -250,7 +253,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async delete(id: Types.ObjectId): Promise<StorageDocument & DeleteItems> {
+  async delete(id: Types.ObjectId): Promise<StorageDocument & ItemsData> {
     try {
       const storage = await this.findByIdAndCheck(id);
 
@@ -261,13 +264,15 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       }
 
       const deletedStorage = await this.storageModel.findByIdAndDelete(id);
-      const deleteItem = {
-        deleteCount: 1,
-        deleteItems: [deletedStorage._id],
-        deleteSize: storage.usedSpace,
+
+      const itemData: ItemsData = {
+        count: 1,
+        // items: [deletedStorage],
+        items: [],
+        size: storage.usedSpace,
       };
 
-      return Object.assign(deletedStorage, deleteItem);
+      return Object.assign(deletedStorage, itemData);
     } catch (e) {
       throw e;
     }
@@ -314,25 +319,25 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
       const strg = await this.findByIdAndCheck(storage);
       const prevFolderCount = strg.folders.length;
-      const collection = getStorageCollectionName(itemType);
 
-      const delItem = await this.objectServices[itemType].delete(item);
-      const { deleteItems, deleteSize } = delItem;
+      const { items, size } = await this.objectServices[itemType].delete(item);
 
-      const delItems = deleteItems.map((ids) => ids.toString());
+      items.forEach((item) => {
+        const collection = getStorageCollectionName(item.type);
 
-      strg[collection] = strg[collection].filter((itm) => !delItems.includes(itm.toString()));
+        strg[collection] = strg[collection].filter(
+          (itm) => item._id.toString() !== itm._id.toString(),
+        );
+      });
 
-      strg.usedSpace -= deleteSize;
+      strg.usedSpace -= size;
+      await strg.save();
 
       if (prevFolderCount > strg.folders.length) {
-        await strg.save();
-
-        const stg = await this.checkParentsAndDelete(strg._id);
-        return stg;
+        return await this.checkParentsAndDelete(strg._id);
       }
 
-      return await strg.save();
+      return strg;
     } catch (e) {
       throw e;
     }
@@ -352,7 +357,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
         if (!parent) {
           const deletedTrack = await this.trackService.delete(track._id);
           deletedTracks.push(deletedTrack._id);
-          size += deletedTrack.deleteSize;
+          size += deletedTrack.size;
         }
       }
 

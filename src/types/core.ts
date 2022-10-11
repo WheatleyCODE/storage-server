@@ -61,12 +61,11 @@ export const StorageItemTypes: ItemTypes[] = [
   ItemTypes.ALBUM,
 ];
 
-export type DeleteItems = {
-  deleteCount: number;
-  deleteItems: Types.ObjectId[];
-  deleteSize: number;
+export type ItemsData = {
+  count: number;
+  items: ItemDocument[];
+  size: number;
 };
-
 export type ItemDocument = FolderDocument | TrackDocument | FileDocument | AlbumDocument;
 
 export type Modify<T, R> = Omit<T, keyof R> & R;

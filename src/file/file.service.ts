@@ -4,7 +4,7 @@ import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
 import { IFileService } from 'src/core/Interfaces/IFileService';
 import { FilesService, FileType } from 'src/files/files.service';
-import { DeleteItems } from 'src/types';
+import { ItemsData } from 'src/types';
 import { CreateFileOptions, UpdateFileOptions } from 'src/types/file';
 import { File, FileDocument } from './schemas/file.schema';
 
@@ -30,7 +30,7 @@ export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
     }
   }
 
-  async delete(id: Types.ObjectId): Promise<FileDocument & DeleteItems> {
+  async delete(id: Types.ObjectId): Promise<FileDocument & ItemsData> {
     try {
       const deletedFile = await this.fileModel.findByIdAndDelete(id);
 
@@ -38,13 +38,13 @@ export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
 
       await this.filesService.removeFile(deletedFile.file);
 
-      const deleteItems = {
-        deleteCount: 1,
-        deleteItems: [deletedFile._id],
-        deleteSize: deletedFile.fileSize,
+      const itemsData: ItemsData = {
+        count: 1,
+        items: [deletedFile],
+        size: deletedFile.fileSize,
       };
 
-      return Object.assign(deletedFile, deleteItems);
+      return Object.assign(deletedFile, itemsData);
     } catch (e) {
       throw e;
     }
@@ -75,7 +75,7 @@ export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
     }
   }
 
-  async copy(id: Types.ObjectId): Promise<FileDocument & { size: number }> {
+  async copy(id: Types.ObjectId): Promise<FileDocument & ItemsData> {
     try {
       const fileDoc = await this.findByIdAndCheck(id);
       const { user, name, isTrash, file, fileSize } = fileDoc;
@@ -92,7 +92,13 @@ export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
         openDate: Date.now(),
       });
 
-      return Object.assign(newFile, { size: fileSize });
+      const itemsData: ItemsData = {
+        count: 1,
+        items: [newFile],
+        size: fileSize,
+      };
+
+      return Object.assign(newFile, itemsData);
     } catch (e) {
       throw e;
     }
@@ -104,8 +110,6 @@ export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
 
       for await (const id of ids) {
         const deleteFile = await this.delete(id);
-        deleteFile.deleteCount = undefined;
-        deleteFile.deleteItems = undefined;
 
         deletedFiles.push(deleteFile);
       }

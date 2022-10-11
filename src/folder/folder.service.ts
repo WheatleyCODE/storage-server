@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Folder, FolderDocument } from './schemas/folder.schema';
 import { IFolderService } from 'src/core';
-import { DeleteItems, FolderColors } from 'src/types';
+import { ItemsData, FolderColors } from 'src/types';
 import { CreateFolderOptions, UpdateFolderOptions } from 'src/types/folder';
 
 @Injectable()
@@ -22,18 +22,18 @@ export class FolderService extends IFolderService<FolderDocument, UpdateFolderOp
       throw new HttpException('Ошибка при создании папки', HttpStatus.BAD_REQUEST);
     }
   }
-  async delete(id: Types.ObjectId): Promise<FolderDocument & DeleteItems> {
+  async delete(id: Types.ObjectId): Promise<FolderDocument & ItemsData> {
     try {
-      const deletedFolders: Types.ObjectId[] = [];
+      const deletedFolders: FolderDocument[] = [];
 
       const firstFolder = await this.findByIdAndCheck(id);
-      deletedFolders.push(firstFolder._id);
+      deletedFolders.push(firstFolder);
 
       const firstChildrens = await this.folderModel.find({ parent: id });
 
       const reqDel = async (childrens: FolderDocument[]) => {
         for await (const children of childrens) {
-          deletedFolders.push(children._id);
+          deletedFolders.push(children);
 
           const childs = await this.folderModel.find({ parent: children._id });
 
@@ -45,15 +45,15 @@ export class FolderService extends IFolderService<FolderDocument, UpdateFolderOp
 
       await reqDel(firstChildrens);
 
-      await this.deleteByIds(deletedFolders);
+      await this.deleteByIds(deletedFolders.map((folder) => folder._id));
 
-      const deleteItem = {
-        deleteCount: deletedFolders.length,
-        deleteItems: deletedFolders,
-        deleteSize: deletedFolders.length * this.ITEM_WIEGTH,
+      const itemsData: ItemsData = {
+        count: deletedFolders.length,
+        items: deletedFolders,
+        size: deletedFolders.length * this.ITEM_WIEGTH,
       };
 
-      return Object.assign(firstFolder, deleteItem);
+      return Object.assign(firstFolder, itemsData);
     } catch (e) {
       throw new HttpException('Ошибка при удалении папки', HttpStatus.BAD_REQUEST);
     }

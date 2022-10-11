@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { IUserService } from 'src/core';
-import { DeleteItems, UserRoles, UserTransferData } from 'src/types';
+import { ItemsData, UserRoles, UserTransferData } from 'src/types';
 import { CreateUserOptions, UpdateUserOptions } from 'src/types';
 import { User, UserDocument } from './schemas/user.schema';
 
@@ -26,7 +26,7 @@ export class UserService extends IUserService<UserDocument, UpdateUserOptions> {
     }
   }
 
-  async delete(id: Types.ObjectId): Promise<UserDocument & DeleteItems> {
+  async delete(id: Types.ObjectId): Promise<UserDocument & ItemsData> {
     try {
       return await this.userModel.findByIdAndDelete({ id });
     } catch (e) {

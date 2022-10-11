@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
-import { DeleteItems } from 'src/types';
+import { ItemsData } from 'src/types';
 import { IDefaultHelpers } from './IDefaultHelpers';
 
 export abstract class IDefaultService<T, O> extends IDefaultHelpers<T, O> {
@@ -9,7 +9,7 @@ export abstract class IDefaultService<T, O> extends IDefaultHelpers<T, O> {
   }
 
   abstract create(options: { [key in keyof O]: any }): Promise<T>;
-  abstract delete(id: Types.ObjectId): Promise<T & DeleteItems>;
+  abstract delete(id: Types.ObjectId): Promise<T & ItemsData>;
 
   async update(id: Types.ObjectId, options: { [key in keyof O]: any }): Promise<T> {
     try {

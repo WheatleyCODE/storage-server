@@ -4,8 +4,9 @@ import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
 import { IAlbumService } from 'src/core/Interfaces/IAlbumService';
 import { FilesService, FileType } from 'src/files/files.service';
+import { TrackDocument } from 'src/track/schemas/track.schema';
 import { TrackService } from 'src/track/track.service';
-import { DeleteItems } from 'src/types';
+import { ItemsData } from 'src/types';
 import { CreateAlbumOptions, UpdateAlbumOptions } from 'src/types/album';
 import { dtoToOjbectId } from 'src/utils';
 import { ChangeTracksDto } from './dto/ChangeTracks.dto';
@@ -62,29 +63,29 @@ export class AlbumService extends IAlbumService<AlbumDocument, UpdateAlbumOption
     }
   }
 
-  async delete(id: Types.ObjectId): Promise<AlbumDocument & DeleteItems> {
+  async delete(id: Types.ObjectId): Promise<AlbumDocument & ItemsData> {
     try {
       const album = await this.findByIdAndCheck(id);
-      const deletedTracks: Types.ObjectId[] = [];
+      const deletedTracks: TrackDocument[] = [];
       let size = 0;
 
       for await (const track of album.tracks) {
         const delTrack = await this.trackService.delete(track);
-        deletedTracks.push(delTrack._id);
-        size += delTrack.deleteSize;
+        deletedTracks.push(delTrack);
+        size += delTrack.size;
       }
 
       const deletedAlbum = await this.albumModel.findByIdAndDelete(id);
 
       await this.filesService.removeFile(album.image);
 
-      const deleteItems = {
-        deleteCount: 1,
-        deleteItems: [deletedAlbum._id, ...deletedTracks],
-        deleteSize: deletedAlbum.imageSize + size,
+      const itemsData: ItemsData = {
+        count: deletedTracks.length + 1,
+        items: [deletedAlbum, ...deletedTracks],
+        size: deletedAlbum.imageSize + size,
       };
 
-      return Object.assign(deletedAlbum, deleteItems);
+      return Object.assign(deletedAlbum, itemsData);
     } catch (e) {
       throw e;
     }
@@ -113,7 +114,7 @@ export class AlbumService extends IAlbumService<AlbumDocument, UpdateAlbumOption
     }
   }
 
-  async copy(id: Types.ObjectId): Promise<AlbumDocument & { size: number }> {
+  async copy(id: Types.ObjectId): Promise<AlbumDocument & ItemsData> {
     try {
       const album = await this.findByIdAndCheck(id);
       const { user, name, isTrash, image, imageSize } = album;
@@ -131,7 +132,7 @@ export class AlbumService extends IAlbumService<AlbumDocument, UpdateAlbumOption
       });
 
       let size = 0;
-      const newTracks: Types.ObjectId[] = [];
+      const newTracks: TrackDocument[] = [];
 
       for await (const track of album.tracks) {
         const newTrack = await this.trackService.copy(track);
@@ -140,13 +141,19 @@ export class AlbumService extends IAlbumService<AlbumDocument, UpdateAlbumOption
         await newTrack.save();
 
         size += newTrack.size;
-        newTracks.push(newTrack._id);
+        newTracks.push(newTrack);
       }
 
-      newAlbum.tracks = newTracks;
+      newAlbum.tracks = newTracks.map((track) => track._id);
       await newAlbum.save();
 
-      return Object.assign(newAlbum, { size: imageSize + size });
+      const itemsData: ItemsData = {
+        count: newTracks.length + 1,
+        items: [...newTracks, newAlbum],
+        size: imageSize + size,
+      };
+
+      return Object.assign(newAlbum, itemsData);
     } catch (e) {
       throw e;
     }

@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ITrackService } from 'src/core/Interfaces/ITrackService';
 import { FilesService, FileType } from 'src/files/files.service';
-import { AccessTypes, DeleteItems, UpdateTrackOptions } from 'src/types';
+import { AccessTypes, ItemsData, UpdateTrackOptions } from 'src/types';
 import { Track, TrackDocument } from './schemas/track.schema';
 import { ReadStream } from 'fs';
 
@@ -36,7 +36,7 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
     }
   }
 
-  async delete(id: Types.ObjectId): Promise<TrackDocument & DeleteItems> {
+  async delete(id: Types.ObjectId): Promise<TrackDocument & ItemsData> {
     try {
       const deletedTrack = await this.trackModel.findByIdAndDelete(id);
 
@@ -45,13 +45,13 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
       await this.filesService.removeFile(deletedTrack.audio);
       await this.filesService.removeFile(deletedTrack.image);
 
-      const deleteItems = {
-        deleteCount: 1,
-        deleteItems: [deletedTrack._id],
-        deleteSize: deletedTrack.audioSize + (deletedTrack.imageSize || 0),
+      const itemsData: ItemsData = {
+        count: 1,
+        items: [deletedTrack],
+        size: deletedTrack.audioSize + (deletedTrack.imageSize || 0),
       };
 
-      return Object.assign(deletedTrack, deleteItems);
+      return Object.assign(deletedTrack, itemsData);
     } catch (e) {
       throw e;
     }
@@ -95,7 +95,7 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
     }
   }
 
-  async copy(id: Types.ObjectId): Promise<TrackDocument & { size: number }> {
+  async copy(id: Types.ObjectId): Promise<TrackDocument & ItemsData> {
     try {
       const track = await this.findByIdAndCheck(id);
       const { user, name, author, isTrash, text, imageSize, audioSize } = track;
@@ -117,7 +117,13 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
         openDate: Date.now(),
       });
 
-      return Object.assign(newTrack, { size: audioSize + (imageSize || 0) });
+      const itemsData: ItemsData = {
+        count: 1,
+        items: [newTrack],
+        size: audioSize + (imageSize || 0),
+      };
+
+      return Object.assign(newTrack, itemsData);
     } catch (e) {
       throw e;
     }
@@ -152,8 +158,6 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
 
       for await (const id of ids) {
         const deleteTrack = await this.delete(id);
-        deleteTrack.deleteCount = undefined;
-        deleteTrack.deleteItems = undefined;
 
         deletedTracks.push(deleteTrack);
       }
