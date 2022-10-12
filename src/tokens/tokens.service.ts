@@ -1,10 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { AccRefTokens, UpdateTokenOptions, UserTransferData } from 'src/types';
+import { AccRefTokens, UpdateTokenOptions } from 'src/types';
 import { RefreshTokenService } from './refresh-token/refresh-token.service';
 import { AccessTokenService } from './access-token/access-token.service';
 import { Tokens, TokensDocument } from './schemas/tokens.schema';
+import { UserTransferData } from 'src/transfer';
 
 @Injectable()
 export class TokensService {

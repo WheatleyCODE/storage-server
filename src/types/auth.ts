@@ -1,4 +1,4 @@
-import { UserTransferData } from './user';
+import { UserTransferData } from 'src/transfer';
 import { AccRefTokens } from './tokens';
 
 export interface AuthData extends AccRefTokens {

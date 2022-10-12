@@ -16,11 +16,16 @@ import {
   ObjectServices,
   StorageCollectionsPopulated,
   StorageItemTypes,
-  StorageTransferData,
-  TrackTransferData,
   UpdateStorageOptions,
 } from 'src/types';
-import { FolderTransferData } from 'src/types/folder';
+import {
+  FolderTransferData,
+  StorageTransferData,
+  TrackTransferData,
+  FileTransferData,
+  AlbumTransferData,
+  CommentTransferData,
+} from 'src/transfer';
 import { dtoToOjbectId, getStorageCollectionName } from 'src/utils';
 import { AddDeleteItemDto } from './dto/AddDeleteItem.dto';
 import { AddListenDto } from './dto/AddListen.dto';
@@ -34,13 +39,10 @@ import { SearchItemDto } from './dto/SearchItem.dto';
 import { Storage, StorageDocument } from './schemas/storage.schema';
 import { CopyFileDto } from './dto/CopyFile.dto';
 import { CreateFileDto } from 'src/file/dto/CreateFileDto';
-import { FileTransferData } from 'src/types/file';
 import { FileService } from 'src/file/file.service';
 import { AlbumService } from 'src/album/album.service';
 import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
-import { AlbumTransferData } from 'src/types/album';
 import { AddCommentDto } from '../comment/dto/AddComment.dto';
-import { CommentTransferData } from 'src/types/comment';
 import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
 
 @Injectable()

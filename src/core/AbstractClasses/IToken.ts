@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserTransferData } from 'src/types';
+import { UserTransferData } from 'src/transfer';
 
 export abstract class IToken {
   constructor(private jwtService: JwtService) {}

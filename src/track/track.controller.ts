@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Query } from '@nestjs/common';
-import { TrackTransferData } from 'src/types';
+import { TrackTransferData } from 'src/transfer';
 import { SearchTrackDto } from './dto/SerchTrack.dto';
 import { TrackService } from './track.service';
 

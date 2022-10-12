@@ -9,8 +9,9 @@ import { ChangePassword, ResetPassword, AuthData } from 'src/types/auth';
 import { LoginDto } from './dto/Login.dto';
 import { UserDocument } from 'src/user/schemas/user.schema';
 import { StorageService } from 'src/storage/storage.service';
-import { TokensTransferData, UpdateUserOptions, UserTransferData } from 'src/types';
+import { TokensTransferData, UpdateUserOptions } from 'src/types';
 import { getStorageName } from 'src/utils/getStorageName';
+import { UserTransferData } from 'src/transfer';
 
 @Injectable()
 export class AuthService {

@@ -6,6 +6,12 @@ import { FolderService } from 'src/folder/folder.service';
 import { FolderDocument } from 'src/folder/schemas/folder.schema';
 import { TrackDocument } from 'src/track/schemas/track.schema';
 import { TrackService } from 'src/track/track.service';
+import {
+  FolderTransferData,
+  TrackTransferData,
+  FileTransferData,
+  AlbumTransferData,
+} from 'src/transfer';
 
 export enum AccessTypes {
   PRIVATE = 'PRIVATE',
@@ -67,5 +73,10 @@ export type ItemsData = {
 };
 
 export type ItemDocument = FolderDocument | TrackDocument | FileDocument | AlbumDocument;
+export type ItemTransferData =
+  | FolderTransferData
+  | TrackTransferData
+  | FileTransferData
+  | AlbumTransferData;
 
 export type Modify<T, R> = Omit<T, keyof R> & R;

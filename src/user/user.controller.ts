@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { UserTransferData } from 'src/types';
+import { UserTransferData } from 'src/transfer';
 import { ChangeRoleDto } from './dto/ChangeRole.dto';
 import { UserService } from './user.service';
 

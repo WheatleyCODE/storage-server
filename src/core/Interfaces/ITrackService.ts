@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { TrackTransferData } from 'src/types';
+import { TrackTransferData } from 'src/transfer';
 import { IDefaultFile } from '../AbstractClasses/IDefaultFile';
 
 export abstract class ITrackService<T, O> extends IDefaultFile<T, O> {

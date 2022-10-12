@@ -2,8 +2,15 @@ import { Body, Controller, Get, Param, Post, UploadedFiles, UseInterceptors } fr
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CreateFolderDto } from 'src/folder/dto/CreateFolder.dto';
 import { CreateTrackDto } from 'src/track/dto/createTrackDto';
-import { ItemDocument, StorageTransferData, TrackTransferData } from 'src/types';
-import { FolderTransferData } from 'src/types/folder';
+import { ItemDocument } from 'src/types';
+import {
+  FolderTransferData,
+  StorageTransferData,
+  TrackTransferData,
+  FileTransferData,
+  AlbumTransferData,
+  CommentTransferData,
+} from 'src/transfer';
 import { dtoToOjbectId, stringToOjbectId } from 'src/utils';
 import { AddDeleteItemDto } from './dto/AddDeleteItem.dto';
 import { AddListenDto } from './dto/AddListen.dto';
@@ -19,11 +26,8 @@ import { StorageDocument } from './schemas/storage.schema';
 import { StorageService } from './storage.service';
 import { CopyFileDto } from './dto/CopyFile.dto';
 import { CreateFileDto } from 'src/file/dto/CreateFileDto';
-import { FileTransferData } from 'src/types/file';
 import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
-import { AlbumTransferData } from 'src/types/album';
 import { AddCommentDto } from '../comment/dto/AddComment.dto';
-import { CommentTransferData } from 'src/types/comment';
 import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
 
 @Controller('/api/storage')
