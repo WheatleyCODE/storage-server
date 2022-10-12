@@ -1,73 +1,61 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Gamify Project (Server)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+### Published - [link]
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Проект выполнен с целью прокачать навыки разработки с использованием современных технологий и библиотек.
+Проект состоит из двух частей клиент и сервер
 
-## Description
+### Ссылка на клиентскую часть - [link]
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Описание
 
-## Installation
+Данный проект является некой комбинацией из моих уже реализованных пет проектов
+Все мои пет проекты вы сможете найти в моем гитхабе
 
-```bash
-$ npm install
-```
+В этом проекте я постарался реализовать все что узнал и научился ранее.
+Проект представляет собой комбинацию Облачного хранилища, Музыкальной платформы, Редактора заметок и Видео хостинга
 
-## Running the app
+### Функционал
 
-```bash
-# development
-$ npm run start
+- Регистрация, Авторизация, Выход и Обновление токенов с использованием TWT, Cookie
+- Активация аккаунта, Сброс и Восстановление пароля с отправкой писем на почту
+- Ролевой и Auth доступ к эндпоинтам
+- Валидация входящих данных
+- Доступ к хранилищу с возможностью создавать Папки, Файлы, Альбомы и Треки
+- Реализована вложенность всех элементов и корректное удаление
+- Реализован корректный подсчет занятого пространства на диске
+- Общие возможности всех сущностей хранилища: Создание, Удаление, Изменение, Копирование, Перемещение, Смена типа доступа, Получение ссылки доступа, Добавление в Корзину, Лайки, Отметки, Просмотры, Отслеживание даты изменения и открытия, добавление и удаление комментариев и ответов на комментарии
+- И множество отдельных:
+- Пользователь - Изменение роли
+- Трек - Получение всех публичных с БД, Поиск по ним и пагинация
+- Папка - Отслеживание уровня вложенности
+- Альбом - Добавление и Удаление треков в альбом
 
-# watch mode
-$ npm run start:dev
+### Информация
 
-# production mode
-$ npm run start:prod
-```
+- Использованы Паттерны и Абстрактные классы
+- Старался создавать корректный ООП
+- Старался держаться правил SOLID, DRY и CleanCode
+- Параллельно с разработкой вел схему в drowio для кристального понимания
 
-## Test
+### Технологии и Библиотеки
 
-```bash
-# unit tests
-$ npm run test
+- TypeScript
+- Nest JS
+- Swager
+- Nodemailer
+- Mongo
+- Mongoose
+- Docker
+- JWT
+- Git
+- Паттерны
+- SOLID
+- Eslint
+- Prettier
 
-# e2e tests
-$ npm run test:e2e
+> Подробнее какие библиотеки я использовал вы можете посмотреть в pakege.json файле
 
-# test coverage
-$ npm run test:cov
-```
+#
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+#
