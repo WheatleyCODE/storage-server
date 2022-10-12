@@ -1,10 +1,10 @@
 import { Model, Types } from 'mongoose';
 import * as uuid from 'uuid';
-import { AccessTypes, ItemsData } from 'src/types';
 import { IDefaultService } from './IDefaultService';
 import { CommentService } from 'src/comment/comment.service';
 import { CommentDocument } from 'src/comment/schemas/comment.schema';
 import { CreateCommentOptions } from 'src/types/comment';
+import { AccessTypes } from 'src/types';
 
 export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
   constructor(model: Model<any>, private readonly commentService: CommentService) {
@@ -31,7 +31,7 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
 
       const link = uuid.v4();
       const type = item.type.toLowerCase();
-      item.accessLink = `${process.env.URL_CLIENT}/share/${type}/${link}`;
+      item.accessLink = `share/${type}/${link}`;
       return await item.save();
     } catch (e) {
       throw e;

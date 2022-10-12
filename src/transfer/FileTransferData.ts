@@ -1,39 +1,25 @@
 import { Types } from 'mongoose';
 import { FileDocument } from 'src/file/schemas/file.schema';
-import { AccessTypes, ItemTypes } from 'src/types';
 
 export class FileTransferData {
-  readonly id: Types.ObjectId;
-  readonly type: ItemTypes;
-  readonly parent: Types.ObjectId;
-  readonly name: string;
-  readonly isTrash: boolean;
-  readonly likeCount: number;
-  readonly likedUsers: Types.ObjectId[];
-  readonly listenCount: number;
-  readonly starredCount: number;
-  readonly accesLink: string;
-  readonly accessType: AccessTypes;
-  readonly creationDate: number;
-  readonly openDate: number;
-  readonly file: string;
-  readonly fileSize: number;
-
-  constructor(fileDocument: FileDocument) {
-    this.id = fileDocument._id;
-    this.type = fileDocument.type;
-    this.parent = fileDocument.parent;
-    this.name = fileDocument.name;
-    this.isTrash = fileDocument.isTrash;
-    this.likeCount = fileDocument.likeCount;
-    this.likedUsers = fileDocument.likedUsers;
-    this.listenCount = fileDocument.listenCount;
-    this.starredCount = fileDocument.starredCount;
-    this.accesLink = fileDocument.accessLink;
-    this.accessType = fileDocument.accessType;
-    this.creationDate = fileDocument.creationDate;
-    this.openDate = fileDocument.openDate;
-    this.file = fileDocument.file;
-    this.fileSize = fileDocument.fileSize;
-  }
+  constructor(
+    filedoc: FileDocument,
+    readonly id: Types.ObjectId = filedoc._id,
+    readonly user = filedoc.user,
+    readonly type = filedoc.type,
+    readonly name = filedoc.name,
+    readonly parent = filedoc.parent,
+    readonly isTrash = filedoc.isTrash,
+    readonly likeCount = filedoc.likeCount,
+    readonly likedUsers = filedoc.likedUsers,
+    readonly listenCount = filedoc.listenCount,
+    readonly starredCount = filedoc.starredCount,
+    readonly accessType = filedoc.accessType,
+    readonly accesLink = filedoc.accessLink,
+    readonly creationDate = filedoc.creationDate,
+    readonly openDate = filedoc.openDate,
+    readonly comments = filedoc.comments,
+    readonly file = filedoc.file,
+    readonly fileSize = filedoc.fileSize,
+  ) {}
 }

@@ -12,7 +12,7 @@ export class ChangeTrackFilesDto {
 
   @ApiProperty({
     example: '507f191e810c19729de860ea',
-    description: 'ID трека',
+    description: 'ID Трека',
   })
   @IsString({ message: 'Должно быть строкой' })
   readonly track: Types.ObjectId;

@@ -1,8 +1,8 @@
-import { CommentModule } from './../comment/comment.module';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FilesModule } from 'src/files/files.module';
 import { TrackModule } from 'src/track/track.module';
+import { CommentModule } from 'src/comment/comment.module';
 import { AlbumController } from './album.controller';
 import { AlbumService } from './album.service';
 import { Album, AlbumSchema } from './schemas/album.schema';

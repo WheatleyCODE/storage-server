@@ -26,3 +26,9 @@ export type UpdateFileOptions = {
   file?: Express.Multer.File;
   fileSize?: number;
 };
+
+export enum FileType {
+  AUDIO = 'audio',
+  IMAGE = 'image',
+  FILE = 'file',
+}

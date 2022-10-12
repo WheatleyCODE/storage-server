@@ -2,13 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as uuid from 'uuid';
-
-export enum FileType {
-  AUDIO = 'audio',
-  IMAGE = 'image',
-  FILE = 'file',
-}
-
+import { FileType } from 'src/types/file';
 @Injectable()
 export class FilesService {
   async createFile(type: FileType, file: Express.Multer.File): Promise<string> {

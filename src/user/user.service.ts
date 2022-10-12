@@ -1,11 +1,11 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { User, UserDocument } from './schemas/user.schema';
 import { IUserService } from 'src/core';
 import { UserTransferData } from 'src/transfer';
 import { ItemsData, UserRoles } from 'src/types';
 import { CreateUserOptions, UpdateUserOptions } from 'src/types';
-import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UserService extends IUserService<UserDocument, UpdateUserOptions> {

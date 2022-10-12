@@ -1,5 +1,4 @@
-import { ItemFileTypes, StorageCollectionNames } from 'src/types';
-import { ItemTypes } from 'src/types';
+import { ItemFileTypes, StorageCollectionNames, ItemTypes } from 'src/types';
 
 export const getStorageCollectionName = (
   type: ItemTypes | ItemFileTypes,

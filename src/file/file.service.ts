@@ -4,8 +4,8 @@ import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
 import { CommentService } from 'src/comment/comment.service';
 import { IFileService } from 'src/core/Interfaces/IFileService';
-import { FilesService, FileType } from 'src/files/files.service';
-import { ItemsData } from 'src/types';
+import { FilesService } from 'src/files/files.service';
+import { ItemsData, FileType } from 'src/types';
 import { CreateFileOptions, UpdateFileOptions } from 'src/types/file';
 import { File, FileDocument } from './schemas/file.schema';
 

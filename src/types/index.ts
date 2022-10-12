@@ -5,3 +5,6 @@ export * from './storage';
 export * from './auth';
 export * from './folder';
 export * from './track';
+export * from './file';
+export * from './album';
+export * from './comment';

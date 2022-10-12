@@ -17,6 +17,7 @@ import {
   StorageCollectionsPopulated,
   StorageItemTypes,
   UpdateStorageOptions,
+  ItemTransferData,
 } from 'src/types';
 import {
   FolderTransferData,
@@ -25,6 +26,7 @@ import {
   FileTransferData,
   AlbumTransferData,
   CommentTransferData,
+  ItemTDataFactory,
 } from 'src/transfer';
 import { dtoToOjbectId, getStorageCollectionName } from 'src/utils';
 import { AddDeleteItemDto } from './dto/AddDeleteItem.dto';
@@ -42,7 +44,7 @@ import { CreateFileDto } from 'src/file/dto/CreateFileDto';
 import { FileService } from 'src/file/file.service';
 import { AlbumService } from 'src/album/album.service';
 import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
-import { AddCommentDto } from '../comment/dto/AddComment.dto';
+import { AddCommentDto } from 'src/comment/dto/AddComment.dto';
 import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
 
 @Injectable()
@@ -77,13 +79,14 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
   async getStorage(user: Types.ObjectId): Promise<StorageTransferData> {
     try {
       const storage = await this.getOneByAndCheck({ user });
-      return new StorageTransferData(storage);
+      const populatedStorage = await this.populateCollections(storage);
+      return new StorageTransferData(populatedStorage);
     } catch (e) {
       throw e;
     }
   }
 
-  async copyFile(dto: CopyFileDto): Promise<ItemDocument> {
+  async copyFile(dto: CopyFileDto): Promise<ItemTransferData> {
     try {
       const { storage, item, itemType } = dtoToOjbectId(dto, ['item', 'storage']);
 
@@ -99,7 +102,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       strg.usedSpace += newItemFile.size;
 
       await strg.save();
-      return newItemFile;
+      return ItemTDataFactory.create(newItemFile);
     } catch (e) {
       throw e;
     }
@@ -317,7 +320,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async deleteItem(dto: AddDeleteItemDto): Promise<StorageDocument> {
+  async deleteItem(dto: AddDeleteItemDto): Promise<StorageTransferData> {
     try {
       const { storage, item, itemType } = dtoToOjbectId(dto, ['storage', 'item']);
 
@@ -338,10 +341,13 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       await strg.save();
 
       if (prevFolderCount > strg.folders.length) {
-        return await this.checkParentsAndDelete(strg._id);
+        const stor = await this.checkParentsAndDelete(strg._id);
+        const populatedStrg = await this.populateCollections(stor);
+        return new StorageTransferData(populatedStrg);
       }
 
-      return strg;
+      const populatedStrg = await this.populateCollections(strg);
+      return new StorageTransferData(populatedStrg);
     } catch (e) {
       throw e;
     }
@@ -375,7 +381,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async searchItems(dto: SearchItemDto): Promise<ItemDocument[]> {
+  async searchItems(dto: SearchItemDto): Promise<ItemTransferData[]> {
     try {
       const { storage, text } = dtoToOjbectId(dto, ['storage']);
       let allItems: ItemDocument[] = [];
@@ -387,16 +393,21 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
         allItems = [...allItems, ...populatedStrg[collectionName]];
       });
 
-      return allItems.filter((item) => item.name.toLowerCase().includes(text.toLowerCase()));
+      const itemDocs = allItems.filter((item) =>
+        item.name.toLowerCase().includes(text.toLowerCase()),
+      );
+
+      return itemDocs.map((item) => ItemTDataFactory.create(item));
     } catch (e) {
       throw e;
     }
   }
 
-  async changeLike(dto: ChangeLikeDto): Promise<ItemDocument> {
+  async changeLike(dto: ChangeLikeDto): Promise<ItemTransferData> {
     try {
       const { item, user, itemType, isLike } = dtoToOjbectId(dto, ['item', 'user']);
-      return await this.objectServices[itemType].changeLike(item, user, isLike);
+      const itemDoc = await this.objectServices[itemType].changeLike(item, user, isLike);
+      return ItemTDataFactory.create(itemDoc);
     } catch (e) {
       throw e;
     }
@@ -425,47 +436,53 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemDocument> {
+  async changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemTransferData> {
     try {
       const { item, accessType, itemType } = dtoToOjbectId(dto, ['item']);
 
-      return await this.objectServices[itemType].changeAccessType(item, accessType);
+      const itemDoc = await this.objectServices[itemType].changeAccessType(item, accessType);
+
+      return ItemTDataFactory.create(itemDoc);
     } catch (e) {
       throw e;
     }
   }
 
-  async changeAccessLink(dto: CreateAccessLinkDto): Promise<ItemDocument> {
+  async changeAccessLink(dto: CreateAccessLinkDto): Promise<ItemTransferData> {
     try {
       const { item, itemType } = dtoToOjbectId(dto, ['item']);
-      return await this.objectServices[itemType].changeAccessLink(item);
+      const itemDoc = await this.objectServices[itemType].changeAccessLink(item);
+      return ItemTDataFactory.create(itemDoc);
     } catch (e) {
       throw e;
     }
   }
 
-  async changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemDocument> {
+  async changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemTransferData> {
     try {
       const { item, itemType, isTrash } = dtoToOjbectId(dto, ['item']);
-      return await this.objectServices[itemType].changeIsTrash(item, isTrash);
+      const itemDoc = await this.objectServices[itemType].changeIsTrash(item, isTrash);
+      return ItemTDataFactory.create(itemDoc);
     } catch (e) {
       throw e;
     }
   }
 
-  async addListen(dto: AddListenDto): Promise<ItemDocument> {
+  async addListen(dto: AddListenDto): Promise<ItemTransferData> {
     try {
       const { item, itemType } = dtoToOjbectId(dto, ['item']);
-      return await this.objectServices[itemType].addListen(item);
+      const itemDoc = await this.objectServices[itemType].addListen(item);
+      return ItemTDataFactory.create(itemDoc);
     } catch (e) {
       throw e;
     }
   }
 
-  async changeOpenDate(dto: ChangeOpenDateDto): Promise<ItemDocument> {
+  async changeOpenDate(dto: ChangeOpenDateDto): Promise<ItemTransferData> {
     try {
       const { item, itemType } = dtoToOjbectId(dto, ['item']);
-      return await this.objectServices[itemType].changeOpenDate(item);
+      const itemDoc = await this.objectServices[itemType].changeOpenDate(item);
+      return ItemTDataFactory.create(itemDoc);
     } catch (e) {
       throw e;
     }

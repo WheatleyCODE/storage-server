@@ -1,37 +1,24 @@
 import { Types } from 'mongoose';
 import { FolderDocument } from 'src/folder/schemas/folder.schema';
-import { AccessTypes, FolderColors, ItemTypes } from 'src/types';
 
 export class FolderTransferData {
-  readonly id: Types.ObjectId;
-  readonly type: ItemTypes;
-  readonly parent: Types.ObjectId;
-  readonly color: FolderColors;
-  readonly name: string;
-  readonly isTrash: boolean;
-  readonly likeCount: number;
-  readonly likedUsers: Types.ObjectId[];
-  readonly listenCount: number;
-  readonly starredCount: number;
-  readonly accesLink: string;
-  readonly accessType: AccessTypes;
-  readonly creationDate: number;
-  readonly openDate: number;
-
-  constructor(folderDocument: FolderDocument) {
-    this.id = folderDocument._id;
-    this.type = folderDocument.type;
-    this.parent = folderDocument.parent;
-    this.color = folderDocument.color;
-    this.name = folderDocument.name;
-    this.isTrash = folderDocument.isTrash;
-    this.likeCount = folderDocument.likeCount;
-    this.likedUsers = folderDocument.likedUsers;
-    this.listenCount = folderDocument.listenCount;
-    this.starredCount = folderDocument.starredCount;
-    this.accesLink = folderDocument.accessLink;
-    this.accessType = folderDocument.accessType;
-    this.creationDate = folderDocument.creationDate;
-    this.openDate = folderDocument.openDate;
-  }
+  constructor(
+    folder: FolderDocument,
+    readonly id: Types.ObjectId = folder._id,
+    readonly user = folder.user,
+    readonly type = folder.type,
+    readonly name = folder.name,
+    readonly parent = folder.parent,
+    readonly isTrash = folder.isTrash,
+    readonly likeCount = folder.likeCount,
+    readonly likedUsers = folder.likedUsers,
+    readonly listenCount = folder.listenCount,
+    readonly starredCount = folder.starredCount,
+    readonly accessType = folder.accessType,
+    readonly accesLink = folder.accessLink,
+    readonly creationDate = folder.creationDate,
+    readonly openDate = folder.openDate,
+    readonly comments = folder.comments,
+    readonly color = folder.color,
+  ) {}
 }

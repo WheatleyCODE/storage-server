@@ -1,18 +1,16 @@
 import { Types } from 'mongoose';
-import { StorageDocument } from 'src/storage/schemas/storage.schema';
+import { StorageCollectionsPopulated } from 'src/types';
 
 export class StorageTransferData {
-  readonly id: Types.ObjectId;
-  readonly name: Types.ObjectId;
-  readonly diskSpace: number;
-  readonly usedSpace: number;
-  readonly folders: Types.ObjectId[];
-
-  constructor(storageDocument: StorageDocument) {
-    this.id = storageDocument._id;
-    this.name = storageDocument.name;
-    this.diskSpace = storageDocument.diskSpace;
-    this.usedSpace = storageDocument.usedSpace;
-    this.folders = storageDocument.folders;
-  }
+  constructor(
+    storage: StorageCollectionsPopulated,
+    readonly id: Types.ObjectId = storage._id,
+    readonly name = storage.name,
+    readonly diskSpace = storage.diskSpace,
+    readonly usedSpace = storage.usedSpace,
+    readonly folders = storage.folders,
+    readonly tracks = storage.tracks,
+    readonly files = storage.files,
+    readonly albums = storage.albums,
+  ) {}
 }

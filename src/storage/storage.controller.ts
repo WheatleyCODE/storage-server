@@ -2,16 +2,7 @@ import { Body, Controller, Get, Param, Post, UploadedFiles, UseInterceptors } fr
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CreateFolderDto } from 'src/folder/dto/CreateFolder.dto';
 import { CreateTrackDto } from 'src/track/dto/createTrackDto';
-import { ItemDocument } from 'src/types';
-import {
-  FolderTransferData,
-  StorageTransferData,
-  TrackTransferData,
-  FileTransferData,
-  AlbumTransferData,
-  CommentTransferData,
-} from 'src/transfer';
-import { dtoToOjbectId, stringToOjbectId } from 'src/utils';
+import { stringToOjbectId } from 'src/utils';
 import { AddDeleteItemDto } from './dto/AddDeleteItem.dto';
 import { AddListenDto } from './dto/AddListen.dto';
 import { ChangeAccessTypeDto } from './dto/ChangeAccessType.dto';
@@ -20,15 +11,22 @@ import { ChangeIsTrashDto } from './dto/ChangeIsTrash.dto';
 import { ChangeLikeDto } from './dto/ChangeLike.dto';
 import { ChangeOpenDateDto } from './dto/ChangeOpenDate.dto';
 import { CreateAccessLinkDto } from './dto/CreateAccessLink.dto';
-import { CreateStorageDto } from './dto/CreateStorage.dto';
 import { SearchItemDto } from './dto/SearchItem.dto';
-import { StorageDocument } from './schemas/storage.schema';
 import { StorageService } from './storage.service';
 import { CopyFileDto } from './dto/CopyFile.dto';
 import { CreateFileDto } from 'src/file/dto/CreateFileDto';
 import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
-import { AddCommentDto } from '../comment/dto/AddComment.dto';
+import { AddCommentDto } from 'src/comment/dto/AddComment.dto';
 import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
+import { ItemTransferData } from 'src/types';
+import {
+  FolderTransferData,
+  StorageTransferData,
+  TrackTransferData,
+  FileTransferData,
+  AlbumTransferData,
+  CommentTransferData,
+} from 'src/transfer';
 
 @Controller('/api/storage')
 export class StorageController {
@@ -78,12 +76,12 @@ export class StorageController {
   }
 
   @Post('/delete/item')
-  deleteItem(@Body() dto: AddDeleteItemDto): Promise<StorageDocument> {
+  deleteItem(@Body() dto: AddDeleteItemDto): Promise<StorageTransferData> {
     return this.storageService.deleteItem(dto);
   }
 
   @Post('/change/access')
-  changeAccessType(@Body() dto: ChangeAccessTypeDto): Promise<ItemDocument> {
+  changeAccessType(@Body() dto: ChangeAccessTypeDto): Promise<ItemTransferData> {
     return this.storageService.changeAccessType(dto);
   }
 
@@ -106,37 +104,37 @@ export class StorageController {
   }
 
   @Post('/copy/file')
-  copyFile(@Body() dto: CopyFileDto): Promise<ItemDocument> {
+  copyFile(@Body() dto: CopyFileDto): Promise<ItemTransferData> {
     return this.storageService.copyFile(dto);
   }
 
   @Post('/change/trash')
-  changeIsTrash(@Body() dto: ChangeIsTrashDto): Promise<ItemDocument> {
+  changeIsTrash(@Body() dto: ChangeIsTrashDto): Promise<ItemTransferData> {
     return this.storageService.changeIsTrash(dto);
   }
 
   @Post('/create/access-link')
-  createAccessLink(@Body() dto: CreateAccessLinkDto): Promise<ItemDocument> {
+  createAccessLink(@Body() dto: CreateAccessLinkDto): Promise<ItemTransferData> {
     return this.storageService.changeAccessLink(dto);
   }
 
   @Post('/change/like')
-  changeLike(@Body() dto: ChangeLikeDto): Promise<ItemDocument> {
+  changeLike(@Body() dto: ChangeLikeDto): Promise<ItemTransferData> {
     return this.storageService.changeLike(dto);
   }
 
   @Post('/change/open-date')
-  changeOpenDate(@Body() dto: ChangeOpenDateDto): Promise<ItemDocument> {
+  changeOpenDate(@Body() dto: ChangeOpenDateDto): Promise<ItemTransferData> {
     return this.storageService.changeOpenDate(dto);
   }
 
   @Post('/add/listen')
-  addListen(@Body() dto: AddListenDto): Promise<ItemDocument> {
+  addListen(@Body() dto: AddListenDto): Promise<ItemTransferData> {
     return this.storageService.addListen(dto);
   }
 
   @Post('/search/items')
-  searchItems(@Body() dto: SearchItemDto): Promise<ItemDocument[]> {
+  searchItems(@Body() dto: SearchItemDto): Promise<ItemTransferData[]> {
     return this.storageService.searchItems(dto);
   }
 
@@ -148,22 +146,5 @@ export class StorageController {
   @Post('/delete/comment')
   deleteComment(@Body() dto: DeleteCommentDto): Promise<CommentTransferData> {
     return this.storageService.deleteComment(dto);
-  }
-
-  // * Поинт для тестирования
-  @Post('/test/delete/:id')
-  deleteStorage(@Param() param: { id: string }): Promise<StorageDocument> {
-    const correctId = stringToOjbectId(param.id);
-    return this.storageService.delete(correctId);
-  }
-
-  // * Поинт для тестирования
-  @Post('/test/create')
-  createStorage(@Body() dto: CreateStorageDto): Promise<StorageDocument> {
-    const correctDto = dtoToOjbectId(dto, ['user']);
-    return this.storageService.create({
-      ...correctDto,
-      name: 'Тестовое хранилище',
-    });
   }
 }

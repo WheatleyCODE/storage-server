@@ -1,4 +1,3 @@
-import { ChangePassword, ResetPassword, AuthData, TokensTransferData } from 'src/types';
 import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -7,6 +6,7 @@ import { RegistrationDto } from './dto/Registration.dto';
 import { ResetPasswordDto } from './dto/ResetPassword.dto';
 import { ChangePasswordDto } from './dto/СhangePassword.dto';
 import { setRefTokenInCookie } from 'src/utils';
+import { ChangePassword, ResetPassword, AuthData, TokensTransferData } from 'src/types';
 
 @Controller('/api/auth')
 export class AuthController {

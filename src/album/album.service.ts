@@ -4,10 +4,11 @@ import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
 import { CommentService } from 'src/comment/comment.service';
 import { IAlbumService } from 'src/core/Interfaces/IAlbumService';
-import { FilesService, FileType } from 'src/files/files.service';
+import { FilesService } from 'src/files/files.service';
 import { TrackDocument } from 'src/track/schemas/track.schema';
 import { TrackService } from 'src/track/track.service';
-import { ItemsData } from 'src/types';
+import { AlbumTransferData } from 'src/transfer';
+import { ItemsData, FileType } from 'src/types';
 import { CreateAlbumOptions, UpdateAlbumOptions } from 'src/types/album';
 import { dtoToOjbectId } from 'src/utils';
 import { ChangeTracksDto } from './dto/ChangeTracks.dto';
@@ -24,7 +25,7 @@ export class AlbumService extends IAlbumService<AlbumDocument, UpdateAlbumOption
     super(albumModel, commentService);
   }
 
-  async changeTracks(dto: ChangeTracksDto): Promise<AlbumDocument> {
+  async changeTracks(dto: ChangeTracksDto): Promise<AlbumTransferData> {
     try {
       const { album, tracks, isDelete } = dtoToOjbectId(dto, ['album', 'tracks']);
       const albumDoc = await this.findByIdAndCheck(album);
@@ -42,11 +43,14 @@ export class AlbumService extends IAlbumService<AlbumDocument, UpdateAlbumOption
       if (isDelete) {
         const delTracks = tracks.map((ids) => ids.toString());
         albumDoc.tracks = albumDoc.tracks.filter((itm) => !delTracks.includes(itm.toString()));
-        return await albumDoc.save();
+        await albumDoc.save();
+        return new AlbumTransferData(albumDoc);
       }
 
       albumDoc.tracks = [...albumDoc.tracks, ...tracks];
-      return await albumDoc.save();
+      await albumDoc.save();
+
+      return new AlbumTransferData(albumDoc);
     } catch (e) {
       throw e;
     }

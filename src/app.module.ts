@@ -1,8 +1,8 @@
-import * as path from 'path';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import * as path from 'path';
 import { AppController } from './app.controller';
 import { UserModule } from './user/user.module';
 import { TokensModule } from './tokens/tokens.module';
