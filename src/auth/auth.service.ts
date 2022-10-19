@@ -26,17 +26,18 @@ export class AuthService {
     try {
       const { password, email, name } = dto;
       const randomString = uuid.v4();
-      const link = `${process.env.URL_API}/api/auth/activate/${randomString}`;
-
-      await this.mailService.sendActivationMail(email, link);
-
+      const link = `${process.env.URL_CLIENT}/activate/${randomString}`;
       const hashPassword = await bcrypt.hash(password, 6);
+
       const user = await this.userService.create({
         name,
         email,
         password: hashPassword,
         activationLink: randomString,
       });
+
+      await this.mailService.sendActivationMail(email, link);
+
       const storageName = getStorageName(user.name);
 
       await this.storageService.create({ user: user._id, name: storageName });
@@ -107,7 +108,7 @@ export class AuthService {
       const user = await this.getUserByAndCheck(
         { activationLink },
         HttpStatus.NOT_FOUND,
-        'Пользователь не найден',
+        'Аккаунт уже активирован',
       );
 
       user.isActivated = true;
@@ -175,7 +176,7 @@ export class AuthService {
       const user = await this.getUserByAndCheck(
         { resetPasswordLink },
         HttpStatus.NOT_FOUND,
-        'Пользователь не найден',
+        'Пользователь не запрашивал смену пароля',
       );
 
       const hashPassword = await bcrypt.hash(password, 6);
