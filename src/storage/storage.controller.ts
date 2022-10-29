@@ -1,5 +1,15 @@
-import { Body, Controller, Get, Param, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { CreateFolderDto } from 'src/folder/dto/CreateFolder.dto';
 import { CreateTrackDto } from 'src/track/dto/createTrackDto';
 import { stringToOjbectId } from 'src/utils';
@@ -18,7 +28,7 @@ import { CreateFileDto } from 'src/file/dto/CreateFileDto';
 import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
 import { AddCommentDto } from 'src/comment/dto/AddComment.dto';
 import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
-import { ItemTransferData } from 'src/types';
+import { ItemTransferData, UserReq } from 'src/types';
 import {
   FolderTransferData,
   StorageTransferData,
@@ -32,9 +42,10 @@ import {
 export class StorageController {
   constructor(private readonly storageService: StorageService) {}
 
-  @Get('/user/:id')
-  getStorage(@Param() param: { id: string }): Promise<StorageTransferData> {
-    const correctId = stringToOjbectId(param.id);
+  @UseGuards(JwtAuthGuard)
+  @Get('/')
+  getStorage(@Req() req: UserReq): Promise<StorageTransferData> {
+    const correctId = stringToOjbectId(req.userTD.id);
     return this.storageService.getStorage(correctId);
   }
 

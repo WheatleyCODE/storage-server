@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { AlbumService } from 'src/album/album.service';
 import { AlbumDocument } from 'src/album/schemas/album.schema';
 import { FileService } from 'src/file/file.service';
@@ -11,7 +12,12 @@ import {
   TrackTransferData,
   FileTransferData,
   AlbumTransferData,
+  UserTransferData,
 } from 'src/transfer';
+
+export interface UserReq extends Request {
+  userTD: UserTransferData;
+}
 
 export enum AccessTypes {
   PRIVATE = 'PRIVATE',

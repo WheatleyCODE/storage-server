@@ -25,5 +25,6 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     'require-jsdoc': 'off',
     'new-cap': 'off',
+    'prettier/prettier': ['error', { 'endOfLine': 'auto' }]
   },
 };

@@ -25,7 +25,7 @@ export class JwtAuthGuard implements CanActivate {
         );
       }
       const userTransferData = this.accessTokenService.verify(token);
-      req.userTransferData = userTransferData;
+      req.userTD = userTransferData;
       return true;
     } catch (e) {
       throw e;

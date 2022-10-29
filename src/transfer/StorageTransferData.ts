@@ -6,6 +6,7 @@ export class StorageTransferData {
     storage: StorageCollectionsPopulated,
     readonly id: Types.ObjectId = storage._id,
     readonly name = storage.name,
+    readonly user = storage.user,
     readonly diskSpace = storage.diskSpace,
     readonly usedSpace = storage.usedSpace,
     readonly folders = storage.folders,
