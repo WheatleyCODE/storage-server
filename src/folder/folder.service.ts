@@ -76,16 +76,6 @@ export class FolderService extends IFolderService<FolderDocument, UpdateFolderOp
     }
   }
 
-  async changeParent(id: Types.ObjectId, parent: Types.ObjectId): Promise<FolderDocument> {
-    try {
-      const folder = await this.findByIdAndCheck(id);
-      folder.parent = parent;
-      return folder.save();
-    } catch (e) {
-      throw e;
-    }
-  }
-
   async getParents(id: Types.ObjectId): Promise<FolderDocument[]> {
     try {
       const parents = [];
@@ -110,14 +100,6 @@ export class FolderService extends IFolderService<FolderDocument, UpdateFolderOp
       return parents.reverse();
     } catch (e) {
       throw e;
-    }
-  }
-
-  async getChildrens(parent: Types.ObjectId): Promise<FolderDocument[]> {
-    try {
-      return await this.folderModel.find({ parent });
-    } catch (e) {
-      throw new HttpException('Ошибка при поиске дочерних папок', HttpStatus.BAD_REQUEST);
     }
   }
 

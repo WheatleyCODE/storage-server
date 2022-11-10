@@ -1,27 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 import { Types } from 'mongoose';
 
 export class CreateFolderDto {
-  @ApiProperty({
-    example: '507f191e810c19729de860ea',
-    description: 'ID Хранилища',
-  })
-  @IsString({ message: 'Должно быть строкой' })
-  readonly storage: Types.ObjectId;
-
-  @ApiProperty({
-    example: '507f191e810c19729de860ea',
-    description: 'ID Пользователя',
-  })
-  @IsString({ message: 'Должно быть строкой' })
-  readonly user: Types.ObjectId;
-
   @ApiProperty({
     example: 'Новая старая папка',
     description: 'Название папки',
   })
   @IsString({ message: 'Должно быть строкой' })
+  @Length(3, 14, { message: 'Не меньше 3 и не больше 14' })
   readonly name: string;
 
   @ApiProperty({

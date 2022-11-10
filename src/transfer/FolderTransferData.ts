@@ -20,5 +20,6 @@ export class FolderTransferData {
     readonly openDate = folder.openDate,
     readonly comments = folder.comments,
     readonly color = folder.color,
+    readonly folderSize = folder.folderSize,
   ) {}
 }

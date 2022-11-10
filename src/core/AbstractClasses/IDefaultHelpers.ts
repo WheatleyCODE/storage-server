@@ -21,7 +21,7 @@ export abstract class IDefaultHelpers<T, O> {
     }
   }
 
-  protected async getOneByAndCheck(options: {
+  protected async findOneByAndCheck(options: {
     [key in keyof O]: any;
   }): Promise<T> {
     try {

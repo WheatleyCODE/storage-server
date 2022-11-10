@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean } from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
+import { Types } from 'mongoose';
 import { ItemDto } from 'src/types';
 
-export class ChangeIsTrashDto {
+export class ChangeParentDto {
   @ApiProperty({
     example: '[{ id: "507f191e810c19729de860ea", type: "FOLDER"}]',
     description: 'Массив ItemDto[]',
@@ -11,9 +12,9 @@ export class ChangeIsTrashDto {
   items: ItemDto[];
 
   @ApiProperty({
-    example: true,
-    description: 'Флаг добавления элемента в корзину',
+    example: '507f191e810c19729de860ea',
+    description: 'ID Папки',
   })
-  @IsBoolean({ message: 'Должно быть булеан' })
-  readonly isTrash: boolean;
+  @IsString({ message: 'Должно быть строкой' })
+  readonly parent: Types.ObjectId;
 }

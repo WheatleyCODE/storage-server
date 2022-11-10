@@ -18,6 +18,8 @@ import {
   StorageItemTypes,
   UpdateStorageOptions,
   ItemTransferData,
+  AccessTypes,
+  ChildrensTransferData,
 } from 'src/types';
 import {
   FolderTransferData,
@@ -29,7 +31,8 @@ import {
   ItemTDataFactory,
 } from 'src/transfer';
 import { dtoToOjbectId, getStorageCollectionName } from 'src/utils';
-import { AddDeleteItemDto } from './dto/AddDeleteItem.dto';
+import { AddItemDto } from './dto/AddItem.dto';
+import { DeleteItemDto } from './dto/DeleteItem.dto';
 import { AddListenDto } from './dto/AddListen.dto';
 import { ChangeAccessTypeDto } from './dto/ChangeAccessType.dto';
 import { ChangeTrackFilesDto } from './dto/ChangeTrackFiles.dto';
@@ -46,6 +49,10 @@ import { AlbumService } from 'src/album/album.service';
 import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
 import { AddCommentDto } from 'src/comment/dto/AddComment.dto';
 import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
+import { ChangeColorDto } from './dto/ChangeColor.dto';
+import { FolderDocument } from 'src/folder/schemas/folder.schema';
+import { ChangeNameDto } from './dto/ChangeName.dto';
+import { ChangeParentDto } from './dto/ChangeParent.dto';
 
 @Injectable()
 export class StorageService extends IStorageService<StorageDocument, UpdateStorageOptions> {
@@ -78,7 +85,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async getStorage(user: Types.ObjectId): Promise<StorageTransferData> {
     try {
-      const storage = await this.getOneByAndCheck({ user });
+      const storage = await this.findOneByAndCheck({ user });
       const populatedStorage = await this.populateCollections(storage);
       return new StorageTransferData(populatedStorage);
     } catch (e) {
@@ -108,17 +115,21 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async createFolder(dto: CreateFolderDto): Promise<FolderTransferData> {
+  async createFolder(dto: CreateFolderDto, user: Types.ObjectId): Promise<FolderTransferData> {
     try {
-      const correctDto = dtoToOjbectId(dto, ['storage', 'user', 'parent']);
+      const correctDto = dtoToOjbectId(dto, ['parent']);
+
       const folder = await this.folderService.create({
         ...correctDto,
         creationDate: Date.now(),
         openDate: Date.now(),
+        user,
       });
 
+      const stor = await this.storageModel.findOne({ user });
+
       await this.addItem({
-        storage: dto.storage,
+        storage: stor._id,
         item: folder._id,
         itemType: folder.type,
       });
@@ -305,7 +316,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async addItem(dto: AddDeleteItemDto, size?: number): Promise<StorageDocument> {
+  async addItem(dto: AddItemDto, size?: number): Promise<StorageDocument> {
     try {
       const { storage, item, itemType } = dtoToOjbectId(dto, ['storage', 'item']);
 
@@ -320,16 +331,23 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async deleteItem(dto: AddDeleteItemDto): Promise<StorageTransferData> {
+  async deleteItem(dto: DeleteItemDto, user: Types.ObjectId): Promise<StorageTransferData> {
     try {
-      const { storage, item, itemType } = dtoToOjbectId(dto, ['storage', 'item']);
+      const itemsDto = dto.items.map((item) => dtoToOjbectId(item, ['id']));
 
-      const strg = await this.findByIdAndCheck(storage);
-      const prevFolderCount = strg.folders.length;
+      let itemsDocs: ItemDocument[] = [];
+      let sumSize = 0;
 
-      const { items, size } = await this.objectServices[itemType].delete(item);
+      const strg = await this.findOneByAndCheck({ user });
+      // const prevFolderCount = strg.folders.length;
 
-      items.forEach((item) => {
+      for await (const { type, id } of itemsDto) {
+        const { items, size } = await this.objectServices[type].delete(id);
+        itemsDocs = [...itemsDocs, ...items];
+        sumSize += size;
+      }
+
+      itemsDocs.forEach((item) => {
         const collection = getStorageCollectionName(item.type);
 
         strg[collection] = strg[collection].filter(
@@ -337,14 +355,14 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
         );
       });
 
-      strg.usedSpace -= size;
+      strg.usedSpace -= sumSize;
       await strg.save();
 
-      if (prevFolderCount > strg.folders.length) {
-        const stor = await this.checkParentsAndDelete(strg._id);
-        const populatedStrg = await this.populateCollections(stor);
-        return new StorageTransferData(populatedStrg);
-      }
+      // if (prevFolderCount > strg.folders.length) {
+      //   const stor = await this.checkParentsAndDelete(strg._id);
+      //   const populatedStrg = await this.populateCollections(stor);
+      //   return new StorageTransferData(populatedStrg);
+      // }
 
       const populatedStrg = await this.populateCollections(strg);
       return new StorageTransferData(populatedStrg);
@@ -377,15 +395,16 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       strg.usedSpace -= size;
       return await strg.save();
     } catch (e) {
-      throw new HttpException('Ошибка при проверки родителей', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Ошибка при проверке родителей', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async searchItems(dto: SearchItemDto): Promise<ItemTransferData[]> {
+  async searchItems(dto: SearchItemDto, user: Types.ObjectId): Promise<ItemTransferData[]> {
     try {
-      const { storage, text } = dtoToOjbectId(dto, ['storage']);
+      const { text } = dto;
       let allItems: ItemDocument[] = [];
-      const strg = await this.findByIdAndCheck(storage);
+
+      const strg = await this.findOneByAndCheck({ user });
       const populatedStrg = await this.populateCollections(strg);
 
       StorageItemTypes.forEach((itemType) => {
@@ -413,9 +432,27 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
+  async changeColor(dto: ChangeColorDto): Promise<FolderTransferData[]> {
+    try {
+      const { color } = dto;
+      const items = dto.items.map((item) => dtoToOjbectId(item, ['id']));
+
+      const folderDocs: FolderDocument[] = [];
+
+      for await (const { id } of items) {
+        const folderDoc = await this.folderService.changeColor(id, color);
+        folderDocs.push(folderDoc);
+      }
+
+      return folderDocs.map((doc) => new FolderTransferData(doc));
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async getOneBy(options: UpdateStorageOptions): Promise<StorageDocument> {
     try {
-      const storage = await this.getOneByAndCheck(options);
+      const storage = await this.findOneByAndCheck(options);
       return await storage.populate('folders');
     } catch (e) {
       throw e;
@@ -438,9 +475,9 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemTransferData> {
     try {
-      const { item, accessType, itemType } = dtoToOjbectId(dto, ['item']);
+      const { id, accessType, type } = dtoToOjbectId(dto, ['id']);
 
-      const itemDoc = await this.objectServices[itemType].changeAccessType(item, accessType);
+      const itemDoc = await this.objectServices[type].changeAccessType(id, accessType);
 
       return ItemTDataFactory.create(itemDoc);
     } catch (e) {
@@ -450,19 +487,84 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async changeAccessLink(dto: CreateAccessLinkDto): Promise<ItemTransferData> {
     try {
-      const { item, itemType } = dtoToOjbectId(dto, ['item']);
-      const itemDoc = await this.objectServices[itemType].changeAccessLink(item);
+      const { id, type } = dtoToOjbectId(dto, ['id']);
+      const itemDoc = await this.objectServices[type].changeAccessLink(id);
+      itemDoc.accessType = AccessTypes.LINK;
+      await itemDoc.save();
       return ItemTDataFactory.create(itemDoc);
     } catch (e) {
       throw e;
     }
   }
 
-  async changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemTransferData> {
+  async changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemTransferData[]> {
     try {
-      const { item, itemType, isTrash } = dtoToOjbectId(dto, ['item']);
-      const itemDoc = await this.objectServices[itemType].changeIsTrash(item, isTrash);
+      const itemDocs: ItemDocument[] = [];
+
+      const { isTrash } = dto;
+      const items = dto.items.map((item) => dtoToOjbectId(item, ['id']));
+
+      for await (const { id, type } of items) {
+        const itemDoc = await this.objectServices[type].changeIsTrash(id, isTrash);
+        itemDocs.push(itemDoc);
+      }
+
+      return itemDocs.map((itemDoc) => ItemTDataFactory.create(itemDoc));
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeName(dto: ChangeNameDto): Promise<ItemTransferData> {
+    try {
+      const { id, name, type } = dtoToOjbectId(dto, ['id']);
+
+      const itemDoc = await this.objectServices[type].changeName(id, name);
+
       return ItemTDataFactory.create(itemDoc);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeParent(dto: ChangeParentDto): Promise<ItemTransferData[]> {
+    try {
+      const itemDocs: ItemDocument[] = [];
+      const { parent } = dtoToOjbectId(dto, ['parent']);
+      const items = dto.items.map((item) => dtoToOjbectId(item, ['id']));
+
+      for await (const { id, type } of items) {
+        const itemDoc = await this.objectServices[type].changeParent(id, parent);
+        itemDocs.push(itemDoc);
+      }
+
+      return itemDocs.map((itemDoc) => ItemTDataFactory.create(itemDoc));
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getChildrens(id: Types.ObjectId): Promise<ChildrensTransferData> {
+    try {
+      // const itemDocs: ItemDocument[] = [];
+
+      // for await (const { id, type } of this.objectServices) {
+      //   const itemDoc = await this.objectServices[type].changeParent(id, parent);
+      //   itemDocs.push(itemDoc);
+      // }
+
+      const parentDocs = await this.folderService.getParents(id);
+
+      // ! fix
+      const itemDocs = await this.objectServices.FOLDER.getChildrens(id);
+
+      const childrens = itemDocs.map((itemDoc) => ItemTDataFactory.create(itemDoc));
+      const parents = parentDocs.map((parentDoc) => new FolderTransferData(parentDoc));
+
+      return {
+        parents,
+        childrens,
+      };
     } catch (e) {
       throw e;
     }

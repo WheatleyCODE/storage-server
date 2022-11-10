@@ -21,6 +21,13 @@ export class Folder extends DefaultObjectSchema {
   })
   @Prop({ default: FolderColors.GREY, type: String })
   color: FolderColors;
+
+  @ApiProperty({
+    example: 8,
+    description: 'Вес пустой папки',
+  })
+  @Prop({ default: 8, type: Number })
+  folderSize: number;
 }
 
 export const FolderSchema = SchemaFactory.createForClass(Folder);

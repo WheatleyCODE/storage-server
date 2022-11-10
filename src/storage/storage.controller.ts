@@ -2,18 +2,19 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
+  UsePipes,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { CreateFolderDto } from 'src/folder/dto/CreateFolder.dto';
 import { CreateTrackDto } from 'src/track/dto/createTrackDto';
 import { stringToOjbectId } from 'src/utils';
-import { AddDeleteItemDto } from './dto/AddDeleteItem.dto';
 import { AddListenDto } from './dto/AddListen.dto';
 import { ChangeAccessTypeDto } from './dto/ChangeAccessType.dto';
 import { ChangeTrackFilesDto } from './dto/ChangeTrackFiles.dto';
@@ -28,7 +29,7 @@ import { CreateFileDto } from 'src/file/dto/CreateFileDto';
 import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
 import { AddCommentDto } from 'src/comment/dto/AddComment.dto';
 import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
-import { ItemTransferData, UserReq } from 'src/types';
+import { ChildrensTransferData, ItemTransferData, UserReq } from 'src/types';
 import {
   FolderTransferData,
   StorageTransferData,
@@ -37,21 +38,29 @@ import {
   AlbumTransferData,
   CommentTransferData,
 } from 'src/transfer';
+import { ValidationPipe } from 'src/pipes/validation.pipe';
+import { DeleteItemDto } from './dto/DeleteItem.dto';
+import { ChangeColorDto } from './dto/ChangeColor.dto';
+import { ChangeNameDto } from './dto/ChangeName.dto';
+import { ChangeParentDto } from './dto/ChangeParent.dto';
 
 @Controller('/api/storage')
 export class StorageController {
   constructor(private readonly storageService: StorageService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get('/')
+  @UseGuards(JwtAuthGuard)
   getStorage(@Req() req: UserReq): Promise<StorageTransferData> {
     const correctId = stringToOjbectId(req.userTD.id);
     return this.storageService.getStorage(correctId);
   }
 
   @Post('/create/folder')
-  createFolder(@Body() dto: CreateFolderDto): Promise<FolderTransferData> {
-    return this.storageService.createFolder(dto);
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  createFolder(@Body() dto: CreateFolderDto, @Req() req: UserReq): Promise<FolderTransferData> {
+    const correctId = stringToOjbectId(req.userTD.id);
+    return this.storageService.createFolder(dto, correctId);
   }
 
   @UseInterceptors(FileFieldsInterceptor([{ name: 'file', maxCount: 1 }]))
@@ -86,14 +95,12 @@ export class StorageController {
     return this.storageService.createTrack(dto, files.audio[0], files?.image && files.image[0]);
   }
 
-  @Post('/delete/item')
-  deleteItem(@Body() dto: AddDeleteItemDto): Promise<StorageTransferData> {
-    return this.storageService.deleteItem(dto);
-  }
-
-  @Post('/change/access')
-  changeAccessType(@Body() dto: ChangeAccessTypeDto): Promise<ItemTransferData> {
-    return this.storageService.changeAccessType(dto);
+  @Post('/delete/items')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  deleteItem(@Body() dto: DeleteItemDto, @Req() req: UserReq): Promise<StorageTransferData> {
+    const correctId = stringToOjbectId(req.userTD.id);
+    return this.storageService.deleteItem(dto, correctId);
   }
 
   @UseInterceptors(
@@ -120,13 +127,52 @@ export class StorageController {
   }
 
   @Post('/change/trash')
-  changeIsTrash(@Body() dto: ChangeIsTrashDto): Promise<ItemTransferData> {
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  changeIsTrash(@Body() dto: ChangeIsTrashDto): Promise<ItemTransferData[]> {
     return this.storageService.changeIsTrash(dto);
   }
 
+  @Post('/change/color')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  changeColor(@Body() dto: ChangeColorDto): Promise<FolderTransferData[]> {
+    return this.storageService.changeColor(dto);
+  }
+
+  @Post('/change/name')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  changeName(@Body() dto: ChangeNameDto): Promise<ItemTransferData> {
+    return this.storageService.changeName(dto);
+  }
+
+  @Post('/change/parent')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  changeParent(@Body() dto: ChangeParentDto): Promise<ItemTransferData[]> {
+    return this.storageService.changeParent(dto);
+  }
+
   @Post('/create/access-link')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   createAccessLink(@Body() dto: CreateAccessLinkDto): Promise<ItemTransferData> {
     return this.storageService.changeAccessLink(dto);
+  }
+
+  @Post('/change/access')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  changeAccessType(@Body() dto: ChangeAccessTypeDto): Promise<ItemTransferData> {
+    return this.storageService.changeAccessType(dto);
+  }
+
+  @Get('/childrens/:id')
+  @UseGuards(JwtAuthGuard)
+  getChildrens(@Param() param): Promise<ChildrensTransferData> {
+    const correctId = stringToOjbectId(param.id);
+    return this.storageService.getChildrens(correctId);
   }
 
   @Post('/change/like')
@@ -145,8 +191,11 @@ export class StorageController {
   }
 
   @Post('/search/items')
-  searchItems(@Body() dto: SearchItemDto): Promise<ItemTransferData[]> {
-    return this.storageService.searchItems(dto);
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  searchItems(@Body() dto: SearchItemDto, @Req() req: UserReq): Promise<ItemTransferData[]> {
+    const correctId = stringToOjbectId(req.userTD.id);
+    return this.storageService.searchItems(dto, correctId);
   }
 
   @Post('/create/comment')

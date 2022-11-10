@@ -60,6 +60,35 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
     }
   }
 
+  async changeName(id: Types.ObjectId, name: string): Promise<T> {
+    try {
+      const item: any = await this.findByIdAndCheck(id);
+
+      item.name = name;
+      return await item.save();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeParent(id: Types.ObjectId, parent: Types.ObjectId): Promise<T> {
+    try {
+      const item: any = await this.findByIdAndCheck(id);
+      item.parent = parent;
+      return item.save();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getChildrens(parent: Types.ObjectId): Promise<T[]> {
+    try {
+      return await this.model.find({ parent });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async changeLike(id: Types.ObjectId, user: Types.ObjectId, isLike: boolean): Promise<T> {
     try {
       const item: any = await this.findByIdAndCheck(id);

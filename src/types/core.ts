@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { Request } from 'express';
 import { AlbumService } from 'src/album/album.service';
 import { AlbumDocument } from 'src/album/schemas/album.schema';
@@ -42,6 +43,7 @@ export enum FolderColors {
   GREY = 'GREY',
   RED = 'RED',
   BLUE = 'BLUE',
+  YELLOW = 'YELLOW',
 }
 
 export enum UserRoles {
@@ -79,6 +81,11 @@ export type ItemsData = {
 };
 
 export type ItemDocument = FolderDocument | TrackDocument | FileDocument | AlbumDocument;
+export interface ItemDto {
+  id: Types.ObjectId;
+  type: ItemTypes;
+}
+
 export type ItemTransferData =
   | FolderTransferData
   | TrackTransferData
@@ -86,3 +93,8 @@ export type ItemTransferData =
   | AlbumTransferData;
 
 export type Modify<T, R> = Omit<T, keyof R> & R;
+
+export interface ChildrensTransferData {
+  childrens: ItemTransferData[];
+  parents: FolderTransferData[];
+}

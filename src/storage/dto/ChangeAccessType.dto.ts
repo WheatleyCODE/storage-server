@@ -9,14 +9,14 @@ export class ChangeAccessTypeDto {
     description: 'ID Элемента хранилища | StorageItems',
   })
   @IsString({ message: 'Должно быть строкой' })
-  readonly item: Types.ObjectId;
+  readonly id: Types.ObjectId;
 
   @ApiProperty({
     example: 'FOLDER',
     description: 'Тип Элемента хранилища | ItemTypes',
   })
   @IsString({ message: 'Должно быть строкой' })
-  readonly itemType: ItemTypes;
+  readonly type: ItemTypes;
 
   @ApiProperty({
     example: 'PUBLIC',
