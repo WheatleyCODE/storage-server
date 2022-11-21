@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsString } from 'class-validator';
+import { IsArray } from 'class-validator';
 import { Types } from 'mongoose';
 import { ItemDto } from 'src/types';
 
@@ -12,9 +12,8 @@ export class ChangeParentDto {
   items: ItemDto[];
 
   @ApiProperty({
-    example: '507f191e810c19729de860ea',
-    description: 'ID Папки',
+    example: '507f191e810c19729de860ea | null',
+    description: 'ID Папки или null',
   })
-  @IsString({ message: 'Должно быть строкой' })
-  readonly parent: Types.ObjectId;
+  readonly parent: Types.ObjectId | null;
 }

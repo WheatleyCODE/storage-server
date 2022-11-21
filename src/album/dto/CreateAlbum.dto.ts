@@ -4,25 +4,18 @@ import { Types } from 'mongoose';
 
 export class CreateAlbumDto {
   @ApiProperty({
-    example: '507f191e810c19729de860ea',
-    description: 'ID Хранилища',
-  })
-  @IsString({ message: 'Должно быть строкой' })
-  readonly storage: Types.ObjectId;
-
-  @ApiProperty({
-    example: '507f191e810c19729de860ea',
-    description: 'ID Пользователя',
-  })
-  @IsString({ message: 'Должно быть строкой' })
-  readonly user: Types.ObjectId;
-
-  @ApiProperty({
     example: 'Название...',
     description: 'Название Альбома',
   })
   @IsString({ message: 'Должно быть строкой' })
   readonly name: string;
+
+  @ApiProperty({
+    example: 'Oxxxymiron',
+    description: 'Автор альбома',
+  })
+  @IsString({ message: 'Должно быть строкой' })
+  readonly author: string;
 
   @ApiProperty({
     example: '507f191e810c19729de860ea | undefined',

@@ -71,10 +71,10 @@ export abstract class IDefaultObject<T, O> extends IDefaultService<T, O> {
     }
   }
 
-  async changeParent(id: Types.ObjectId, parent: Types.ObjectId): Promise<T> {
+  async changeParent(id: Types.ObjectId, parent: Types.ObjectId | null): Promise<T> {
     try {
       const item: any = await this.findByIdAndCheck(id);
-      item.parent = parent;
+      item.parent = parent === null ? undefined : parent;
       return item.save();
     } catch (e) {
       throw e;

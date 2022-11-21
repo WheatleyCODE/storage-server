@@ -74,11 +74,15 @@ export class StorageController {
 
   @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 1 }]))
   @Post('/create/album')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   createAlbum(
     @UploadedFiles() files: { image?: Express.Multer.File[] },
     @Body() dto: CreateAlbumDto,
+    @Req() req: UserReq,
   ): Promise<AlbumTransferData> {
-    return this.storageService.createAlbum(dto, files?.image && files?.image[0]);
+    const correctId = stringToOjbectId(req.userTD.id);
+    return this.storageService.createAlbum(dto, correctId, files?.image && files?.image[0]);
   }
 
   @UseInterceptors(
@@ -88,11 +92,21 @@ export class StorageController {
     ]),
   )
   @Post('/create/track')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   createTrack(
     @UploadedFiles() files: { image?: Express.Multer.File[]; audio?: Express.Multer.File[] },
     @Body() dto: CreateTrackDto,
+    @Req() req: UserReq,
   ): Promise<TrackTransferData> {
-    return this.storageService.createTrack(dto, files.audio[0], files?.image && files.image[0]);
+    const correctId = stringToOjbectId(req.userTD.id);
+
+    return this.storageService.createTrack(
+      dto,
+      correctId,
+      files?.audio && files.audio[0],
+      files?.image && files.image[0],
+    );
   }
 
   @Post('/delete/items')

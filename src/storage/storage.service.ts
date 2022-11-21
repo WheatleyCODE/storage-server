@@ -140,9 +140,15 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async createAlbum(dto: CreateAlbumDto, image: Express.Multer.File): Promise<AlbumTransferData> {
+  async createAlbum(
+    dto: CreateAlbumDto,
+    user: Types.ObjectId,
+    image: Express.Multer.File,
+  ): Promise<AlbumTransferData> {
     try {
-      const correctDto = dtoToOjbectId(dto, ['user', 'parent', 'storage']);
+      const storage = await this.findOneByAndCheck({ user });
+
+      const correctDto = dtoToOjbectId(dto, ['parent']);
 
       const album = await this.albumService.create({
         ...correctDto,
@@ -150,11 +156,12 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
         openDate: Date.now(),
         image,
         imageSize: image.size,
+        user,
       });
 
       await this.addItem(
         {
-          storage: correctDto.storage,
+          storage: storage._id,
           item: album._id,
           itemType: album.type,
         },
@@ -196,11 +203,14 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async createTrack(
     dto: CreateTrackDto,
+    user: Types.ObjectId,
     audio: Express.Multer.File,
     image?: Express.Multer.File,
   ): Promise<TrackTransferData> {
     try {
-      const correctDto = dtoToOjbectId(dto, ['user', 'parent', 'album', 'storage']);
+      const storage = await this.findOneByAndCheck({ user });
+      const correctDto = dtoToOjbectId(dto, ['parent', 'album']);
+
       const track = await this.trackService.create({
         ...correctDto,
         creationDate: Date.now(),
@@ -209,6 +219,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
         imageSize: image?.size,
         audio,
         audioSize: audio.size,
+        user,
       });
 
       let size = audio.size;
@@ -216,7 +227,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
       await this.addItem(
         {
-          storage: correctDto.storage,
+          storage: storage._id,
           item: track._id,
           itemType: track.type,
         },
@@ -546,17 +557,14 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
 
   async getChildrens(id: Types.ObjectId): Promise<ChildrensTransferData> {
     try {
-      // const itemDocs: ItemDocument[] = [];
+      let itemDocs: ItemDocument[] = [];
 
-      // for await (const { id, type } of this.objectServices) {
-      //   const itemDoc = await this.objectServices[type].changeParent(id, parent);
-      //   itemDocs.push(itemDoc);
-      // }
+      for await (const type of StorageItemTypes) {
+        const itemDoc = await this.objectServices[type].getChildrens(id);
+        itemDocs = [...itemDocs, ...itemDoc];
+      }
 
       const parentDocs = await this.folderService.getParents(id);
-
-      // ! fix
-      const itemDocs = await this.objectServices.FOLDER.getChildrens(id);
 
       const childrens = itemDocs.map((itemDoc) => ItemTDataFactory.create(itemDoc));
       const parents = parentDocs.map((parentDoc) => new FolderTransferData(parentDoc));

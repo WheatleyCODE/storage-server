@@ -16,6 +16,13 @@ export class Album extends DefaultObjectSchema {
   type: ItemTypes;
 
   @ApiProperty({
+    example: 'Oxxymiron',
+    description: 'Автор трека',
+  })
+  @Prop({ required: true, type: String })
+  author: string;
+
+  @ApiProperty({
     example: 'static/image/fsad-sdsa.jpg',
     description: 'Путь к картинке на сервере',
   })
