@@ -14,6 +14,7 @@ import { TrackModule } from './track/track.module';
 import { FileModule } from './file/file.module';
 import { AlbumModule } from './album/album.module';
 import { CommentModule } from './comment/comment.module';
+import { ImageModule } from './image/image.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CommentModule } from './comment/comment.module';
     FileModule,
     AlbumModule,
     CommentModule,
+    ImageModule,
   ],
   controllers: [AppController],
   providers: [],

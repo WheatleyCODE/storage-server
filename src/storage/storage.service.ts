@@ -53,6 +53,10 @@ import { ChangeColorDto } from './dto/ChangeColor.dto';
 import { FolderDocument } from 'src/folder/schemas/folder.schema';
 import { ChangeNameDto } from './dto/ChangeName.dto';
 import { ChangeParentDto } from './dto/ChangeParent.dto';
+import { ImageService } from 'src/image/image.service';
+import { ImageTransferData } from 'src/transfer/ImageTransferData';
+import { CreateImageDto } from 'src/image/dto/CreateImage.dto';
+import { UploadFilesDto } from './dto/UploadFiles.dto';
 
 @Injectable()
 export class StorageService extends IStorageService<StorageDocument, UpdateStorageOptions> {
@@ -66,6 +70,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     private readonly trackService: TrackService,
     private readonly fileService: FileService,
     private readonly albumService: AlbumService,
+    private readonly imageService: ImageService,
   ) {
     super(storageModel);
 
@@ -74,12 +79,14 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       [ItemTypes.TRACK]: trackService,
       [ItemTypes.FILE]: fileService,
       [ItemTypes.ALBUM]: albumService,
+      [ItemTypes.IMAGE]: imageService,
     };
 
     this.objectFileServices = {
       [ItemFileTypes.TRACK]: trackService,
       [ItemFileTypes.FILE]: fileService,
       [ItemFileTypes.ALBUM]: albumService,
+      [ItemFileTypes.IMAGE]: imageService,
     };
   }
 
@@ -174,9 +181,14 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async createFile(dto: CreateFileDto, file: Express.Multer.File): Promise<FileTransferData> {
+  async createFile(
+    dto: CreateFileDto,
+    user: Types.ObjectId,
+    file: Express.Multer.File,
+  ): Promise<FileTransferData> {
     try {
-      const correctDto = dtoToOjbectId(dto, ['user', 'parent', 'storage']);
+      const strg = await this.findOneByAndCheck({ user });
+      const correctDto = dtoToOjbectId(dto, ['parent']);
 
       const fileDoc = await this.fileService.create({
         ...correctDto,
@@ -184,11 +196,12 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
         openDate: Date.now(),
         file,
         fileSize: file.size,
+        user,
       });
 
       await this.addItem(
         {
-          storage: correctDto.storage,
+          storage: strg._id,
           item: fileDoc._id,
           itemType: fileDoc.type,
         },
@@ -196,6 +209,39 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       );
 
       return new FileTransferData(fileDoc);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async createImage(
+    dto: CreateImageDto,
+    user: Types.ObjectId,
+    image: Express.Multer.File,
+  ): Promise<ImageTransferData> {
+    try {
+      const strg = await this.findOneByAndCheck({ user });
+      const correctDto = dtoToOjbectId(dto, ['parent']);
+
+      const imageDoc = await this.imageService.create({
+        ...correctDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+        image,
+        imageSize: image.size,
+        user,
+      });
+
+      await this.addItem(
+        {
+          storage: strg._id,
+          item: imageDoc._id,
+          itemType: imageDoc.type,
+        },
+        imageDoc.imageSize,
+      );
+
+      return new ImageTransferData(imageDoc);
     } catch (e) {
       throw e;
     }
@@ -583,6 +629,69 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       const { item, itemType } = dtoToOjbectId(dto, ['item']);
       const itemDoc = await this.objectServices[itemType].addListen(item);
       return ItemTDataFactory.create(itemDoc);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async uploadFiles(
+    dto: UploadFilesDto,
+    user: Types.ObjectId,
+    files: Express.Multer.File[],
+  ): Promise<ItemTransferData[]> {
+    try {
+      const { parent } = dto;
+      await this.findOneByAndCheck({ user });
+
+      const object = {
+        image: ['jpg', 'png'],
+        audio: ['mp3'],
+        video: ['mp4'],
+      };
+
+      console.log(parent);
+      console.log(typeof parent);
+
+      const itemsTransferData: ItemTransferData[] = [];
+
+      for await (const file of files) {
+        const filename = file.originalname.split('.');
+        console.log(filename);
+
+        if (object.audio.includes(filename[filename.length - 1])) {
+          const track = await this.createTrack(
+            {
+              name: filename[0],
+              author: 'Не понятно',
+              text: 'Без текста',
+              parent,
+              album: undefined,
+            },
+            user,
+            file,
+          );
+          itemsTransferData.push(track);
+          continue;
+        }
+
+        if (object.image.includes(filename[filename.length - 1])) {
+          const image = await this.createImage(
+            {
+              name: filename[0],
+              parent,
+            },
+            user,
+            file,
+          );
+          itemsTransferData.push(image);
+          continue;
+        }
+
+        const fileTD = await this.createFile({ name: filename[0], parent }, user, file);
+        itemsTransferData.push(fileTD);
+      }
+
+      return itemsTransferData;
     } catch (e) {
       throw e;
     }

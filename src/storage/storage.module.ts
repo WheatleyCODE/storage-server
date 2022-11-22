@@ -8,6 +8,7 @@ import { FolderModule } from 'src/folder/folder.module';
 import { TrackModule } from 'src/track/track.module';
 import { FileModule } from 'src/file/file.module';
 import { AlbumModule } from 'src/album/album.module';
+import { ImageModule } from 'src/image/image.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AlbumModule } from 'src/album/album.module';
     TrackModule,
     FileModule,
     AlbumModule,
+    ImageModule,
   ],
   providers: [StorageService],
   controllers: [StorageController],

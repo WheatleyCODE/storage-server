@@ -3,6 +3,7 @@ import { StorageCollectionsPopulated } from 'src/types';
 import { AlbumTransferData } from './AlbumTransferData';
 import { FileTransferData } from './FileTransferData';
 import { FolderTransferData } from './FolderTransferData';
+import { ImageTransferData } from './ImageTransferData';
 import { TrackTransferData } from './TrackTransferData';
 
 export class StorageTransferData {
@@ -17,5 +18,6 @@ export class StorageTransferData {
     readonly tracks = storage.tracks.map((track) => new TrackTransferData(track)),
     readonly files = storage.files.map((file) => new FileTransferData(file)),
     readonly albums = storage.albums.map((album) => new AlbumTransferData(album)),
+    readonly images = storage.images.map((image) => new ImageTransferData(image)),
   ) {}
 }

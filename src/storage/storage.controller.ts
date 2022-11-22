@@ -43,6 +43,7 @@ import { DeleteItemDto } from './dto/DeleteItem.dto';
 import { ChangeColorDto } from './dto/ChangeColor.dto';
 import { ChangeNameDto } from './dto/ChangeName.dto';
 import { ChangeParentDto } from './dto/ChangeParent.dto';
+import { UploadFilesDto } from './dto/UploadFiles.dto';
 
 @Controller('/api/storage')
 export class StorageController {
@@ -65,11 +66,14 @@ export class StorageController {
 
   @UseInterceptors(FileFieldsInterceptor([{ name: 'file', maxCount: 1 }]))
   @Post('/create/file')
+  @UsePipes(ValidationPipe)
   createFile(
-    @UploadedFiles() files: { file?: Express.Multer.File[] },
+    @UploadedFiles() files: { file: Express.Multer.File[] },
     @Body() dto: CreateFileDto,
+    @Req() req: UserReq,
   ): Promise<FileTransferData> {
-    return this.storageService.createFile(dto, files?.file && files.file[0]);
+    const correctId = stringToOjbectId(req.userTD.id);
+    return this.storageService.createFile(dto, correctId, files.file[0]);
   }
 
   @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 1 }]))
@@ -107,6 +111,20 @@ export class StorageController {
       files?.audio && files.audio[0],
       files?.image && files.image[0],
     );
+  }
+
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'files' }]))
+  @Post('/upload/files')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  uploadFiles(
+    @UploadedFiles() files: { files?: Express.Multer.File[] },
+    @Body() dto: UploadFilesDto,
+    @Req() req: UserReq,
+  ): Promise<ItemTransferData[]> {
+    const correctId = stringToOjbectId(req.userTD.id);
+
+    return this.storageService.uploadFiles(dto, correctId, files.files);
   }
 
   @Post('/delete/items')

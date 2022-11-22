@@ -61,6 +61,13 @@ export class Storage {
   })
   @Prop({ type: [Types.ObjectId], ref: 'Album' })
   albums: Types.ObjectId[];
+
+  @ApiProperty({
+    example: '[507f191e810c19729de860ea]',
+    description: 'Картинки в хранилище',
+  })
+  @Prop({ type: [Types.ObjectId], ref: 'Image' })
+  images: Types.ObjectId[];
 }
 
 export const StorageSchema = SchemaFactory.createForClass(Storage);

@@ -3,6 +3,7 @@ import { ItemTransferData, ItemTypes } from 'src/types';
 import { AlbumTransferData } from './AlbumTransferData';
 import { FileTransferData } from './FileTransferData';
 import { FolderTransferData } from './FolderTransferData';
+import { ImageTransferData } from './ImageTransferData';
 import { TrackTransferData } from './TrackTransferData';
 
 export abstract class ItemTDataFactory {
@@ -11,6 +12,7 @@ export abstract class ItemTDataFactory {
     [ItemTypes.FILE]: FileTransferData,
     [ItemTypes.TRACK]: TrackTransferData,
     [ItemTypes.ALBUM]: AlbumTransferData,
+    [ItemTypes.IMAGE]: ImageTransferData,
   };
 
   static create(document: any): ItemTransferData {

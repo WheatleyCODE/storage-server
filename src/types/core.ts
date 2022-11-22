@@ -15,6 +15,9 @@ import {
   AlbumTransferData,
   UserTransferData,
 } from 'src/transfer';
+import { ImageDocument } from 'src/image/schemas/image.schema';
+import { ImageService } from 'src/image/image.service';
+import { ImageTransferData } from 'src/transfer/ImageTransferData';
 
 export interface UserReq extends Request {
   userTD: UserTransferData;
@@ -31,12 +34,14 @@ export enum ItemTypes {
   TRACK = 'TRACK',
   FILE = 'FILE',
   ALBUM = 'ALBUM',
+  IMAGE = 'IMAGE',
 }
 
 export enum ItemFileTypes {
   TRACK = 'TRACK',
   FILE = 'FILE',
   ALBUM = 'ALBUM',
+  IMAGE = 'IMAGE',
 }
 
 export enum FolderColors {
@@ -57,12 +62,14 @@ export type ObjectServices = {
   [ItemTypes.TRACK]: TrackService;
   [ItemTypes.FILE]: FileService;
   [ItemTypes.ALBUM]: AlbumService;
+  [ItemTypes.IMAGE]: ImageService;
 };
 
 export type ObjectFileServices = {
   [ItemTypes.TRACK]: TrackService;
   [ItemTypes.FILE]: FileService;
   [ItemTypes.ALBUM]: AlbumService;
+  [ItemTypes.IMAGE]: ImageService;
 };
 
 export type StorageCollectionNames = 'folders' | 'tracks' | 'files' | 'albums';
@@ -72,6 +79,7 @@ export const StorageItemTypes: ItemTypes[] = [
   ItemTypes.TRACK,
   ItemTypes.FILE,
   ItemTypes.ALBUM,
+  ItemTypes.IMAGE,
 ];
 
 export type ItemsData = {
@@ -80,7 +88,12 @@ export type ItemsData = {
   size: number;
 };
 
-export type ItemDocument = FolderDocument | TrackDocument | FileDocument | AlbumDocument;
+export type ItemDocument =
+  | FolderDocument
+  | TrackDocument
+  | FileDocument
+  | AlbumDocument
+  | ImageDocument;
 export interface ItemDto {
   id: Types.ObjectId;
   type: ItemTypes;
@@ -90,7 +103,8 @@ export type ItemTransferData =
   | FolderTransferData
   | TrackTransferData
   | FileTransferData
-  | AlbumTransferData;
+  | AlbumTransferData
+  | ImageTransferData;
 
 export type Modify<T, R> = Omit<T, keyof R> & R;
 

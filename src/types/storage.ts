@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { AlbumDocument } from 'src/album/schemas/album.schema';
 import { FileDocument } from 'src/file/schemas/file.schema';
 import { FolderDocument } from 'src/folder/schemas/folder.schema';
+import { ImageDocument } from 'src/image/schemas/image.schema';
 import { StorageDocument } from 'src/storage/schemas/storage.schema';
 import { TrackDocument } from 'src/track/schemas/track.schema';
 import { Modify } from './core';
@@ -27,6 +28,7 @@ export type PopulatedCollections = {
   tracks: TrackDocument[];
   files: FileDocument[];
   albums: AlbumDocument[];
+  images: ImageDocument[];
 };
 
 export type StorageCollectionsPopulated = Modify<StorageDocument, PopulatedCollections>;

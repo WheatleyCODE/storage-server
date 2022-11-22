@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import { Types } from 'mongoose';
 
-export class CreateFileDto {
+export class CreateImageDto {
   @ApiProperty({
-    example: 'Название файла',
-    description: 'Название файла',
+    example: 'Новая картика',
+    description: 'Название картинки',
   })
   @IsString({ message: 'Должно быть строкой' })
   readonly name: string;
