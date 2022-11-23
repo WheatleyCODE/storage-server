@@ -6,3 +6,4 @@ export * from './StorageTransferData';
 export * from './TrackTransferData';
 export * from './ItemTDataFactory';
 export * from './UserTransferData';
+export * from './VideoTransferData';

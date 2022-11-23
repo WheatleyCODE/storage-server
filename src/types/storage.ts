@@ -5,6 +5,7 @@ import { FolderDocument } from 'src/folder/schemas/folder.schema';
 import { ImageDocument } from 'src/image/schemas/image.schema';
 import { StorageDocument } from 'src/storage/schemas/storage.schema';
 import { TrackDocument } from 'src/track/schemas/track.schema';
+import { VideoDocument } from 'src/video/schemas/video.schema';
 import { Modify } from './core';
 
 export type CreateStorageOptions = {
@@ -29,6 +30,7 @@ export type PopulatedCollections = {
   files: FileDocument[];
   albums: AlbumDocument[];
   images: ImageDocument[];
+  videos: VideoDocument[];
 };
 
 export type StorageCollectionsPopulated = Modify<StorageDocument, PopulatedCollections>;

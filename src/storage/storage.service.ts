@@ -29,6 +29,7 @@ import {
   AlbumTransferData,
   CommentTransferData,
   ItemTDataFactory,
+  VideoTransferData,
 } from 'src/transfer';
 import { dtoToOjbectId, getStorageCollectionName } from 'src/utils';
 import { AddItemDto } from './dto/AddItem.dto';
@@ -57,6 +58,8 @@ import { ImageService } from 'src/image/image.service';
 import { ImageTransferData } from 'src/transfer/ImageTransferData';
 import { CreateImageDto } from 'src/image/dto/CreateImage.dto';
 import { UploadFilesDto } from './dto/UploadFiles.dto';
+import { VideoService } from 'src/video/video.service';
+import { CreateVideoDto } from 'src/video/dto/CreateVideo.dto';
 
 @Injectable()
 export class StorageService extends IStorageService<StorageDocument, UpdateStorageOptions> {
@@ -71,6 +74,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     private readonly fileService: FileService,
     private readonly albumService: AlbumService,
     private readonly imageService: ImageService,
+    private readonly videoService: VideoService,
   ) {
     super(storageModel);
 
@@ -80,6 +84,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       [ItemTypes.FILE]: fileService,
       [ItemTypes.ALBUM]: albumService,
       [ItemTypes.IMAGE]: imageService,
+      [ItemTypes.VIDEO]: videoService,
     };
 
     this.objectFileServices = {
@@ -87,6 +92,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       [ItemFileTypes.FILE]: fileService,
       [ItemFileTypes.ALBUM]: albumService,
       [ItemFileTypes.IMAGE]: imageService,
+      [ItemFileTypes.VIDEO]: videoService,
     };
   }
 
@@ -281,6 +287,46 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       );
 
       return new TrackTransferData(track);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // !dsadasda
+  async createVideo(
+    dto: CreateVideoDto,
+    user: Types.ObjectId,
+    video: Express.Multer.File,
+    image?: Express.Multer.File,
+  ): Promise<VideoTransferData> {
+    try {
+      const storage = await this.findOneByAndCheck({ user });
+      const correctDto = dtoToOjbectId(dto, ['parent']);
+
+      const videoDoc = await this.videoService.create({
+        ...correctDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+        image,
+        imageSize: image?.size,
+        video,
+        videoSize: video.size,
+        user,
+      });
+
+      let size = video.size;
+      if (image?.size) size += image.size;
+
+      await this.addItem(
+        {
+          storage: storage._id,
+          item: videoDoc._id,
+          itemType: videoDoc.type,
+        },
+        size,
+      );
+
+      return new VideoTransferData(videoDoc);
     } catch (e) {
       throw e;
     }
@@ -649,14 +695,10 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
         video: ['mp4'],
       };
 
-      console.log(parent);
-      console.log(typeof parent);
-
       const itemsTransferData: ItemTransferData[] = [];
 
       for await (const file of files) {
         const filename = file.originalname.split('.');
-        console.log(filename);
 
         if (object.audio.includes(filename[filename.length - 1])) {
           const track = await this.createTrack(
@@ -679,6 +721,20 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
             {
               name: filename[0],
               parent,
+            },
+            user,
+            file,
+          );
+          itemsTransferData.push(image);
+          continue;
+        }
+
+        if (object.video.includes(filename[filename.length - 1])) {
+          const image = await this.createVideo(
+            {
+              name: filename[0],
+              parent,
+              description: 'Без описания',
             },
             user,
             file,

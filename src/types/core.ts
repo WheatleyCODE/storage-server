@@ -18,6 +18,8 @@ import {
 import { ImageDocument } from 'src/image/schemas/image.schema';
 import { ImageService } from 'src/image/image.service';
 import { ImageTransferData } from 'src/transfer/ImageTransferData';
+import { VideoService } from 'src/video/video.service';
+import { VideoDocument } from 'src/video/schemas/video.schema';
 
 export interface UserReq extends Request {
   userTD: UserTransferData;
@@ -35,6 +37,7 @@ export enum ItemTypes {
   FILE = 'FILE',
   ALBUM = 'ALBUM',
   IMAGE = 'IMAGE',
+  VIDEO = 'VIDEO',
 }
 
 export enum ItemFileTypes {
@@ -42,6 +45,7 @@ export enum ItemFileTypes {
   FILE = 'FILE',
   ALBUM = 'ALBUM',
   IMAGE = 'IMAGE',
+  VIDEO = 'VIDEO',
 }
 
 export enum FolderColors {
@@ -63,6 +67,7 @@ export type ObjectServices = {
   [ItemTypes.FILE]: FileService;
   [ItemTypes.ALBUM]: AlbumService;
   [ItemTypes.IMAGE]: ImageService;
+  [ItemTypes.VIDEO]: VideoService;
 };
 
 export type ObjectFileServices = {
@@ -70,9 +75,10 @@ export type ObjectFileServices = {
   [ItemTypes.FILE]: FileService;
   [ItemTypes.ALBUM]: AlbumService;
   [ItemTypes.IMAGE]: ImageService;
+  [ItemTypes.VIDEO]: VideoService;
 };
 
-export type StorageCollectionNames = 'folders' | 'tracks' | 'files' | 'albums';
+export type StorageCollectionNames = 'folders' | 'tracks' | 'files' | 'albums' | 'videos';
 
 export const StorageItemTypes: ItemTypes[] = [
   ItemTypes.FOLDER,
@@ -80,6 +86,7 @@ export const StorageItemTypes: ItemTypes[] = [
   ItemTypes.FILE,
   ItemTypes.ALBUM,
   ItemTypes.IMAGE,
+  ItemTypes.VIDEO,
 ];
 
 export type ItemsData = {
@@ -93,7 +100,8 @@ export type ItemDocument =
   | TrackDocument
   | FileDocument
   | AlbumDocument
-  | ImageDocument;
+  | ImageDocument
+  | VideoDocument;
 export interface ItemDto {
   id: Types.ObjectId;
   type: ItemTypes;

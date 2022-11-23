@@ -5,6 +5,7 @@ import { FileTransferData } from './FileTransferData';
 import { FolderTransferData } from './FolderTransferData';
 import { ImageTransferData } from './ImageTransferData';
 import { TrackTransferData } from './TrackTransferData';
+import { VideoTransferData } from './VideoTransferData';
 
 export abstract class ItemTDataFactory {
   static list = {
@@ -13,6 +14,7 @@ export abstract class ItemTDataFactory {
     [ItemTypes.TRACK]: TrackTransferData,
     [ItemTypes.ALBUM]: AlbumTransferData,
     [ItemTypes.IMAGE]: ImageTransferData,
+    [ItemTypes.VIDEO]: VideoTransferData,
   };
 
   static create(document: any): ItemTransferData {

@@ -9,6 +9,7 @@ import { TrackModule } from 'src/track/track.module';
 import { FileModule } from 'src/file/file.module';
 import { AlbumModule } from 'src/album/album.module';
 import { ImageModule } from 'src/image/image.module';
+import { VideoModule } from 'src/video/video.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ImageModule } from 'src/image/image.module';
     FileModule,
     AlbumModule,
     ImageModule,
+    VideoModule,
   ],
   providers: [StorageService],
   controllers: [StorageController],

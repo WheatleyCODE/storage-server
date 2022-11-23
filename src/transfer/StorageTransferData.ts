@@ -5,6 +5,7 @@ import { FileTransferData } from './FileTransferData';
 import { FolderTransferData } from './FolderTransferData';
 import { ImageTransferData } from './ImageTransferData';
 import { TrackTransferData } from './TrackTransferData';
+import { VideoTransferData } from './VideoTransferData';
 
 export class StorageTransferData {
   constructor(
@@ -19,5 +20,6 @@ export class StorageTransferData {
     readonly files = storage.files.map((file) => new FileTransferData(file)),
     readonly albums = storage.albums.map((album) => new AlbumTransferData(album)),
     readonly images = storage.images.map((image) => new ImageTransferData(image)),
+    readonly videos = storage.videos.map((video) => new VideoTransferData(video)),
   ) {}
 }
