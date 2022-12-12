@@ -153,9 +153,12 @@ export class StorageController {
     );
   }
 
-  @Post('/copy/file')
-  copyFile(@Body() dto: CopyFileDto): Promise<ItemTransferData> {
-    return this.storageService.copyFile(dto);
+  @Post('/copy/files')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  copyFile(@Body() dto: CopyFileDto, @Req() req: UserReq): Promise<ItemTransferData[]> {
+    const correctId = stringToOjbectId(req.userTD.id);
+    return this.storageService.copyFile(dto, correctId);
   }
 
   @Post('/change/trash')

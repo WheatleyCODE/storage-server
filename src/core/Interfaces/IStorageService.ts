@@ -26,5 +26,5 @@ export abstract class IStorageService<T, O> extends IDefaultService<T, O> {
   abstract addListen(dto: AddListenDto): Promise<ItemTransferData>;
   abstract changeOpenDate(dto: ChangeLikeDto): Promise<ItemTransferData>;
   abstract checkParentsAndDelete(storage: Types.ObjectId): Promise<T>;
-  abstract copyFile(dto: CopyFileDto): Promise<ItemTransferData>;
+  abstract copyFile(dto: CopyFileDto, user: Types.ObjectId): Promise<ItemTransferData[]>;
 }

@@ -51,7 +51,10 @@ export class VideoService extends IVideoService<VideoDocument, UpdateVideoOption
       if (!deletedVideo) throw new HttpException('Видео файл не найден', HttpStatus.BAD_REQUEST);
 
       await this.filesService.removeFile(deletedVideo.video);
-      await this.filesService.removeFile(deletedVideo.image);
+
+      if (deletedVideo.image) {
+        await this.filesService.removeFile(deletedVideo.image);
+      }
 
       const itemsData: ItemsData = {
         count: 1,
@@ -118,7 +121,12 @@ export class VideoService extends IVideoService<VideoDocument, UpdateVideoOption
       const videoDoc = await this.findByIdAndCheck(id);
       const { user, name, isTrash, description, imageSize, videoSize } = videoDoc;
 
-      const imageNewPath = await this.filesService.copyFile(videoDoc.image, FileType.IMAGE);
+      let imageNewPath;
+
+      if (videoDoc.image) {
+        imageNewPath = await this.filesService.copyFile(videoDoc.image, FileType.IMAGE);
+      }
+
       const videoNewPath = await this.filesService.copyFile(videoDoc.video, FileType.VIDEO);
 
       const newVideo = await this.videoModel.create({
@@ -142,6 +150,7 @@ export class VideoService extends IVideoService<VideoDocument, UpdateVideoOption
 
       return Object.assign(newVideo, itemsData);
     } catch (e) {
+      console.log(e);
       throw e;
     }
   }

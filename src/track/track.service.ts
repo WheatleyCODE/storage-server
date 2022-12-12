@@ -51,7 +51,10 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
       if (!deletedTrack) throw new HttpException('Трек не найден', HttpStatus.BAD_REQUEST);
 
       await this.filesService.removeFile(deletedTrack.audio);
-      await this.filesService.removeFile(deletedTrack.image);
+
+      if (deletedTrack.image) {
+        await this.filesService.removeFile(deletedTrack.image);
+      }
 
       const itemsData: ItemsData = {
         count: 1,
@@ -108,7 +111,12 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
       const track = await this.findByIdAndCheck(id);
       const { user, name, author, isTrash, text, imageSize, audioSize } = track;
 
-      const imageNewPath = await this.filesService.copyFile(track.image, FileType.IMAGE);
+      let imageNewPath;
+
+      if (track.image) {
+        imageNewPath = await this.filesService.copyFile(track.image, FileType.IMAGE);
+      }
+
       const audioNewPath = await this.filesService.copyFile(track.audio, FileType.AUDIO);
 
       const newTrack = await this.trackModel.create({
@@ -119,8 +127,8 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
         imageSize,
         audioSize,
         isTrash,
-        audio: imageNewPath,
-        image: audioNewPath,
+        audio: audioNewPath,
+        image: imageNewPath,
         creationDate: Date.now(),
         openDate: Date.now(),
       });

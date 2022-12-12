@@ -106,23 +106,26 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async copyFile(dto: CopyFileDto): Promise<ItemTransferData> {
+  async copyFile(dto: CopyFileDto, user: Types.ObjectId): Promise<ItemTransferData[]> {
     try {
-      const { storage, item, itemType } = dtoToOjbectId(dto, ['item', 'storage']);
+      const items = dto.items.map((item) => dtoToOjbectId(item, ['id']));
+      const strg = await this.findOneByAndCheck({ user });
+      const newItemFiles: ItemDocument[] = [];
 
-      const strg = await this.findByIdAndCheck(storage);
+      for await (const { type, id } of items) {
+        const newItemFile = await this.objectFileServices[type].copy(id);
 
-      const newItemFile = await this.objectFileServices[itemType].copy(item);
+        newItemFile.items.forEach((item) => {
+          const collection = getStorageCollectionName(item.type);
+          strg[collection].push(item._id);
+        });
 
-      newItemFile.items.forEach((item) => {
-        const collection = getStorageCollectionName(item.type);
-        strg[collection].push(item._id);
-      });
-
-      strg.usedSpace += newItemFile.size;
+        strg.usedSpace += newItemFile.size;
+        newItemFiles.push(newItemFile);
+      }
 
       await strg.save();
-      return ItemTDataFactory.create(newItemFile);
+      return newItemFiles.map((item) => ItemTDataFactory.create(item));
     } catch (e) {
       throw e;
     }
