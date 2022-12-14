@@ -145,11 +145,27 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
     }
   }
 
-  async download(id: Types.ObjectId): Promise<ReadStream> {
+  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
     try {
-      const track = await this.findByIdAndCheck(id);
-      const file = await this.filesService.downloadFile(track.audio);
-      return file;
+      const trackDoc = await this.findByIdAndCheck(id);
+      const file = await this.filesService.downloadFile(trackDoc.audio);
+      const ext = trackDoc.audio.split('.')[1];
+      const filename = `${trackDoc.name}.${ext}`;
+
+      return { file, filename };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
+    try {
+      const trackDoc = await this.findByIdAndCheck(id);
+      const path = await this.filesService.getFilePath(trackDoc.audio);
+      const ext = trackDoc.audio.split('.')[1];
+      const filename = `${trackDoc.name}.${ext}`;
+
+      return { path, filename };
     } catch (e) {
       throw e;
     }

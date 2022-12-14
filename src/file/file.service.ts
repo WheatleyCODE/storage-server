@@ -52,7 +52,6 @@ export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
     }
   }
 
-  // * Может пригодиться для сохранения результата онлайн редактора
   async changeFile(id: Types.ObjectId, file: Express.Multer.File): Promise<FileDocument> {
     try {
       const fileDoc = await this.findByIdAndCheck(id);
@@ -67,11 +66,27 @@ export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
     }
   }
 
-  async download(id: Types.ObjectId): Promise<ReadStream> {
+  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
     try {
       const fileDoc = await this.findByIdAndCheck(id);
       const file = await this.filesService.downloadFile(fileDoc.file);
-      return file;
+      const ext = fileDoc.file.split('.')[1];
+      const filename = `${fileDoc.name}.${ext}`;
+
+      return { file, filename };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
+    try {
+      const fileDoc = await this.findByIdAndCheck(id);
+      const path = await this.filesService.getFilePath(fileDoc.file);
+      const ext = fileDoc.file.split('.')[1];
+      const filename = `${fileDoc.name}.${ext}`;
+
+      return { path, filename };
     } catch (e) {
       throw e;
     }

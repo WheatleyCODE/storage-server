@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { AlbumService } from 'src/album/album.service';
 import { AlbumDocument } from 'src/album/schemas/album.schema';
 import { FileService } from 'src/file/file.service';
@@ -23,6 +23,10 @@ import { VideoDocument } from 'src/video/schemas/video.schema';
 
 export interface UserReq extends Request {
   userTD: UserTransferData;
+}
+
+export interface UserRes extends Response {
+  zip: (arr: { path: string; name: string }[]) => any;
 }
 
 export enum AccessTypes {
@@ -105,6 +109,11 @@ export type ItemDocument =
 export interface ItemDto {
   id: Types.ObjectId;
   type: ItemTypes;
+}
+
+export interface ItemFileDto {
+  id: Types.ObjectId;
+  type: ItemFileTypes;
 }
 
 export type ItemTransferData =

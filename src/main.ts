@@ -2,13 +2,18 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+import 'express-zip';
 
 async function start() {
   try {
     const PORT = process.env.PORT || 5000;
     const app = await NestFactory.create(AppModule);
     app.use(cookieParser());
-    app.enableCors({ credentials: true, origin: process.env.URL_CLIENT });
+    app.enableCors({
+      credentials: true,
+      origin: process.env.URL_CLIENT,
+      exposedHeaders: 'Filename',
+    });
 
     const config = new DocumentBuilder()
       .setTitle('Gamify Project')

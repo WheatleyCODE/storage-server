@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, StreamableFile } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { IStorageService } from 'src/core';
@@ -20,6 +20,8 @@ import {
   ItemTransferData,
   AccessTypes,
   ChildrensTransferData,
+  ItemDto,
+  ItemFileDto,
 } from 'src/types';
 import {
   FolderTransferData,
@@ -761,6 +763,32 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
       const { item, itemType } = dtoToOjbectId(dto, ['item']);
       const itemDoc = await this.objectServices[itemType].changeOpenDate(item);
       return ItemTDataFactory.create(itemDoc);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async downloadFile(dto: ItemFileDto): Promise<{ file: StreamableFile; filename: string }> {
+    try {
+      const { id, type } = dtoToOjbectId(dto, ['id']);
+      const { file, filename } = await this.objectFileServices[type].download(id);
+      return { file: new StreamableFile(file), filename };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async downloadArchive(dto: ItemFileDto[]): Promise<{ path: string; name: string }[]> {
+    try {
+      const pathArr: { path: string; name: string }[] = [];
+      const items = dto.map((item) => dtoToOjbectId(item, ['id']));
+
+      for await (const { id, type } of items) {
+        const { path, filename } = await this.objectFileServices[type].getFilePath(id);
+        pathArr.push({ path, name: filename });
+      }
+
+      return pathArr;
     } catch (e) {
       throw e;
     }

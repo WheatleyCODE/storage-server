@@ -88,7 +88,14 @@ export class FilesService {
 
       return file;
     } catch (e) {
-      throw new HttpException('Ошибка скачке файла', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Ошибка при скачке файла', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  getFilePath(pathDB: string): string {
+    const srcPath = path.resolve(__dirname, '..', 'static', pathDB);
+    if (fs.existsSync(srcPath)) return srcPath;
+
+    throw new HttpException('Ошибка при получении пути', HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

@@ -155,11 +155,27 @@ export class VideoService extends IVideoService<VideoDocument, UpdateVideoOption
     }
   }
 
-  async download(id: Types.ObjectId): Promise<ReadStream> {
+  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
     try {
       const videoDoc = await this.findByIdAndCheck(id);
       const file = await this.filesService.downloadFile(videoDoc.video);
-      return file;
+      const ext = videoDoc.video.split('.')[1];
+      const filename = `${videoDoc.name}.${ext}`;
+
+      return { file, filename };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
+    try {
+      const videoDoc = await this.findByIdAndCheck(id);
+      const path = await this.filesService.getFilePath(videoDoc.video);
+      const ext = videoDoc.video.split('.')[1];
+      const filename = `${videoDoc.name}.${ext}`;
+
+      return { path, filename };
     } catch (e) {
       throw e;
     }

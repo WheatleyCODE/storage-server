@@ -49,11 +49,27 @@ export class ImageService extends IDefaultFile<ImageDocument, UpdateImageOptions
     }
   }
 
-  async download(id: Types.ObjectId): Promise<ReadStream> {
+  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
     try {
       const imageDoc = await this.findByIdAndCheck(id);
-      const image = await this.filesService.downloadFile(imageDoc.image);
-      return image;
+      const file = await this.filesService.downloadFile(imageDoc.image);
+      const ext = imageDoc.image.split('.')[1];
+      const filename = `${imageDoc.name}.${ext}`;
+
+      return { file, filename };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
+    try {
+      const imageDoc = await this.findByIdAndCheck(id);
+      const path = await this.filesService.getFilePath(imageDoc.image);
+      const ext = imageDoc.image.split('.')[1];
+      const filename = `${imageDoc.name}.${ext}`;
+
+      return { path, filename };
     } catch (e) {
       throw e;
     }

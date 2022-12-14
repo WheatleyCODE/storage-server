@@ -111,10 +111,28 @@ export class AlbumService extends IAlbumService<AlbumDocument, UpdateAlbumOption
     }
   }
 
-  async download(id: Types.ObjectId): Promise<ReadStream> {
+  // ! Fix Альбом должен скачиваться адним архивом, с треками
+  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
     try {
-      // Todo реализовать метод, когда будешь делать клиент
-      throw new Error('Method not implemented.');
+      const albumDoc = await this.findByIdAndCheck(id);
+      const file = await this.filesService.downloadFile(albumDoc.image);
+      const ext = albumDoc.image.split('.')[1];
+      const filename = `${albumDoc.name}.${ext}`;
+
+      return { file, filename };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
+    try {
+      const albumDoc = await this.findByIdAndCheck(id);
+      const path = await this.filesService.getFilePath(albumDoc.image);
+      const ext = albumDoc.image.split('.')[1];
+      const filename = `${albumDoc.name}.${ext}`;
+
+      return { path, filename };
     } catch (e) {
       throw e;
     }

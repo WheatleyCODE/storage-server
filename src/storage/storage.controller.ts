@@ -5,12 +5,14 @@ import {
   Param,
   Post,
   Req,
+  Res,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import * as uuid from 'uuid';
 import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
 import { CreateFolderDto } from 'src/folder/dto/CreateFolder.dto';
 import { CreateTrackDto } from 'src/track/dto/createTrackDto';
@@ -29,7 +31,7 @@ import { CreateFileDto } from 'src/file/dto/CreateFileDto';
 import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
 import { AddCommentDto } from 'src/comment/dto/AddComment.dto';
 import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
-import { ChildrensTransferData, ItemTransferData, UserReq } from 'src/types';
+import { ChildrensTransferData, ItemTransferData, UserReq, UserRes } from 'src/types';
 import {
   FolderTransferData,
   StorageTransferData,
@@ -44,6 +46,8 @@ import { ChangeColorDto } from './dto/ChangeColor.dto';
 import { ChangeNameDto } from './dto/ChangeName.dto';
 import { ChangeParentDto } from './dto/ChangeParent.dto';
 import { UploadFilesDto } from './dto/UploadFiles.dto';
+import { DownloadArchiveDto } from './dto/DownloadArchive.dto';
+import { DownloadFileDto } from './dto/DownloadFileDto';
 
 @Controller('/api/storage')
 export class StorageController {
@@ -231,6 +235,34 @@ export class StorageController {
   searchItems(@Body() dto: SearchItemDto, @Req() req: UserReq): Promise<ItemTransferData[]> {
     const correctId = stringToOjbectId(req.userTD.id);
     return this.storageService.searchItems(dto, correctId);
+  }
+
+  @Post('/download/file')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  async downloadFiles(
+    @Body() dto: DownloadFileDto,
+    @Res({ passthrough: true }) res: UserRes,
+  ): Promise<any> {
+    const { file, filename } = await this.storageService.downloadFile(dto);
+
+    res.set({
+      Filename: filename,
+    });
+
+    return file;
+  }
+
+  @Post('/download/archive')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  async downloadArchive(@Body() dto: DownloadArchiveDto, @Res() res: UserRes): Promise<any> {
+    res.set({
+      Filename: `${uuid.v4()}.zip`,
+    });
+
+    const fileArr = await this.storageService.downloadArchive(dto.items);
+    return res.zip(fileArr);
   }
 
   @Post('/create/comment')
