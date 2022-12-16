@@ -109,7 +109,7 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
   async copy(id: Types.ObjectId): Promise<TrackDocument & ItemsData> {
     try {
       const track = await this.findByIdAndCheck(id);
-      const { user, name, author, isTrash, text, imageSize, audioSize } = track;
+      const { user, name, author, isTrash, text, imageSize, audioSize, parent } = track;
 
       let imageNewPath;
 
@@ -124,6 +124,7 @@ export class TrackService extends ITrackService<TrackDocument, UpdateTrackOption
         name: `${name} copy`,
         author,
         text,
+        parent,
         imageSize,
         audioSize,
         isTrash,

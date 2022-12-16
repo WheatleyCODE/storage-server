@@ -119,7 +119,7 @@ export class VideoService extends IVideoService<VideoDocument, UpdateVideoOption
   async copy(id: Types.ObjectId): Promise<VideoDocument & ItemsData> {
     try {
       const videoDoc = await this.findByIdAndCheck(id);
-      const { user, name, isTrash, description, imageSize, videoSize } = videoDoc;
+      const { user, name, isTrash, description, imageSize, videoSize, parent } = videoDoc;
 
       let imageNewPath;
 
@@ -134,6 +134,7 @@ export class VideoService extends IVideoService<VideoDocument, UpdateVideoOption
         name: `${name} copy`,
         description,
         imageSize,
+        parent,
         videoSize,
         isTrash,
         audio: imageNewPath,

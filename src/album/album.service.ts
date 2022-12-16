@@ -141,13 +141,14 @@ export class AlbumService extends IAlbumService<AlbumDocument, UpdateAlbumOption
   async copy(id: Types.ObjectId): Promise<AlbumDocument & ItemsData> {
     try {
       const album = await this.findByIdAndCheck(id);
-      const { user, name, isTrash, image, imageSize, author } = album;
+      const { user, name, isTrash, image, imageSize, author, parent } = album;
 
       const imageNewPath = await this.filesService.copyFile(image, FileType.IMAGE);
 
       const newAlbum = await this.albumModel.create({
         user,
         author,
+        parent,
         name: `${name} copy`,
         isTrash,
         image: imageNewPath,

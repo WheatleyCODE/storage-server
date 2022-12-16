@@ -78,7 +78,7 @@ export class ImageService extends IDefaultFile<ImageDocument, UpdateImageOptions
   async copy(id: Types.ObjectId): Promise<ImageDocument & ItemsData> {
     try {
       const imageDoc = await this.findByIdAndCheck(id);
-      const { user, name, isTrash, image, imageSize } = imageDoc;
+      const { user, name, isTrash, image, imageSize, parent } = imageDoc;
 
       const imageNewPath = await this.filesService.copyFile(image, FileType.IMAGE);
 
@@ -86,6 +86,7 @@ export class ImageService extends IDefaultFile<ImageDocument, UpdateImageOptions
         user,
         name: `${name} copy`,
         isTrash,
+        parent,
         image: imageNewPath,
         imageSize,
         creationDate: Date.now(),

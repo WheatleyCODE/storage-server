@@ -95,12 +95,13 @@ export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
   async copy(id: Types.ObjectId): Promise<FileDocument & ItemsData> {
     try {
       const fileDoc = await this.findByIdAndCheck(id);
-      const { user, name, isTrash, file, fileSize } = fileDoc;
+      const { user, name, isTrash, file, fileSize, parent } = fileDoc;
 
       const fileNewPath = await this.filesService.copyFile(file, FileType.FILE);
 
       const newFile = await this.fileModel.create({
         user,
+        parent,
         name: `${name} copy`,
         isTrash,
         file: fileNewPath,
