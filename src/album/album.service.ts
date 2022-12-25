@@ -3,19 +3,27 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
 import { CommentService } from 'src/comment/comment.service';
-import { IAlbumService } from 'src/core/Interfaces/IAlbumService';
+import { StorageItem } from 'src/core';
 import { FilesService } from 'src/files/files.service';
 import { TrackDocument } from 'src/track/schemas/track.schema';
 import { TrackService } from 'src/track/track.service';
-import { AlbumTransferData } from 'src/transfer';
-import { ItemsData, FileType } from 'src/types';
-import { CreateAlbumOptions, UpdateAlbumOptions } from 'src/types/album';
-import { dtoToOjbectId } from 'src/utils';
-import { ChangeTracksDto } from './dto/ChangeTracks.dto';
 import { Album, AlbumDocument } from './schemas/album.schema';
+import { ChangeTracksDto } from './dto/change-tracks.dto';
+import { AlbumTransferData } from 'src/transfer';
+import { dtoToOjbectId } from 'src/utils';
+import {
+  ItemsData,
+  FileType,
+  IAlbumService,
+  CreateAlbumOptions,
+  UpdateAlbumOptions,
+} from 'src/types';
 
 @Injectable()
-export class AlbumService extends IAlbumService<AlbumDocument, UpdateAlbumOptions> {
+export class AlbumService
+  extends StorageItem<AlbumDocument, UpdateAlbumOptions>
+  implements IAlbumService<AlbumDocument>
+{
   constructor(
     @InjectModel(Album.name) private readonly albumModel: Model<AlbumDocument>,
     private readonly filesService: FilesService,

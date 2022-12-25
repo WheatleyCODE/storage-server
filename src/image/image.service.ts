@@ -2,21 +2,34 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
+import { StorageItem } from 'src/core';
 import { CommentService } from 'src/comment/comment.service';
-import { IDefaultFile } from 'src/core/AbstractClasses/IDefaultFile';
 import { FilesService } from 'src/files/files.service';
-import { ItemsData, FileType } from 'src/types';
-import { CreateImageOptions, UpdateImageOptions } from 'src/types/image';
 import { Image, ImageDocument } from './schemas/image.schema';
+import {
+  ItemsData,
+  FileType,
+  IImageService,
+  CreateImageOptions,
+  UpdateImageOptions,
+} from 'src/types';
 
 @Injectable()
-export class ImageService extends IDefaultFile<ImageDocument, UpdateImageOptions> {
+export class ImageService
+  extends StorageItem<ImageDocument, UpdateImageOptions>
+  implements IImageService<ImageDocument>
+{
   constructor(
     @InjectModel(Image.name) private readonly imageModel: Model<ImageDocument>,
     private readonly filesService: FilesService,
     commentService: CommentService,
   ) {
     super(imageModel, commentService);
+  }
+
+  // ! Временно
+  changeFile(id: Types.ObjectId, file: Express.Multer.File): Promise<ImageDocument> {
+    throw new Error('Method not implemented.');
   }
 
   async create(options: CreateImageOptions): Promise<ImageDocument> {

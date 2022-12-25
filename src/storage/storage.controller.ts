@@ -13,25 +13,31 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import * as uuid from 'uuid';
-import { JwtAuthGuard } from 'src/guards/jwt.auth.guard';
-import { CreateFolderDto } from 'src/folder/dto/CreateFolder.dto';
-import { CreateTrackDto } from 'src/track/dto/createTrackDto';
-import { stringToOjbectId } from 'src/utils';
-import { AddListenDto } from './dto/AddListen.dto';
-import { ChangeAccessTypeDto } from './dto/ChangeAccessType.dto';
-import { ChangeTrackFilesDto } from './dto/ChangeTrackFiles.dto';
-import { ChangeIsTrashDto } from './dto/ChangeIsTrash.dto';
-import { ChangeLikeDto } from './dto/ChangeLike.dto';
-import { ChangeOpenDateDto } from './dto/ChangeOpenDate.dto';
-import { CreateAccessLinkDto } from './dto/CreateAccessLink.dto';
-import { SearchItemDto } from './dto/SearchItem.dto';
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { ValidationPipe } from 'src/pipes/validation.pipe';
+import { CreateFolderDto } from 'src/folder/dto/create-folder.dto';
+import { CreateTrackDto } from 'src/track/dto/create-track-dto';
+import { AddListenDto } from './dto/add-listen.dto';
+import { ChangeAccessTypeDto } from './dto/change-access-type.dto';
+import { ChangeTrackFilesDto } from './dto/change-track-files.dto';
+import { ChangeIsTrashDto } from './dto/change-is-trash.dto';
+import { ChangeLikeDto } from './dto/change-like.dto';
+import { ChangeOpenDateDto } from './dto/change-open-date.dto';
+import { CreateAccessLinkDto } from './dto/create-access-link.dto';
+import { SearchItemDto } from './dto/search-item.dto';
 import { StorageService } from './storage.service';
-import { CopyFileDto } from './dto/CopyFile.dto';
-import { CreateFileDto } from 'src/file/dto/CreateFileDto';
-import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
-import { AddCommentDto } from 'src/comment/dto/AddComment.dto';
-import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
-import { ChildrensTransferData, ItemTransferData, UserReq, UserRes } from 'src/types';
+import { CopyFileDto } from './dto/copy-file.dto';
+import { CreateFileDto } from 'src/file/dto/create-file.dto';
+import { CreateAlbumDto } from 'src/album/dto/create-album.dto';
+import { AddCommentDto } from 'src/comment/dto/add-comment.dto';
+import { DeleteCommentDto } from 'src/comment/dto/delete-comment.dto';
+import { DeleteItemDto } from './dto/delete-item.dto';
+import { ChangeColorDto } from './dto/change-color.dto';
+import { ChangeNameDto } from './dto/change-name.dto';
+import { ChangeParentDto } from './dto/change-parent.dto';
+import { UploadFilesDto } from './dto/upload-files.dto';
+import { DownloadArchiveDto } from './dto/download-archive.dto';
+import { DownloadFileDto } from './dto/download-file.dto';
 import {
   FolderTransferData,
   StorageTransferData,
@@ -40,14 +46,8 @@ import {
   AlbumTransferData,
   CommentTransferData,
 } from 'src/transfer';
-import { ValidationPipe } from 'src/pipes/validation.pipe';
-import { DeleteItemDto } from './dto/DeleteItem.dto';
-import { ChangeColorDto } from './dto/ChangeColor.dto';
-import { ChangeNameDto } from './dto/ChangeName.dto';
-import { ChangeParentDto } from './dto/ChangeParent.dto';
-import { UploadFilesDto } from './dto/UploadFiles.dto';
-import { DownloadArchiveDto } from './dto/DownloadArchive.dto';
-import { DownloadFileDto } from './dto/DownloadFileDto';
+import { stringToOjbectId } from 'src/utils';
+import { ChildrensTransferData, ItemTransferData, UserReq, UserRes } from 'src/types';
 
 @Controller('/api/storage')
 export class StorageController {

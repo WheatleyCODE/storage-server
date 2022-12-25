@@ -1,19 +1,24 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { ICommentService } from 'src/core/Interfaces/ICommentService';
-import { ItemsData } from 'src/types';
-import { CreateCommentOptions, UpdateCommentOptions } from 'src/types/comment';
+import { DefaultService } from 'src/core';
 import { Comment, CommentDocument } from './schemas/comment.schema';
+import { ICommentService, ItemsData, CreateCommentOptions, UpdateCommentOptions } from 'src/types';
 
 @Injectable()
-export class CommentService extends ICommentService<CommentDocument, UpdateCommentOptions> {
+export class CommentService
+  extends DefaultService<CommentDocument, UpdateCommentOptions>
+  implements ICommentService<CommentDocument, UpdateCommentOptions>
+{
   constructor(
     @InjectModel(Comment.name)
     private readonly commentModel: Model<CommentDocument>,
   ) {
     super(commentModel);
   }
+
+  // ! Реализовать комментрарии
+  someRandom: null;
 
   async create(options: CreateCommentOptions): Promise<CommentDocument> {
     try {

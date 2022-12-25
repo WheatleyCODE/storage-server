@@ -3,14 +3,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
 import { CommentService } from 'src/comment/comment.service';
-import { IFileService } from 'src/core/Interfaces/IFileService';
+import { StorageItem } from 'src/core';
 import { FilesService } from 'src/files/files.service';
-import { ItemsData, FileType } from 'src/types';
-import { CreateFileOptions, UpdateFileOptions } from 'src/types/file';
 import { File, FileDocument } from './schemas/file.schema';
+import { ItemsData, FileType, IFileService, CreateFileOptions, UpdateFileOptions } from 'src/types';
 
 @Injectable()
-export class FileService extends IFileService<FileDocument, UpdateFileOptions> {
+export class FileService
+  extends StorageItem<FileDocument, UpdateFileOptions>
+  implements IFileService<FileDocument>
+{
   constructor(
     @InjectModel(File.name) private readonly fileModel: Model<FileDocument>,
     private readonly filesService: FilesService,

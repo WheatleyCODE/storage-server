@@ -3,18 +3,18 @@ import * as uuid from 'uuid';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/mail/mail.service';
 import { UserService } from 'src/user/user.service';
-import { RegistrationDto } from './dto/Registration.dto';
 import { TokensService } from 'src/tokens/tokens.service';
-import { ChangePassword, ResetPassword, AuthData } from 'src/types/auth';
-import { LoginDto } from './dto/Login.dto';
+import { ChangePassword, ResetPassword, AuthData } from 'src/types/auth.interface';
 import { UserDocument } from 'src/user/schemas/user.schema';
 import { StorageService } from 'src/storage/storage.service';
-import { TokensTransferData, UpdateUserOptions } from 'src/types';
-import { getStorageName } from 'src/utils/getStorageName';
+import { getStorageName } from 'src/utils';
 import { UserTransferData } from 'src/transfer';
+import { RegistrationDto } from './dto/registration.dto';
+import { LoginDto } from './dto/login.dto';
+import { IAuthService, TokensTransferData, UpdateUserOptions } from 'src/types';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements IAuthService {
   constructor(
     private readonly userService: UserService,
     private readonly mailService: MailService,
@@ -82,12 +82,14 @@ export class AuthService {
   private async getTokensAndAuthData(user: UserDocument): Promise<AuthData> {
     try {
       const userTransferData = new UserTransferData(user);
-      const tokens = this.tokensService.generateTokens({ ...userTransferData });
-      await this.tokensService.saveTokens(userTransferData.id, tokens);
+      const { accessToken, refreshToken } = await this.tokensService.generateTokens({
+        ...userTransferData,
+      });
 
       return {
         user: userTransferData,
-        ...tokens,
+        accessToken,
+        refreshToken,
       };
     } catch (e) {
       throw e;
@@ -96,7 +98,7 @@ export class AuthService {
 
   async logout(refreshToken: string): Promise<TokensTransferData> {
     try {
-      const tokens = await this.tokensService.removeTokens(refreshToken);
+      const tokens = await this.tokensService.deleteByRefreshToken(refreshToken);
       return new TokensTransferData(tokens);
     } catch (e) {
       throw e;
@@ -128,7 +130,7 @@ export class AuthService {
       }
 
       const userTData = this.tokensService.validateRefreshToken(refreshToken);
-      const tokensDoc = await this.tokensService.findTokensBy({ refreshToken });
+      const tokensDoc = await this.tokensService.getOneBy({ refreshToken });
 
       if (!userTData || !tokensDoc) {
         throw new HttpException(

@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { AlbumService } from './album.service';
-import { ChangeTracksDto } from './dto/ChangeTracks.dto';
+import { ChangeTracksDto } from './dto/change-tracks.dto';
 
 @Controller('/api/album')
 export class AlbumController {

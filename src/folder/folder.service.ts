@@ -1,14 +1,36 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { Folder, FolderDocument } from './schemas/folder.schema';
-import { IFolderService } from 'src/core';
-import { ItemsData, FolderColors } from 'src/types';
-import { CreateFolderOptions, UpdateFolderOptions } from 'src/types/folder';
+import { Document, Model, Types } from 'mongoose';
+import { ReadStream } from 'fs';
+import { StorageItem } from 'src/core';
 import { CommentService } from 'src/comment/comment.service';
+import { Folder, FolderDocument } from './schemas/folder.schema';
+import {
+  ItemsData,
+  FolderColors,
+  IFolderService,
+  CreateFolderOptions,
+  UpdateFolderOptions,
+} from 'src/types';
 
 @Injectable()
-export class FolderService extends IFolderService<FolderDocument, UpdateFolderOptions> {
+export class FolderService
+  extends StorageItem<FolderDocument, UpdateFolderOptions>
+  implements IFolderService<FolderDocument>
+{
+  // ! Временно
+  download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
+    throw new Error('Method not implemented.');
+  }
+
+  copy(id: Types.ObjectId): Promise<Folder & Document<any, any, any> & ItemsData> {
+    throw new Error('Method not implemented.');
+  }
+
+  getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
+    throw new Error('Method not implemented.');
+  }
+
   constructor(
     @InjectModel(Folder.name)
     private readonly folderModel: Model<FolderDocument>,

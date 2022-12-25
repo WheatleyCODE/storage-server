@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document, Types } from 'mongoose';
-import { DefaultObjectSchema } from 'src/core';
+import { StorageItemSchema } from 'src/core';
 import { ItemTypes } from 'src/types';
 
 export type TrackDocument = Track & Document;
 
 @Schema()
-export class Track extends DefaultObjectSchema {
+export class Track extends StorageItemSchema {
   @ApiProperty({
     example: 'FOLDER',
     description: 'Тип Элемента хранилища | ItemTypes',

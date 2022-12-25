@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/Login.dto';
-import { RegistrationDto } from './dto/Registration.dto';
-import { ResetPasswordDto } from './dto/ResetPassword.dto';
-import { ChangePasswordDto } from './dto/СhangePassword.dto';
+import { LoginDto } from './dto/login.dto';
+import { RegistrationDto } from './dto/registration.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { setRefTokenInCookie } from 'src/utils';
 import { ChangePassword, ResetPassword, AuthData, TokensTransferData } from 'src/types';
 

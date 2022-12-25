@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { ITrackService } from 'src/core/Interfaces/ITrackService';
+import { ReadStream } from 'fs';
+import { StorageItem } from 'src/core';
 import { FilesService } from 'src/files/files.service';
 import { Track, TrackDocument } from './schemas/track.schema';
-import { ReadStream } from 'fs';
 import { CommentService } from 'src/comment/comment.service';
 import { TrackTransferData } from 'src/transfer';
 import {
@@ -13,10 +13,14 @@ import {
   UpdateTrackOptions,
   CreateTrackOptions,
   FileType,
+  ITrackService,
 } from 'src/types';
 
 @Injectable()
-export class TrackService extends ITrackService<TrackDocument, UpdateTrackOptions> {
+export class TrackService
+  extends StorageItem<TrackDocument, UpdateTrackOptions>
+  implements ITrackService<TrackDocument>
+{
   constructor(
     @InjectModel(Track.name) private readonly trackModel: Model<TrackDocument>,
     private readonly filesService: FilesService,

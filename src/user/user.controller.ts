@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { UserTransferData } from 'src/transfer';
-import { ChangeRoleDto } from './dto/ChangeRole.dto';
+import { ChangeRoleDto } from './dto/change-role.dto';
 import { UserService } from './user.service';
 
 @Controller('api/user')

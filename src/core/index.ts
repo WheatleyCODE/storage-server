@@ -1,9 +1,6 @@
-export * from './AbstractClasses/IDefaultObject';
-export * from './AbstractClasses/IDefaultService';
-export * from './AbstractClasses/IToken';
+export * from './abstractions/default-service';
+export * from './abstractions/mongo-database';
+export * from './abstractions/storage-item';
+export * from './abstractions/token';
 
-export * from './Interfaces/IStorageService';
-export * from './Interfaces/IUserService';
-export * from './Interfaces/IFolderService';
-
-export * from './Schemas/DefaultObjectSchema';
+export * from './schemas/storage-item-schema';

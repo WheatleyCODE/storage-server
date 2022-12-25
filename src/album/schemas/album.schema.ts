@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document, Types } from 'mongoose';
-import { DefaultObjectSchema } from 'src/core';
+import { StorageItemSchema } from 'src/core';
 import { ItemTypes } from 'src/types';
 
 export type AlbumDocument = Album & Document;
 
 @Schema()
-export class Album extends DefaultObjectSchema {
+export class Album extends StorageItemSchema {
   @ApiProperty({
     example: 'ALBUM',
     description: 'Тип Элемента хранилища | ItemTypes',

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Query } from '@nestjs/common';
 import { VideoTransferData } from 'src/transfer';
-import { SearchVideoDto } from './dto/SerchVideo.dto';
+import { SearchVideoDto } from './dto/search-video.dto';
 import { VideoService } from './video.service';
 
 @Controller('/api/video')

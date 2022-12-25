@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Query } from '@nestjs/common';
-import { TrackTransferData } from 'src/transfer';
-import { SearchTrackDto } from './dto/SerchTrack.dto';
+import { SearchTrackDto } from './dto/serch-track.dto';
 import { TrackService } from './track.service';
+import { TrackTransferData } from 'src/transfer';
 
 @Controller('/api/track')
 export class TrackController {

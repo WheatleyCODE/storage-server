@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { DefaultObjectSchema } from 'src/core';
+import { StorageItemSchema } from 'src/core';
 import { FolderColors, ItemTypes } from 'src/types';
 
 export type FolderDocument = Folder & Document;
 
 @Schema()
-export class Folder extends DefaultObjectSchema {
+export class Folder extends StorageItemSchema {
   @ApiProperty({
     example: 'FOLDER',
     description: 'Тип Элемента хранилища | ItemTypes',

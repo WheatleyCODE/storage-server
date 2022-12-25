@@ -1,14 +1,52 @@
 import { HttpException, HttpStatus, Injectable, StreamableFile } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { IStorageService } from 'src/core';
-import { CreateFolderDto } from 'src/folder/dto/CreateFolder.dto';
+import { DefaultService } from 'src/core';
 import { FolderService } from 'src/folder/folder.service';
-import { CreateTrackDto } from 'src/track/dto/createTrackDto';
+import { CreateTrackDto } from 'src/track/dto/create-track-dto';
 import { TrackService } from 'src/track/track.service';
 import {
+  FolderTransferData,
+  StorageTransferData,
+  TrackTransferData,
+  FileTransferData,
+  AlbumTransferData,
+  CommentTransferData,
+  ItemTDataFactory,
+  VideoTransferData,
+} from 'src/transfer';
+import { ImageTransferData } from 'src/transfer/image.transfer-data';
+import { VideoService } from 'src/video/video.service';
+import { FolderDocument } from 'src/folder/schemas/folder.schema';
+import { Storage, StorageDocument } from './schemas/storage.schema';
+import { CreateFileDto } from 'src/file/dto/create-file.dto';
+import { FileService } from 'src/file/file.service';
+import { AlbumService } from 'src/album/album.service';
+import { CopyFileDto } from './dto/copy-file.dto';
+import { CreateFolderDto } from 'src/folder/dto/create-folder.dto';
+import { CreateAlbumDto } from 'src/album/dto/create-album.dto';
+import { AddCommentDto } from 'src/comment/dto/add-comment.dto';
+import { DeleteCommentDto } from 'src/comment/dto/delete-comment.dto';
+import { ChangeColorDto } from './dto/change-color.dto';
+import { ChangeNameDto } from './dto/change-name.dto';
+import { ChangeParentDto } from './dto/change-parent.dto';
+import { ImageService } from 'src/image/image.service';
+import { CreateImageDto } from 'src/image/dto/create-image.dto';
+import { UploadFilesDto } from './dto/upload-files.dto';
+import { CreateVideoDto } from 'src/video/dto/create-video.dto';
+import { AddItemDto } from './dto/add-item.dto';
+import { DeleteItemDto } from './dto/delete-item.dto';
+import { AddListenDto } from './dto/add-listen.dto';
+import { ChangeAccessTypeDto } from './dto/change-access-type.dto';
+import { ChangeTrackFilesDto } from './dto/change-track-files.dto';
+import { ChangeIsTrashDto } from './dto/change-is-trash.dto';
+import { ChangeLikeDto } from './dto/change-like.dto';
+import { ChangeOpenDateDto } from './dto/change-open-date.dto';
+import { CreateAccessLinkDto } from './dto/create-access-link.dto';
+import { SearchItemDto } from './dto/search-item.dto';
+import { dtoToOjbectId, getStorageCollectionName } from 'src/utils';
+import {
   CreateStorageOptions,
-  ItemsData,
   ItemDocument,
   ItemFileTypes,
   ItemTypes,
@@ -20,51 +58,15 @@ import {
   ItemTransferData,
   AccessTypes,
   ChildrensTransferData,
-  ItemDto,
   ItemFileDto,
+  IStorageService,
 } from 'src/types';
-import {
-  FolderTransferData,
-  StorageTransferData,
-  TrackTransferData,
-  FileTransferData,
-  AlbumTransferData,
-  CommentTransferData,
-  ItemTDataFactory,
-  VideoTransferData,
-} from 'src/transfer';
-import { dtoToOjbectId, getStorageCollectionName } from 'src/utils';
-import { AddItemDto } from './dto/AddItem.dto';
-import { DeleteItemDto } from './dto/DeleteItem.dto';
-import { AddListenDto } from './dto/AddListen.dto';
-import { ChangeAccessTypeDto } from './dto/ChangeAccessType.dto';
-import { ChangeTrackFilesDto } from './dto/ChangeTrackFiles.dto';
-import { ChangeIsTrashDto } from './dto/ChangeIsTrash.dto';
-import { ChangeLikeDto } from './dto/ChangeLike.dto';
-import { ChangeOpenDateDto } from './dto/ChangeOpenDate.dto';
-import { CreateAccessLinkDto } from './dto/CreateAccessLink.dto';
-import { SearchItemDto } from './dto/SearchItem.dto';
-import { Storage, StorageDocument } from './schemas/storage.schema';
-import { CopyFileDto } from './dto/CopyFile.dto';
-import { CreateFileDto } from 'src/file/dto/CreateFileDto';
-import { FileService } from 'src/file/file.service';
-import { AlbumService } from 'src/album/album.service';
-import { CreateAlbumDto } from 'src/album/dto/CreateAlbum.dto';
-import { AddCommentDto } from 'src/comment/dto/AddComment.dto';
-import { DeleteCommentDto } from 'src/comment/dto/DeleteComment.dto';
-import { ChangeColorDto } from './dto/ChangeColor.dto';
-import { FolderDocument } from 'src/folder/schemas/folder.schema';
-import { ChangeNameDto } from './dto/ChangeName.dto';
-import { ChangeParentDto } from './dto/ChangeParent.dto';
-import { ImageService } from 'src/image/image.service';
-import { ImageTransferData } from 'src/transfer/ImageTransferData';
-import { CreateImageDto } from 'src/image/dto/CreateImage.dto';
-import { UploadFilesDto } from './dto/UploadFiles.dto';
-import { VideoService } from 'src/video/video.service';
-import { CreateVideoDto } from 'src/video/dto/CreateVideo.dto';
 
 @Injectable()
-export class StorageService extends IStorageService<StorageDocument, UpdateStorageOptions> {
+export class StorageService
+  extends DefaultService<StorageDocument, UpdateStorageOptions>
+  implements IStorageService<StorageDocument>
+{
   private readonly objectServices: ObjectServices;
   private readonly objectFileServices: ObjectFileServices;
 
@@ -380,7 +382,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
     }
   }
 
-  async delete(id: Types.ObjectId): Promise<StorageDocument & ItemsData> {
+  async delete(id: Types.ObjectId): Promise<StorageDocument> {
     try {
       const storage = await this.findByIdAndCheck(id);
 
@@ -390,15 +392,7 @@ export class StorageService extends IStorageService<StorageDocument, UpdateStora
         );
       }
 
-      const deletedStorage = await this.storageModel.findByIdAndDelete(id);
-
-      const itemData: ItemsData = {
-        count: 1,
-        items: [],
-        size: storage.usedSpace,
-      };
-
-      return Object.assign(deletedStorage, itemData);
+      return await this.storageModel.findByIdAndDelete(id);
     } catch (e) {
       throw e;
     }

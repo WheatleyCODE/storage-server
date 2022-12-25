@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { IToken } from 'src/core';
+import { Token } from 'src/core';
 
 @Injectable()
-export class AccessTokenService extends IToken {
+export class AccessTokenService extends Token {
   constructor(jwtService: JwtService) {
     super(jwtService);
   }

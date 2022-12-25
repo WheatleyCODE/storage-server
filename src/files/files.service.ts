@@ -2,9 +2,9 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as uuid from 'uuid';
-import { FileType } from 'src/types/file';
+import { IFilesService, FileType } from 'src/types';
 @Injectable()
-export class FilesService {
+export class FilesService implements IFilesService {
   async createFile(type: FileType, file: Express.Multer.File): Promise<string> {
     try {
       const { fileName, filePath } = this.generateFileName(file.originalname, type);
