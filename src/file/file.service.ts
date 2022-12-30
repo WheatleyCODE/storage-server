@@ -3,14 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
 import { CommentService } from 'src/comment/comment.service';
-import { StorageItem } from 'src/core';
+import { StorageItemComments } from 'src/core';
 import { FilesService } from 'src/files/files.service';
 import { File, FileDocument } from './schemas/file.schema';
 import { ItemsData, FileType, IFileService, CreateFileOptions, UpdateFileOptions } from 'src/types';
 
 @Injectable()
 export class FileService
-  extends StorageItem<FileDocument, UpdateFileOptions>
+  extends StorageItemComments<FileDocument, UpdateFileOptions>
   implements IFileService<FileDocument>
 {
   constructor(

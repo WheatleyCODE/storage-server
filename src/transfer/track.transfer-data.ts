@@ -16,7 +16,7 @@ export class TrackTransferData {
     readonly starredCount = track.starredCount,
     readonly accessType = track.accessType,
     readonly accesLink = track.accessLink,
-    readonly creationDate = track.creationDate,
+    readonly creationDate = track.createDate,
     readonly openDate = track.openDate,
     readonly comments = track.comments,
     readonly author = track.author,

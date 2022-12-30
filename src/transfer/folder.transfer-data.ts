@@ -16,7 +16,7 @@ export class FolderTransferData {
     readonly starredCount = folder.starredCount,
     readonly accessType = folder.accessType,
     readonly accesLink = folder.accessLink,
-    readonly creationDate = folder.creationDate,
+    readonly creationDate = folder.createDate,
     readonly openDate = folder.openDate,
     readonly comments = folder.comments,
     readonly color = folder.color,

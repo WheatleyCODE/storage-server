@@ -16,7 +16,7 @@ export class ImageTransferData {
     readonly starredCount = imageDoc.starredCount,
     readonly accessType = imageDoc.accessType,
     readonly accesLink = imageDoc.accessLink,
-    readonly creationDate = imageDoc.creationDate,
+    readonly creationDate = imageDoc.createDate,
     readonly openDate = imageDoc.openDate,
     readonly comments = imageDoc.comments,
     readonly image = imageDoc.image,

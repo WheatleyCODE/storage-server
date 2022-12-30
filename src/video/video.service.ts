@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
-import { StorageItem } from 'src/core';
+import { StorageItemComments } from 'src/core';
 import { FilesService } from 'src/files/files.service';
 import { Video, VideoDocument } from './schemas/video.schema';
 import { CommentService } from 'src/comment/comment.service';
@@ -18,7 +18,7 @@ import {
 
 @Injectable()
 export class VideoService
-  extends StorageItem<VideoDocument, UpdateVideoOptions>
+  extends StorageItemComments<VideoDocument, UpdateVideoOptions>
   implements IVideoService<VideoDocument>
 {
   constructor(

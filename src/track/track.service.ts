@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ReadStream } from 'fs';
-import { StorageItem } from 'src/core';
+import { StorageItemComments } from 'src/core';
 import { FilesService } from 'src/files/files.service';
 import { Track, TrackDocument } from './schemas/track.schema';
 import { CommentService } from 'src/comment/comment.service';
@@ -18,7 +18,7 @@ import {
 
 @Injectable()
 export class TrackService
-  extends StorageItem<TrackDocument, UpdateTrackOptions>
+  extends StorageItemComments<TrackDocument, UpdateTrackOptions>
   implements ITrackService<TrackDocument>
 {
   constructor(

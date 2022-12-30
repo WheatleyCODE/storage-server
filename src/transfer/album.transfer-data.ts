@@ -17,7 +17,7 @@ export class AlbumTransferData {
     readonly starredCount = album.starredCount,
     readonly accessType = album.accessType,
     readonly accesLink = album.accessLink,
-    readonly creationDate = album.creationDate,
+    readonly creationDate = album.createDate,
     readonly openDate = album.openDate,
     readonly comments = album.comments,
     readonly image = album.image,

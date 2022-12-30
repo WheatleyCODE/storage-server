@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { AccessTypes, ItemTypes } from './core.interface';
 import { VideoTransferData } from 'src/transfer';
 
+// ! Разделить интерфейсы на классы по changeFiles, getAllPublicVideos
 export interface IVideoService<T> {
   changeFiles(
     id: Types.ObjectId,

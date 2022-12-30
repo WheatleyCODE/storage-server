@@ -16,7 +16,7 @@ export class FileTransferData {
     readonly starredCount = filedoc.starredCount,
     readonly accessType = filedoc.accessType,
     readonly accesLink = filedoc.accessLink,
-    readonly creationDate = filedoc.creationDate,
+    readonly creationDate = filedoc.createDate,
     readonly openDate = filedoc.openDate,
     readonly comments = filedoc.comments,
     readonly file = filedoc.file,

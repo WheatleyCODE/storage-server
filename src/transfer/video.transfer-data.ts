@@ -16,7 +16,7 @@ export class VideoTransferData {
     readonly starredCount = videoDoc.starredCount,
     readonly accessType = videoDoc.accessType,
     readonly accesLink = videoDoc.accessLink,
-    readonly creationDate = videoDoc.creationDate,
+    readonly creationDate = videoDoc.createDate,
     readonly openDate = videoDoc.openDate,
     readonly comments = videoDoc.comments,
     readonly description = videoDoc.description,

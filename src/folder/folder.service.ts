@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model, Types } from 'mongoose';
 import { ReadStream } from 'fs';
-import { StorageItem } from 'src/core';
+import { StorageItemComments } from 'src/core';
 import { CommentService } from 'src/comment/comment.service';
 import { Folder, FolderDocument } from './schemas/folder.schema';
 import {
@@ -15,7 +15,7 @@ import {
 
 @Injectable()
 export class FolderService
-  extends StorageItem<FolderDocument, UpdateFolderOptions>
+  extends StorageItemComments<FolderDocument, UpdateFolderOptions>
   implements IFolderService<FolderDocument>
 {
   // ! Временно

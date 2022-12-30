@@ -1,13 +1,11 @@
 import { Model, Types } from 'mongoose';
 import * as uuid from 'uuid';
 import { ReadStream } from 'fs';
-import { CommentService } from 'src/comment/comment.service';
-import { CommentDocument } from 'src/comment/schemas/comment.schema';
 import { DefaultService } from './default-service';
-import { AccessTypes, ItemsData, IStorageItem, CreateCommentOptions } from 'src/types';
+import { AccessTypes, ItemsData, IStorageItem } from 'src/types';
 
 export abstract class StorageItem<T, O> extends DefaultService<T, O> implements IStorageItem<T> {
-  constructor(model: Model<any>, private readonly commentService: CommentService) {
+  constructor(model: Model<any>) {
     super(model);
   }
 
@@ -135,38 +133,6 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
         item.starredCount--;
       }
       return await item.save();
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async addComment(id: Types.ObjectId, options: CreateCommentOptions): Promise<CommentDocument> {
-    try {
-      const item: any = await this.findByIdAndCheck(id);
-      const comment = await this.commentService.create(options);
-      item.comments.push(comment._id);
-      await item.save();
-
-      return comment;
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async deleteComment(id: Types.ObjectId, comment: Types.ObjectId): Promise<T> {
-    try {
-      const itemDoc: any = await this.findByIdAndCheck(id);
-      const { items } = await this.commentService.delete(comment);
-
-      items.forEach((item) => {
-        itemDoc.comments = itemDoc.comments.filter(
-          (itm) => item._id.toString() !== itm._id.toString(),
-        );
-      });
-
-      await itemDoc.save();
-
-      return itemDoc;
     } catch (e) {
       throw e;
     }

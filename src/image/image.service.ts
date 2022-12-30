@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
-import { StorageItem } from 'src/core';
+import { StorageItemComments } from 'src/core';
 import { CommentService } from 'src/comment/comment.service';
 import { FilesService } from 'src/files/files.service';
 import { Image, ImageDocument } from './schemas/image.schema';
@@ -16,7 +16,7 @@ import {
 
 @Injectable()
 export class ImageService
-  extends StorageItem<ImageDocument, UpdateImageOptions>
+  extends StorageItemComments<ImageDocument, UpdateImageOptions>
   implements IImageService<ImageDocument>
 {
   constructor(
