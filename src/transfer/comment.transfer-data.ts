@@ -5,7 +5,8 @@ export class CommentTransferData {
     comment: CommentDocument,
     readonly id = comment._id,
     readonly title = comment.title,
+    readonly text = comment.text,
     readonly user = comment.user,
-    readonly answer = comment.answer,
+    readonly answers = comment.answers,
   ) {}
 }

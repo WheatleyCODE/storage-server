@@ -251,7 +251,7 @@ export class StorageService
           item: imageDoc._id,
           itemType: imageDoc.type,
         },
-        imageDoc.imageSize,
+        imageDoc.fileSize,
       );
 
       return new ImageTransferData(imageDoc);
@@ -352,8 +352,8 @@ export class StorageService
       if (!prevTrack) throw new HttpException('Трек не найден', HttpStatus.BAD_REQUEST);
 
       const newTrack = await this.trackService.changeFiles(track, audio, image);
-      const prevSize = prevTrack.audioSize + (prevTrack.imageSize || 0);
-      const newSize = newTrack.audioSize + (newTrack.imageSize || 0);
+      const prevSize = prevTrack.fileSize + (prevTrack.imageSize || 0);
+      const newSize = newTrack.fileSize + (newTrack.imageSize || 0);
 
       strg.usedSpace -= prevSize;
       strg.usedSpace += newSize;
@@ -729,7 +729,7 @@ export class StorageService
         }
 
         if (object.video.includes(filename[filename.length - 1])) {
-          const image = await this.createVideo(
+          const video = await this.createVideo(
             {
               name: filename[0],
               parent,
@@ -738,7 +738,7 @@ export class StorageService
             user,
             file,
           );
-          itemsTransferData.push(image);
+          itemsTransferData.push(video);
           continue;
         }
 

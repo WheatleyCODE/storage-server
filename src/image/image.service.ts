@@ -49,12 +49,12 @@ export class ImageService
       const deletedImage = await this.imageModel.findByIdAndDelete(id);
       if (!deletedImage) throw new HttpException('Трек не найден', HttpStatus.BAD_REQUEST);
 
-      await this.filesService.removeFile(deletedImage.image);
+      await this.filesService.removeFile(deletedImage.file);
 
       const itemsData: ItemsData = {
         count: 1,
         items: [deletedImage],
-        size: deletedImage.imageSize,
+        size: deletedImage.fileSize,
       };
       return Object.assign(deletedImage, itemsData);
     } catch (e) {
@@ -64,12 +64,11 @@ export class ImageService
 
   async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
     try {
-      const imageDoc = await this.findByIdAndCheck(id);
-      const file = await this.filesService.downloadFile(imageDoc.image);
-      const ext = imageDoc.image.split('.')[1];
-      const filename = `${imageDoc.name}.${ext}`;
+      const { name, file, fileExt } = await this.findByIdAndCheck(id);
+      const fileStream = await this.filesService.downloadFile(file);
+      const filename = `${name}.${fileExt}`;
 
-      return { file, filename };
+      return { file: fileStream, filename };
     } catch (e) {
       throw e;
     }
@@ -77,10 +76,9 @@ export class ImageService
 
   async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
     try {
-      const imageDoc = await this.findByIdAndCheck(id);
-      const path = await this.filesService.getFilePath(imageDoc.image);
-      const ext = imageDoc.image.split('.')[1];
-      const filename = `${imageDoc.name}.${ext}`;
+      const { name, file, fileExt } = await this.findByIdAndCheck(id);
+      const path = await this.filesService.getFilePath(file);
+      const filename = `${name}.${fileExt}`;
 
       return { path, filename };
     } catch (e) {
@@ -91,9 +89,9 @@ export class ImageService
   async copy(id: Types.ObjectId): Promise<ImageDocument & ItemsData> {
     try {
       const imageDoc = await this.findByIdAndCheck(id);
-      const { user, name, isTrash, image, imageSize, parent } = imageDoc;
+      const { user, name, isTrash, file, fileSize, parent } = imageDoc;
 
-      const imageNewPath = await this.filesService.copyFile(image, FileType.IMAGE);
+      const imageNewPath = await this.filesService.copyFile(file, FileType.IMAGE);
 
       const newImage = await this.imageModel.create({
         user,
@@ -101,7 +99,7 @@ export class ImageService
         isTrash,
         parent,
         image: imageNewPath,
-        imageSize,
+        fileSize,
         creationDate: Date.now(),
         openDate: Date.now(),
       });
@@ -109,7 +107,7 @@ export class ImageService
       const itemsData: ItemsData = {
         count: 1,
         items: [newImage],
-        size: imageSize,
+        size: fileSize,
       };
 
       return Object.assign(newImage, itemsData);

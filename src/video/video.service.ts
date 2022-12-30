@@ -54,7 +54,7 @@ export class VideoService
 
       if (!deletedVideo) throw new HttpException('Видео файл не найден', HttpStatus.BAD_REQUEST);
 
-      await this.filesService.removeFile(deletedVideo.video);
+      await this.filesService.removeFile(deletedVideo.file);
 
       if (deletedVideo.image) {
         await this.filesService.removeFile(deletedVideo.image);
@@ -63,7 +63,7 @@ export class VideoService
       const itemsData: ItemsData = {
         count: 1,
         items: [deletedVideo],
-        size: deletedVideo.videoSize + (deletedVideo.imageSize || 0),
+        size: deletedVideo.fileSize + (deletedVideo.imageSize || 0),
       };
 
       return Object.assign(deletedVideo, itemsData);
@@ -96,11 +96,11 @@ export class VideoService
         const newPathVideo = await this.filesService.changeFile(
           FileType.AUDIO,
           video,
-          videoDoc.video,
+          videoDoc.file,
         );
 
-        videoDoc.video = newPathVideo;
-        videoDoc.videoSize = video.size;
+        videoDoc.file = newPathVideo;
+        videoDoc.fileSize = video.size;
       }
 
       if (image) {
@@ -123,7 +123,7 @@ export class VideoService
   async copy(id: Types.ObjectId): Promise<VideoDocument & ItemsData> {
     try {
       const videoDoc = await this.findByIdAndCheck(id);
-      const { user, name, isTrash, description, imageSize, videoSize, parent } = videoDoc;
+      const { user, name, isTrash, description, imageSize, fileSize, parent } = videoDoc;
 
       let imageNewPath;
 
@@ -131,7 +131,7 @@ export class VideoService
         imageNewPath = await this.filesService.copyFile(videoDoc.image, FileType.IMAGE);
       }
 
-      const videoNewPath = await this.filesService.copyFile(videoDoc.video, FileType.VIDEO);
+      const videoNewPath = await this.filesService.copyFile(videoDoc.file, FileType.VIDEO);
 
       const newVideo = await this.videoModel.create({
         user,
@@ -139,7 +139,7 @@ export class VideoService
         description,
         imageSize,
         parent,
-        videoSize,
+        fileSize,
         isTrash,
         audio: imageNewPath,
         video: videoNewPath,
@@ -150,7 +150,7 @@ export class VideoService
       const itemsData: ItemsData = {
         count: 1,
         items: [newVideo],
-        size: videoSize + (imageSize || 0),
+        size: fileSize + (imageSize || 0),
       };
 
       return Object.assign(newVideo, itemsData);
@@ -162,12 +162,11 @@ export class VideoService
 
   async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
     try {
-      const videoDoc = await this.findByIdAndCheck(id);
-      const file = await this.filesService.downloadFile(videoDoc.video);
-      const ext = videoDoc.video.split('.')[1];
-      const filename = `${videoDoc.name}.${ext}`;
+      const { name, file, fileExt } = await this.findByIdAndCheck(id);
+      const fileStream = await this.filesService.downloadFile(file);
+      const filename = `${name}.${fileExt}`;
 
-      return { file, filename };
+      return { file: fileStream, filename };
     } catch (e) {
       throw e;
     }
@@ -175,10 +174,9 @@ export class VideoService
 
   async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
     try {
-      const videoDoc = await this.findByIdAndCheck(id);
-      const path = await this.filesService.getFilePath(videoDoc.video);
-      const ext = videoDoc.video.split('.')[1];
-      const filename = `${videoDoc.name}.${ext}`;
+      const { name, file, fileExt } = await this.findByIdAndCheck(id);
+      const path = await this.filesService.getFilePath(file);
+      const filename = `${name}.${fileExt}`;
 
       return { path, filename };
     } catch (e) {

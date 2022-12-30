@@ -2,7 +2,7 @@ import { Prop } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Types } from 'mongoose';
 import { DefaultSchema } from './default.schema';
-import { AccessTypes } from 'src/types';
+import { AccessTypes, ItemTypes } from 'src/types';
 
 export class StorageItemSchema extends DefaultSchema {
   @ApiProperty({
@@ -11,6 +11,13 @@ export class StorageItemSchema extends DefaultSchema {
   })
   @Prop({ required: true, type: String })
   name: string;
+
+  @ApiProperty({
+    example: 'FOLDER',
+    description: 'Тип  элемента хранилища | ItemTypes',
+  })
+  @Prop({ required: true, type: String })
+  type: ItemTypes;
 
   @ApiProperty({
     example: '507f191e810c19729de860ea',
@@ -81,11 +88,4 @@ export class StorageItemSchema extends DefaultSchema {
   })
   @Prop({ required: true, type: Number })
   openDate: number;
-
-  @ApiProperty({
-    example: '[507f191e810c19729de860ea]',
-    description: 'IDs Комментариев',
-  })
-  @Prop({ type: [Types.ObjectId], ref: 'Comment' })
-  comments: Types.ObjectId[];
 }

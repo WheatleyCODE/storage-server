@@ -1,25 +1,8 @@
-import { Types } from 'mongoose';
 import { FolderDocument } from 'src/folder/schemas/folder.schema';
+import { StorageItemCommentsTransferData } from './storage-item-comments.transfer-data';
 
-export class FolderTransferData {
-  constructor(
-    folder: FolderDocument,
-    readonly id: Types.ObjectId = folder._id,
-    readonly user = folder.user,
-    readonly type = folder.type,
-    readonly name = folder.name,
-    readonly parent = folder.parent,
-    readonly isTrash = folder.isTrash,
-    readonly likeCount = folder.likeCount,
-    readonly likedUsers = folder.likedUsers,
-    readonly listenCount = folder.listenCount,
-    readonly starredCount = folder.starredCount,
-    readonly accessType = folder.accessType,
-    readonly accesLink = folder.accessLink,
-    readonly creationDate = folder.createDate,
-    readonly openDate = folder.openDate,
-    readonly comments = folder.comments,
-    readonly color = folder.color,
-    readonly folderSize = folder.folderSize,
-  ) {}
+export class FolderTransferData extends StorageItemCommentsTransferData {
+  constructor(folder: FolderDocument, readonly color = folder.color) {
+    super(folder);
+  }
 }

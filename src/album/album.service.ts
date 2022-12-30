@@ -17,6 +17,7 @@ import {
   IAlbumService,
   CreateAlbumOptions,
   UpdateAlbumOptions,
+  ItemTypes,
 } from 'src/types';
 
 @Injectable()
@@ -70,6 +71,7 @@ export class AlbumService
 
       return await this.albumModel.create({
         ...options,
+        type: ItemTypes.ALBUM,
         image: pathImage,
       });
     } catch (e) {

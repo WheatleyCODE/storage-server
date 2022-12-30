@@ -1,22 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document, Types } from 'mongoose';
-import { StorageItemSchema } from 'src/core';
-import { ItemTypes } from 'src/types';
+import { StorageItemCommentsSchema } from 'src/core';
 
 export type TrackDocument = Track & Document;
 
 @Schema()
-export class Track extends StorageItemSchema {
+export class Track extends StorageItemCommentsSchema {
   @ApiProperty({
-    example: 'FOLDER',
-    description: 'Тип Элемента хранилища | ItemTypes',
-  })
-  @Prop({ default: ItemTypes.TRACK, type: String })
-  type: ItemTypes;
-
-  @ApiProperty({
-    example: 'Oxxymiron',
+    example: 'Oxxxymiron',
     description: 'Автор трека',
   })
   @Prop({ required: true, type: String })
@@ -48,14 +40,21 @@ export class Track extends StorageItemSchema {
     description: 'Путь к аудио на сервере',
   })
   @Prop({ required: true, type: String })
-  audio: string;
+  file: string;
 
   @ApiProperty({
     example: 123456,
     description: 'Вес аудио',
   })
   @Prop({ required: true, type: Number })
-  audioSize: number;
+  fileSize: number;
+
+  @ApiProperty({
+    example: 'mp3',
+    description: 'Формат файла',
+  })
+  @Prop({ required: true, type: String })
+  fileExt: string;
 
   @ApiProperty({
     example: '507f191e810c19729de860ea',

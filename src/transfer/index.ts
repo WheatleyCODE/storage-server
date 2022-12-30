@@ -1,3 +1,4 @@
+export * from './storage-item.transfer-data';
 export * from './album.transfer-data';
 export * from './comment.transfer-data';
 export * from './file.transfer-data';

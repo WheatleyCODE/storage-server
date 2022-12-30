@@ -19,6 +19,7 @@ import {
   FileTransferData,
   AlbumTransferData,
   UserTransferData,
+  VideoTransferData,
 } from 'src/transfer';
 
 // ? interfase for database ?
@@ -152,7 +153,8 @@ export type ItemTransferData =
   | TrackTransferData
   | FileTransferData
   | AlbumTransferData
-  | ImageTransferData;
+  | ImageTransferData
+  | VideoTransferData;
 
 export type Modify<T, R> = Omit<T, keyof R> & R;
 

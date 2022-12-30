@@ -11,6 +11,7 @@ import {
   IFolderService,
   CreateFolderOptions,
   UpdateFolderOptions,
+  ItemTypes,
 } from 'src/types';
 
 @Injectable()
@@ -41,7 +42,7 @@ export class FolderService
 
   async create(options: CreateFolderOptions): Promise<FolderDocument> {
     try {
-      return await this.folderModel.create({ ...options });
+      return await this.folderModel.create({ ...options, type: ItemTypes.FOLDER });
     } catch (e) {
       throw new HttpException('Ошибка при создании папки', HttpStatus.BAD_REQUEST);
     }

@@ -1,25 +1,13 @@
-import { Types } from 'mongoose';
 import { ImageDocument } from 'src/image/schemas/image.schema';
+import { StorageItemCommentsTransferData } from './storage-item-comments.transfer-data';
 
-export class ImageTransferData {
+export class ImageTransferData extends StorageItemCommentsTransferData {
   constructor(
     imageDoc: ImageDocument,
-    readonly id: Types.ObjectId = imageDoc._id,
-    readonly user = imageDoc.user,
-    readonly type = imageDoc.type,
-    readonly name = imageDoc.name,
-    readonly parent = imageDoc.parent,
-    readonly isTrash = imageDoc.isTrash,
-    readonly likeCount = imageDoc.likeCount,
-    readonly likedUsers = imageDoc.likedUsers,
-    readonly listenCount = imageDoc.listenCount,
-    readonly starredCount = imageDoc.starredCount,
-    readonly accessType = imageDoc.accessType,
-    readonly accesLink = imageDoc.accessLink,
-    readonly creationDate = imageDoc.createDate,
-    readonly openDate = imageDoc.openDate,
-    readonly comments = imageDoc.comments,
-    readonly image = imageDoc.image,
-    readonly imageSize = imageDoc.imageSize,
-  ) {}
+    readonly file = imageDoc.file,
+    readonly fileSize = imageDoc.fileSize,
+    readonly fileExt = imageDoc.fileExt,
+  ) {
+    super(imageDoc);
+  }
 }

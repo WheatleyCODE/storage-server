@@ -2,12 +2,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
+import { DefaultSchema } from 'src/core';
 import { UserRoles } from 'src/types';
 
 export type UserDocument = User & Document;
 
 @Schema()
-export class User {
+export class User extends DefaultSchema {
   @ApiProperty({ example: 'QB_Wheatley', description: 'Ник пользователя' })
   @Prop({ required: true, type: String })
   name: string;

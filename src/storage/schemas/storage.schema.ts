@@ -1,24 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document, Types } from 'mongoose';
+import { DefaultSchema } from 'src/core';
 
 export type StorageDocument = Storage & Document;
 
 @Schema()
-export class Storage {
+export class Storage extends DefaultSchema {
   @ApiProperty({
     example: '507f191e810c19729de860ea',
     description: 'ID Пользователя',
   })
   @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
   user: Types.ObjectId;
-
-  @ApiProperty({
-    example: 'My_Base_2244',
-    description: 'Название хранилища',
-  })
-  @Prop({ required: true, type: String })
-  name: Types.ObjectId;
 
   @ApiProperty({
     example: 1024,

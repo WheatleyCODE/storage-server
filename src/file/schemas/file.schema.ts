@@ -1,22 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
-import { StorageItemSchema } from 'src/core';
-import { ItemTypes } from 'src/types';
+import { StorageItemCommentsSchema } from 'src/core';
 
 export type FileDocument = File & Document;
 
 @Schema()
-export class File extends StorageItemSchema {
+export class File extends StorageItemCommentsSchema {
   @ApiProperty({
-    example: 'FILE',
-    description: 'Тип Элемента хранилища | ItemTypes',
-  })
-  @Prop({ default: ItemTypes.FILE, type: String })
-  type: ItemTypes;
-
-  @ApiProperty({
-    example: 'static/file/fsad-sdsa.mp4',
+    example: 'static/file/fsad-sdsa.txt',
     description: 'Путь к файлу на сервере',
   })
   @Prop({ required: true, type: String })
@@ -28,6 +20,13 @@ export class File extends StorageItemSchema {
   })
   @Prop({ required: true, type: Number })
   fileSize: number;
+
+  @ApiProperty({
+    example: 'txt',
+    description: 'Формат файла',
+  })
+  @Prop({ required: true, type: String })
+  fileExt: string;
 }
 
 export const FileSchema = SchemaFactory.createForClass(File);

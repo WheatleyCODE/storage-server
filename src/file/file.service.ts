@@ -6,7 +6,14 @@ import { CommentService } from 'src/comment/comment.service';
 import { StorageItemComments } from 'src/core';
 import { FilesService } from 'src/files/files.service';
 import { File, FileDocument } from './schemas/file.schema';
-import { ItemsData, FileType, IFileService, CreateFileOptions, UpdateFileOptions } from 'src/types';
+import {
+  ItemsData,
+  FileType,
+  IFileService,
+  CreateFileOptions,
+  UpdateFileOptions,
+  ItemTypes,
+} from 'src/types';
 
 @Injectable()
 export class FileService
@@ -27,6 +34,7 @@ export class FileService
 
       return await this.fileModel.create({
         ...options,
+        type: ItemTypes.FILE,
         file: pathFile,
       });
     } catch (e) {

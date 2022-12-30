@@ -54,7 +54,7 @@ export class TrackService
 
       if (!deletedTrack) throw new HttpException('Трек не найден', HttpStatus.BAD_REQUEST);
 
-      await this.filesService.removeFile(deletedTrack.audio);
+      await this.filesService.removeFile(deletedTrack.file);
 
       if (deletedTrack.image) {
         await this.filesService.removeFile(deletedTrack.image);
@@ -63,7 +63,7 @@ export class TrackService
       const itemsData: ItemsData = {
         count: 1,
         items: [deletedTrack],
-        size: deletedTrack.audioSize + (deletedTrack.imageSize || 0),
+        size: deletedTrack.fileSize + (deletedTrack.imageSize || 0),
       };
 
       return Object.assign(deletedTrack, itemsData);
@@ -93,9 +93,9 @@ export class TrackService
       const track = await this.findByIdAndCheck(id);
 
       if (audio) {
-        const newPathAudio = await this.filesService.changeFile(FileType.AUDIO, audio, track.audio);
-        track.audio = newPathAudio;
-        track.audioSize = audio.size;
+        const newPathAudio = await this.filesService.changeFile(FileType.AUDIO, audio, track.file);
+        track.file = newPathAudio;
+        track.fileSize = audio.size;
       }
 
       if (image) {
@@ -113,7 +113,7 @@ export class TrackService
   async copy(id: Types.ObjectId): Promise<TrackDocument & ItemsData> {
     try {
       const track = await this.findByIdAndCheck(id);
-      const { user, name, author, isTrash, text, imageSize, audioSize, parent } = track;
+      const { user, name, author, isTrash, text, imageSize, fileSize, parent } = track;
 
       let imageNewPath;
 
@@ -121,7 +121,7 @@ export class TrackService
         imageNewPath = await this.filesService.copyFile(track.image, FileType.IMAGE);
       }
 
-      const audioNewPath = await this.filesService.copyFile(track.audio, FileType.AUDIO);
+      const audioNewPath = await this.filesService.copyFile(track.file, FileType.AUDIO);
 
       const newTrack = await this.trackModel.create({
         user,
@@ -130,7 +130,7 @@ export class TrackService
         text,
         parent,
         imageSize,
-        audioSize,
+        fileSize,
         isTrash,
         audio: audioNewPath,
         image: imageNewPath,
@@ -141,7 +141,7 @@ export class TrackService
       const itemsData: ItemsData = {
         count: 1,
         items: [newTrack],
-        size: audioSize + (imageSize || 0),
+        size: fileSize + (imageSize || 0),
       };
 
       return Object.assign(newTrack, itemsData);
@@ -150,25 +150,25 @@ export class TrackService
     }
   }
 
+  // ! Можно вынести выше
   async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
     try {
-      const trackDoc = await this.findByIdAndCheck(id);
-      const file = await this.filesService.downloadFile(trackDoc.audio);
-      const ext = trackDoc.audio.split('.')[1];
-      const filename = `${trackDoc.name}.${ext}`;
+      const { name, file, fileExt } = await this.findByIdAndCheck(id);
+      const fileStream = await this.filesService.downloadFile(file);
+      const filename = `${name}.${fileExt}`;
 
-      return { file, filename };
+      return { file: fileStream, filename };
     } catch (e) {
       throw e;
     }
   }
 
+  // ! Можно вынести выше
   async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
     try {
-      const trackDoc = await this.findByIdAndCheck(id);
-      const path = await this.filesService.getFilePath(trackDoc.audio);
-      const ext = trackDoc.audio.split('.')[1];
-      const filename = `${trackDoc.name}.${ext}`;
+      const { name, file, fileExt } = await this.findByIdAndCheck(id);
+      const path = await this.filesService.getFilePath(file);
+      const filename = `${name}.${fileExt}`;
 
       return { path, filename };
     } catch (e) {

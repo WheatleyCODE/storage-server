@@ -1,20 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
-import { StorageItemSchema } from 'src/core';
-import { ItemTypes } from 'src/types';
+import { StorageItemCommentsSchema } from 'src/core';
 
 export type VideoDocument = Video & Document;
 
 @Schema()
-export class Video extends StorageItemSchema {
-  @ApiProperty({
-    example: 'VIDEO',
-    description: 'Тип Элемента хранилища | ItemTypes',
-  })
-  @Prop({ default: ItemTypes.VIDEO, type: String })
-  type: ItemTypes;
-
+export class Video extends StorageItemCommentsSchema {
   @ApiProperty({
     example: 'Some random ...',
     description: 'Текст трека',
@@ -41,14 +33,21 @@ export class Video extends StorageItemSchema {
     description: 'Путь к видео на сервере',
   })
   @Prop({ required: true, type: String })
-  video: string;
+  file: string;
 
   @ApiProperty({
     example: 123456,
     description: 'Вес видео',
   })
   @Prop({ required: true, type: Number })
-  videoSize: number;
+  fileSize: number;
+
+  @ApiProperty({
+    example: 'mp4',
+    description: 'Формат файла',
+  })
+  @Prop({ required: true, type: String })
+  fileExt: string;
 }
 
 export const VideoSchema = SchemaFactory.createForClass(Video);
