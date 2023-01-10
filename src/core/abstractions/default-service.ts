@@ -2,7 +2,6 @@ import { Types } from 'mongoose';
 import { MongoDatabase } from './mongo-database';
 import { IDefaultService } from 'src/types';
 
-// ! Все для обычных сервисов
 export abstract class DefaultService<T, O>
   extends MongoDatabase<T, O>
   implements IDefaultService<T, O>
@@ -11,7 +10,7 @@ export abstract class DefaultService<T, O>
     return await this.findByIdAndCheck(id);
   }
 
-  async getOneBy(options: { [key in keyof O]: any }) {
+  async getOneBy(options: { [key in keyof O]: O[key] }) {
     return await this.findOneByAndCheck(options);
   }
 }

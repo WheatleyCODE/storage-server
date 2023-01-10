@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, Res, UsePipes } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { ValidationPipe } from 'src/pipes';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegistrationDto } from './dto/registration.dto';
@@ -12,6 +13,7 @@ import { ChangePassword, ResetPassword, AuthData, TokensTransferData } from 'src
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @UsePipes(ValidationPipe)
   @Post('/registration')
   async registration(
     @Body() dto: RegistrationDto,
@@ -22,6 +24,7 @@ export class AuthController {
     return res.json(authData);
   }
 
+  @UsePipes(ValidationPipe)
   @Post('/login')
   async login(@Body() dto: LoginDto, @Res() res: Response): Promise<Response<AuthData>> {
     const userData = await this.authService.login(dto);
@@ -50,11 +53,13 @@ export class AuthController {
     return res.json(userData);
   }
 
+  @UsePipes(ValidationPipe)
   @Post('/reset/password')
   resetPassword(@Body() { email }: ResetPasswordDto): Promise<ResetPassword> {
     return this.authService.resetPassword(email);
   }
 
+  @UsePipes(ValidationPipe)
   @Post('/change/password')
   changePassword(
     @Body() { password, resetPasswordLink }: ChangePasswordDto,

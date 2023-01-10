@@ -25,7 +25,7 @@ export abstract class MongoDatabase<T, O> extends IDatabase<T, O> {
   }
 
   protected async findOneByAndCheck(options: {
-    [key in keyof O]: any;
+    [key in keyof O]: O[key];
   }): Promise<T> {
     try {
       const item = await this.model.findOne({ ...options });
@@ -43,7 +43,7 @@ export abstract class MongoDatabase<T, O> extends IDatabase<T, O> {
     }
   }
 
-  async update(id: Types.ObjectId, options: { [key in keyof O]: any }): Promise<T> {
+  async update(id: Types.ObjectId, options: { [key in keyof O]: O[key] }): Promise<T> {
     try {
       return await this.model.findByIdAndUpdate(id, options);
     } catch (e) {
@@ -65,7 +65,7 @@ export abstract class MongoDatabase<T, O> extends IDatabase<T, O> {
     }
   }
 
-  protected async findAllBy(options: { [key in keyof O]: any }): Promise<T[]> {
+  protected async findAllBy(options: { [key in keyof O]: O[key] }): Promise<T[]> {
     try {
       return await this.model.find({ ...options });
     } catch (e) {

@@ -11,7 +11,7 @@ import { getStorageName } from 'src/utils';
 import { UserTransferData } from 'src/transfer';
 import { RegistrationDto } from './dto/registration.dto';
 import { LoginDto } from './dto/login.dto';
-import { IAuthService, TokensTransferData, UpdateUserOptions } from 'src/types';
+import { IAuthService, TokensTransferData, IUpdateUserOptions } from 'src/types';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -49,7 +49,7 @@ export class AuthService implements IAuthService {
   }
 
   private async getUserByAndCheck(
-    options: UpdateUserOptions,
+    options: IUpdateUserOptions,
     httpStatus: HttpStatus,
     text: string,
   ): Promise<UserDocument> {

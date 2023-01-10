@@ -1,12 +1,12 @@
-import { Types } from 'mongoose';
-import { UserRoles } from './core.interface';
 import { UserTransferData } from 'src/transfer';
+import { ChangeRoleDto } from 'src/user/dto/change-role.dto';
+import { DeepPartial, UserRoles } from './core.interface';
 
 export interface IUserService {
-  changeRole(id: Types.ObjectId, role: UserRoles[]): Promise<UserTransferData>;
+  changeRole(dto: ChangeRoleDto): Promise<UserTransferData>;
 }
 
-export type CreateUserOptions = {
+export interface ICreateUserOptions {
   name: string;
   role?: UserRoles[];
   email: string;
@@ -14,14 +14,7 @@ export type CreateUserOptions = {
   isActivated?: boolean;
   activationLink?: string;
   resetPasswordLink?: string;
-};
+}
 
-export type UpdateUserOptions = {
-  name?: string;
-  role?: UserRoles[];
-  email?: string;
-  password?: string;
-  isActivated?: boolean;
-  activationLink?: string;
-  resetPasswordLink?: string;
-};
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IUpdateUserOptions extends DeepPartial<ICreateUserOptions> {}

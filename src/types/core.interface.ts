@@ -24,20 +24,20 @@ import {
 
 // ? interfase for database ?
 export abstract class IDatabase<T, O> {
-  abstract create(options: { [key in keyof O]: any }): Promise<T>;
+  abstract create(options: { [key in keyof O]: O[key] }): Promise<T>;
   abstract delete(id: Types.ObjectId): Promise<T>;
-  abstract update(id: Types.ObjectId, options: { [key in keyof O]: any }): Promise<T>;
+  abstract update(id: Types.ObjectId, options: { [key in keyof O]: O[key] }): Promise<T>;
 
   protected abstract findByIdAndCheck(id: Types.ObjectId): Promise<T>;
-  protected abstract findOneByAndCheck(options: { [key in keyof O]: any }): Promise<T>;
+  protected abstract findOneByAndCheck(options: { [key in keyof O]: O[key] }): Promise<T>;
   protected abstract getAll(count: number, offset: number): Promise<T[]>;
-  protected abstract findAllBy(options: { [key in keyof O]: any }): Promise<T[]>;
+  protected abstract findAllBy(options: { [key in keyof O]: O[key] }): Promise<T[]>;
   protected abstract findAllByIds(ids: Types.ObjectId[]): Promise<T[]>;
 }
 
 export interface IDefaultService<T, O> {
   getOneById: (id: Types.ObjectId) => Promise<T>;
-  getOneBy: (options: { [key in keyof O]: any }) => Promise<T>;
+  getOneBy: (options: { [key in keyof O]: O[key] }) => Promise<T>;
 }
 
 export interface UserReq extends Request {
@@ -157,6 +157,9 @@ export type ItemTransferData =
   | VideoTransferData;
 
 export type Modify<T, R> = Omit<T, keyof R> & R;
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
 
 // ?
 export interface ChildrensTransferData {

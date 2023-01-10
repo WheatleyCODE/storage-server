@@ -68,6 +68,7 @@ export class StorageItemSchema extends DefaultSchema {
   @Prop({ default: 0, type: Number })
   starredCount: number;
 
+  // ! Fix
   @ApiProperty({
     example: 'http://localhost:3000/share/folder/somerandomtext',
     description: 'Ссылка доступа к элементу хранилища',

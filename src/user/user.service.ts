@@ -4,18 +4,20 @@ import { Model, Types } from 'mongoose';
 import { DefaultService } from 'src/core';
 import { User, UserDocument } from './schemas/user.schema';
 import { UserTransferData } from 'src/transfer';
-import { UserRoles, IUserService, CreateUserOptions, UpdateUserOptions } from 'src/types';
+import { IUserService, ICreateUserOptions, IUpdateUserOptions } from 'src/types';
+import { ChangeRoleDto } from './dto/change-role.dto';
+import { dtoToOjbectId } from 'src/utils';
 
 @Injectable()
 export class UserService
-  extends DefaultService<UserDocument, UpdateUserOptions>
+  extends DefaultService<UserDocument, IUpdateUserOptions>
   implements IUserService
 {
   constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {
     super(userModel);
   }
 
-  async create(options: CreateUserOptions): Promise<UserDocument> {
+  async create(options: ICreateUserOptions): Promise<UserDocument> {
     try {
       const user = await this.userModel.findOne({ email: options.email });
 
@@ -23,7 +25,11 @@ export class UserService
         throw new HttpException('Пользователь с таким Email уже существует', HttpStatus.CONFLICT);
       }
 
-      return await this.userModel.create({ ...options });
+      return await this.userModel.create({
+        ...options,
+        createDate: Date.now(),
+        changeDate: Date.now(),
+      });
     } catch (e) {
       throw e;
     }
@@ -37,12 +43,13 @@ export class UserService
     }
   }
 
-  async changeRole(id: Types.ObjectId, role: UserRoles[]): Promise<UserTransferData> {
+  async changeRole(dto: ChangeRoleDto): Promise<UserTransferData> {
     try {
-      const user = await this.findByIdAndCheck(id);
-      user.role = role;
-      await user.save();
-      return new UserTransferData(user);
+      const { user, role } = dtoToOjbectId(dto, ['user']);
+      const userDoc = await this.findByIdAndCheck(user);
+      userDoc.role = role;
+      await userDoc.save();
+      return new UserTransferData(userDoc);
     } catch (e) {
       throw e;
     }

@@ -13,8 +13,8 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import * as uuid from 'uuid';
-import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
-import { ValidationPipe } from 'src/pipes/validation.pipe';
+import { JwtAuthGuard } from 'src/guards';
+import { ValidationPipe } from 'src/pipes';
 import { CreateFolderDto } from 'src/folder/dto/create-folder.dto';
 import { CreateTrackDto } from 'src/track/dto/create-track-dto';
 import { AddListenDto } from './dto/add-listen.dto';

@@ -376,7 +376,11 @@ export class StorageService
         );
       }
 
-      return await this.storageModel.create({ ...options });
+      return await this.storageModel.create({
+        ...options,
+        changeDate: Date.now(),
+        createDate: Date.now(),
+      });
     } catch (e) {
       throw e;
     }

@@ -1,14 +1,16 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import { ValidationPipe } from 'src/pipes';
+import { UserService } from './user.service';
 import { UserTransferData } from 'src/transfer';
 import { ChangeRoleDto } from './dto/change-role.dto';
-import { UserService } from './user.service';
 
 @Controller('api/user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UsePipes(ValidationPipe)
   @Post('/change/role')
-  changeRole(@Body() { user, role }: ChangeRoleDto): Promise<UserTransferData> {
-    return this.userService.changeRole(user, role);
+  changeRole(@Body() dto: ChangeRoleDto): Promise<UserTransferData> {
+    return this.userService.changeRole(dto);
   }
 }
