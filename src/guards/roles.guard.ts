@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
+import { ROLES_KEY } from 'src/decorators/roles-auth.decorator';
 import { AccessTokenService } from 'src/tokens/access-token/access-token.service';
 
 @Injectable()
@@ -18,10 +19,10 @@ export class RolesGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     try {
-      const requiredRoles = this.reflector.getAllAndOverride<string[]>(
-        process.env.ROLES_KEY || 'someRandomRKEY',
-        [context.getHandler(), context.getClass()],
-      );
+      const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
+        context.getClass(),
+        context.getHandler(),
+      ]);
 
       if (!requiredRoles) {
         return true;

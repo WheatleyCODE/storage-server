@@ -9,16 +9,68 @@ import {
   ItemsData,
   FolderColors,
   IFolderService,
-  CreateFolderOptions,
-  UpdateFolderOptions,
+  ICreateFolderOptions,
+  IUpdateFolderOptions,
   ItemTypes,
 } from 'src/types';
+import { CreateFolderDto } from './dto/create-folder.dto';
+import { FolderTransferData } from 'src/transfer';
+import { dtoToOjbectId } from 'src/utils';
+import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
 export class FolderService
-  extends StorageItemComments<FolderDocument, UpdateFolderOptions>
+  extends StorageItemComments<FolderDocument, IUpdateFolderOptions>
   implements IFolderService<FolderDocument>
 {
+  constructor(
+    @InjectModel(Folder.name)
+    private readonly folderModel: Model<FolderDocument>,
+    commentService: CommentService,
+    private readonly storageService: StorageService,
+  ) {
+    super(folderModel, commentService);
+  }
+
+  async createFolder(dto: CreateFolderDto, user: Types.ObjectId): Promise<FolderTransferData> {
+    try {
+      const correctDto = dtoToOjbectId(dto, ['parent']);
+
+      const folder = await this.create({
+        ...correctDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+        user,
+      });
+
+      const storage = await this.storageService.getOneBy({ user });
+
+      await this.storageService.addItem({
+        storage: storage._id,
+        item: folder._id,
+        itemType: folder.type,
+      });
+
+      return new FolderTransferData(folder);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async create(options: ICreateFolderOptions): Promise<FolderDocument> {
+    try {
+      return await this.folderModel.create({
+        ...options,
+        type: ItemTypes.FOLDER,
+        changeDate: Date.now(),
+        createDate: Date.now(),
+      });
+    } catch (e) {
+      console.log(e);
+      throw new HttpException('Ошибка при создании папки', HttpStatus.BAD_REQUEST);
+    }
+  }
+
   // ! Временно
   download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
     throw new Error('Method not implemented.');
@@ -32,21 +84,6 @@ export class FolderService
     throw new Error('Method not implemented.');
   }
 
-  constructor(
-    @InjectModel(Folder.name)
-    private readonly folderModel: Model<FolderDocument>,
-    commentService: CommentService,
-  ) {
-    super(folderModel, commentService);
-  }
-
-  async create(options: CreateFolderOptions): Promise<FolderDocument> {
-    try {
-      return await this.folderModel.create({ ...options, type: ItemTypes.FOLDER });
-    } catch (e) {
-      throw new HttpException('Ошибка при создании папки', HttpStatus.BAD_REQUEST);
-    }
-  }
   async delete(id: Types.ObjectId): Promise<FolderDocument & ItemsData> {
     try {
       const deletedFolders: FolderDocument[] = [];

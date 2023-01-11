@@ -15,20 +15,23 @@ import {
   ItemsData,
   FileType,
   IAlbumService,
-  CreateAlbumOptions,
-  UpdateAlbumOptions,
+  ICreateAlbumOptions,
+  IUpdateAlbumOptions,
   ItemTypes,
 } from 'src/types';
+import { CreateAlbumDto } from './dto/create-album.dto';
+import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
 export class AlbumService
-  extends StorageItemComments<AlbumDocument, UpdateAlbumOptions>
+  extends StorageItemComments<AlbumDocument, IUpdateAlbumOptions>
   implements IAlbumService<AlbumDocument>
 {
   constructor(
     @InjectModel(Album.name) private readonly albumModel: Model<AlbumDocument>,
     private readonly filesService: FilesService,
     private readonly trackService: TrackService,
+    private readonly storageService: StorageService,
     commentService: CommentService,
   ) {
     super(albumModel, commentService);
@@ -65,7 +68,45 @@ export class AlbumService
     }
   }
 
-  async create(options: CreateAlbumOptions): Promise<AlbumDocument> {
+  async createAlbum(
+    dto: CreateAlbumDto,
+    user: Types.ObjectId,
+    image: Express.Multer.File,
+  ): Promise<AlbumTransferData> {
+    try {
+      const storage = await this.storageService.getOneBy({ user });
+
+      if (!storage) {
+        throw new HttpException('Хранилище не надено', HttpStatus.BAD_REQUEST);
+      }
+
+      const correctDto = dtoToOjbectId(dto, ['parent']);
+
+      const album = await this.create({
+        ...correctDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+        image,
+        imageSize: image.size,
+        user,
+      });
+
+      await this.storageService.addItem(
+        {
+          storage: storage._id,
+          item: album._id,
+          itemType: album.type,
+        },
+        album.imageSize,
+      );
+
+      return new AlbumTransferData(album);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async create(options: ICreateAlbumOptions): Promise<AlbumDocument> {
     try {
       const pathImage = await this.filesService.createFile(FileType.IMAGE, options.image);
 
@@ -73,6 +114,8 @@ export class AlbumService
         ...options,
         type: ItemTypes.ALBUM,
         image: pathImage,
+        createDate: Date.now(),
+        changeDate: Date.now(),
       });
     } catch (e) {
       throw e;

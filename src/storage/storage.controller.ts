@@ -54,224 +54,167 @@ export class StorageController {
   constructor(private readonly storageService: StorageService) {}
 
   @Get('/')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   getStorage(@Req() req: UserReq): Promise<StorageTransferData> {
     const correctId = stringToOjbectId(req.userTD.id);
     return this.storageService.getStorage(correctId);
   }
 
-  @Post('/create/folder')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  createFolder(@Body() dto: CreateFolderDto, @Req() req: UserReq): Promise<FolderTransferData> {
-    const correctId = stringToOjbectId(req.userTD.id);
-    return this.storageService.createFolder(dto, correctId);
-  }
+  // @UseInterceptors(FileFieldsInterceptor([{ name: 'files' }]))
+  // @Post('/upload/files')
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // uploadFiles(
+  //   @UploadedFiles() files: { files?: Express.Multer.File[] },
+  //   @Body() dto: UploadFilesDto,
+  //   @Req() req: UserReq,
+  // ): Promise<ItemTransferData[]> {
+  //   const correctId = stringToOjbectId(req.userTD.id);
 
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'file', maxCount: 1 }]))
-  @Post('/create/file')
-  @UsePipes(ValidationPipe)
-  createFile(
-    @UploadedFiles() files: { file: Express.Multer.File[] },
-    @Body() dto: CreateFileDto,
-    @Req() req: UserReq,
-  ): Promise<FileTransferData> {
-    const correctId = stringToOjbectId(req.userTD.id);
-    return this.storageService.createFile(dto, correctId, files.file[0]);
-  }
+  //   return this.storageService.uploadFiles(dto, correctId, files.files);
+  // }
 
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 1 }]))
-  @Post('/create/album')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  createAlbum(
-    @UploadedFiles() files: { image?: Express.Multer.File[] },
-    @Body() dto: CreateAlbumDto,
-    @Req() req: UserReq,
-  ): Promise<AlbumTransferData> {
-    const correctId = stringToOjbectId(req.userTD.id);
-    return this.storageService.createAlbum(dto, correctId, files?.image && files?.image[0]);
-  }
+  // @Post('/delete/items')
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // deleteItem(@Body() dto: DeleteItemDto, @Req() req: UserReq): Promise<StorageTransferData> {
+  //   const correctId = stringToOjbectId(req.userTD.id);
+  //   return this.storageService.deleteItem(dto, correctId);
+  // }
 
-  @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'image', maxCount: 1 },
-      { name: 'audio', maxCount: 1 },
-    ]),
-  )
-  @Post('/create/track')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  createTrack(
-    @UploadedFiles() files: { image?: Express.Multer.File[]; audio?: Express.Multer.File[] },
-    @Body() dto: CreateTrackDto,
-    @Req() req: UserReq,
-  ): Promise<TrackTransferData> {
-    const correctId = stringToOjbectId(req.userTD.id);
+  // @UseInterceptors(
+  //   FileFieldsInterceptor([
+  //     { name: 'image', maxCount: 1 },
+  //     { name: 'audio', maxCount: 1 },
+  //   ]),
+  // )
+  // @Post('/change/track/files')
+  // createTrackTest(
+  //   @UploadedFiles() files: { image?: Express.Multer.File[]; audio?: Express.Multer.File[] },
+  //   @Body() dto: ChangeTrackFilesDto,
+  // ): Promise<TrackTransferData> {
+  //   return this.storageService.changeTrackFiles(
+  //     dto,
+  //     files?.audio && files.audio[0],
+  //     files?.image && files.image[0],
+  //   );
+  // }
 
-    return this.storageService.createTrack(
-      dto,
-      correctId,
-      files?.audio && files.audio[0],
-      files?.image && files.image[0],
-    );
-  }
+  // @Post('/copy/files')
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // copyFile(@Body() dto: CopyFileDto, @Req() req: UserReq): Promise<ItemTransferData[]> {
+  //   const correctId = stringToOjbectId(req.userTD.id);
+  //   return this.storageService.copyFile(dto, correctId);
+  // }
 
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'files' }]))
-  @Post('/upload/files')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  uploadFiles(
-    @UploadedFiles() files: { files?: Express.Multer.File[] },
-    @Body() dto: UploadFilesDto,
-    @Req() req: UserReq,
-  ): Promise<ItemTransferData[]> {
-    const correctId = stringToOjbectId(req.userTD.id);
+  // @Post('/change/trash')
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // changeIsTrash(@Body() dto: ChangeIsTrashDto): Promise<ItemTransferData[]> {
+  //   return this.storageService.changeIsTrash(dto);
+  // }
 
-    return this.storageService.uploadFiles(dto, correctId, files.files);
-  }
+  // @Post('/change/color')
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // changeColor(@Body() dto: ChangeColorDto): Promise<FolderTransferData[]> {
+  //   return this.storageService.changeColor(dto);
+  // }
 
-  @Post('/delete/items')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  deleteItem(@Body() dto: DeleteItemDto, @Req() req: UserReq): Promise<StorageTransferData> {
-    const correctId = stringToOjbectId(req.userTD.id);
-    return this.storageService.deleteItem(dto, correctId);
-  }
+  // @Post('/change/name')
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // changeName(@Body() dto: ChangeNameDto): Promise<ItemTransferData> {
+  //   return this.storageService.changeName(dto);
+  // }
 
-  @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'image', maxCount: 1 },
-      { name: 'audio', maxCount: 1 },
-    ]),
-  )
-  @Post('/change/track/files')
-  createTrackTest(
-    @UploadedFiles() files: { image?: Express.Multer.File[]; audio?: Express.Multer.File[] },
-    @Body() dto: ChangeTrackFilesDto,
-  ): Promise<TrackTransferData> {
-    return this.storageService.changeTrackFiles(
-      dto,
-      files?.audio && files.audio[0],
-      files?.image && files.image[0],
-    );
-  }
+  // @Post('/change/parent')
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // changeParent(@Body() dto: ChangeParentDto): Promise<ItemTransferData[]> {
+  //   return this.storageService.changeParent(dto);
+  // }
 
-  @Post('/copy/files')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  copyFile(@Body() dto: CopyFileDto, @Req() req: UserReq): Promise<ItemTransferData[]> {
-    const correctId = stringToOjbectId(req.userTD.id);
-    return this.storageService.copyFile(dto, correctId);
-  }
+  // @Post('/create/access-link')
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // createAccessLink(@Body() dto: CreateAccessLinkDto): Promise<ItemTransferData> {
+  //   return this.storageService.changeAccessLink(dto);
+  // }
 
-  @Post('/change/trash')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  changeIsTrash(@Body() dto: ChangeIsTrashDto): Promise<ItemTransferData[]> {
-    return this.storageService.changeIsTrash(dto);
-  }
+  // @Post('/change/access')
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // changeAccessType(@Body() dto: ChangeAccessTypeDto): Promise<ItemTransferData> {
+  //   return this.storageService.changeAccessType(dto);
+  // }
 
-  @Post('/change/color')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  changeColor(@Body() dto: ChangeColorDto): Promise<FolderTransferData[]> {
-    return this.storageService.changeColor(dto);
-  }
+  // @Get('/childrens/:id')
+  // @UseGuards(JwtAuthGuard)
+  // getChildrens(@Param() param): Promise<ChildrensTransferData> {
+  //   const correctId = stringToOjbectId(param.id);
+  //   return this.storageService.getChildrens(correctId);
+  // }
 
-  @Post('/change/name')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  changeName(@Body() dto: ChangeNameDto): Promise<ItemTransferData> {
-    return this.storageService.changeName(dto);
-  }
+  // @Post('/change/like')
+  // changeLike(@Body() dto: ChangeLikeDto): Promise<ItemTransferData> {
+  //   return this.storageService.changeLike(dto);
+  // }
 
-  @Post('/change/parent')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  changeParent(@Body() dto: ChangeParentDto): Promise<ItemTransferData[]> {
-    return this.storageService.changeParent(dto);
-  }
+  // @Post('/change/open-date')
+  // changeOpenDate(@Body() dto: ChangeOpenDateDto): Promise<ItemTransferData> {
+  //   return this.storageService.changeOpenDate(dto);
+  // }
 
-  @Post('/create/access-link')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  createAccessLink(@Body() dto: CreateAccessLinkDto): Promise<ItemTransferData> {
-    return this.storageService.changeAccessLink(dto);
-  }
+  // @Post('/add/listen')
+  // addListen(@Body() dto: AddListenDto): Promise<ItemTransferData> {
+  //   return this.storageService.addListen(dto);
+  // }
 
-  @Post('/change/access')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  changeAccessType(@Body() dto: ChangeAccessTypeDto): Promise<ItemTransferData> {
-    return this.storageService.changeAccessType(dto);
-  }
+  // @Post('/search/items')
+  // @UseGuards(JwtAuthGuard)
+  // @UsePipes(ValidationPipe)
+  // searchItems(@Body() dto: SearchItemDto, @Req() req: UserReq): Promise<ItemTransferData[]> {
+  //   const correctId = stringToOjbectId(req.userTD.id);
+  //   return this.storageService.searchItems(dto, correctId);
+  // }
 
-  @Get('/childrens/:id')
-  @UseGuards(JwtAuthGuard)
-  getChildrens(@Param() param): Promise<ChildrensTransferData> {
-    const correctId = stringToOjbectId(param.id);
-    return this.storageService.getChildrens(correctId);
-  }
+  //   @Post('/download/file')
+  //   @UseGuards(JwtAuthGuard)
+  //   @UsePipes(ValidationPipe)
+  //   async downloadFiles(
+  //     @Body() dto: DownloadFileDto,
+  //     @Res({ passthrough: true }) res: UserRes,
+  //   ): Promise<any> {
+  //     const { file, filename } = await this.storageService.downloadFile(dto);
 
-  @Post('/change/like')
-  changeLike(@Body() dto: ChangeLikeDto): Promise<ItemTransferData> {
-    return this.storageService.changeLike(dto);
-  }
+  //     res.set({
+  //       Filename: filename,
+  //     });
 
-  @Post('/change/open-date')
-  changeOpenDate(@Body() dto: ChangeOpenDateDto): Promise<ItemTransferData> {
-    return this.storageService.changeOpenDate(dto);
-  }
+  //     return file;
+  //   }
 
-  @Post('/add/listen')
-  addListen(@Body() dto: AddListenDto): Promise<ItemTransferData> {
-    return this.storageService.addListen(dto);
-  }
+  //   @Post('/download/archive')
+  //   @UseGuards(JwtAuthGuard)
+  //   @UsePipes(ValidationPipe)
+  //   async downloadArchive(@Body() dto: DownloadArchiveDto, @Res() res: UserRes): Promise<any> {
+  //     res.set({
+  //       Filename: `${uuid.v4()}.zip`,
+  //     });
 
-  @Post('/search/items')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  searchItems(@Body() dto: SearchItemDto, @Req() req: UserReq): Promise<ItemTransferData[]> {
-    const correctId = stringToOjbectId(req.userTD.id);
-    return this.storageService.searchItems(dto, correctId);
-  }
+  //     const fileArr = await this.storageService.downloadArchive(dto.items);
+  //     return res.zip(fileArr);
+  //   }
 
-  @Post('/download/file')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  async downloadFiles(
-    @Body() dto: DownloadFileDto,
-    @Res({ passthrough: true }) res: UserRes,
-  ): Promise<any> {
-    const { file, filename } = await this.storageService.downloadFile(dto);
+  //   @Post('/create/comment')
+  //   createComment(@Body() dto: AddCommentDto): Promise<CommentTransferData> {
+  //     return this.storageService.createComment(dto);
+  //   }
 
-    res.set({
-      Filename: filename,
-    });
-
-    return file;
-  }
-
-  @Post('/download/archive')
-  @UseGuards(JwtAuthGuard)
-  @UsePipes(ValidationPipe)
-  async downloadArchive(@Body() dto: DownloadArchiveDto, @Res() res: UserRes): Promise<any> {
-    res.set({
-      Filename: `${uuid.v4()}.zip`,
-    });
-
-    const fileArr = await this.storageService.downloadArchive(dto.items);
-    return res.zip(fileArr);
-  }
-
-  @Post('/create/comment')
-  createComment(@Body() dto: AddCommentDto): Promise<CommentTransferData> {
-    return this.storageService.createComment(dto);
-  }
-
-  @Post('/delete/comment')
-  deleteComment(@Body() dto: DeleteCommentDto): Promise<CommentTransferData> {
-    return this.storageService.deleteComment(dto);
-  }
+  //   @Post('/delete/comment')
+  //   deleteComment(@Body() dto: DeleteCommentDto): Promise<CommentTransferData> {
+  //     return this.storageService.deleteComment(dto);
+  //   }
 }

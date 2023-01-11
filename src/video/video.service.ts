@@ -11,14 +11,14 @@ import {
   AccessTypes,
   ItemsData,
   FileType,
-  UpdateVideoOptions,
-  CreateVideoOptions,
+  IUpdateVideoOptions,
+  ICreateVideoOptions,
   IVideoService,
 } from 'src/types';
 
 @Injectable()
 export class VideoService
-  extends StorageItemComments<VideoDocument, UpdateVideoOptions>
+  extends StorageItemComments<VideoDocument, IUpdateVideoOptions>
   implements IVideoService<VideoDocument>
 {
   constructor(
@@ -29,7 +29,7 @@ export class VideoService
     super(videoModel, commentService);
   }
 
-  async create(options: CreateVideoOptions): Promise<VideoDocument> {
+  async create(options: ICreateVideoOptions): Promise<VideoDocument> {
     try {
       let pathImage: string;
 

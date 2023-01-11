@@ -1,9 +1,11 @@
+import { Types } from 'mongoose';
 import { UserTransferData } from 'src/transfer';
 import { ChangeRoleDto } from 'src/user/dto/change-role.dto';
 import { DeepPartial, UserRoles } from './core.interface';
 
 export interface IUserService {
   changeRole(dto: ChangeRoleDto): Promise<UserTransferData>;
+  deleteUserAndStorage(id: Types.ObjectId): Promise<UserTransferData>;
 }
 
 export interface ICreateUserOptions {
@@ -16,5 +18,4 @@ export interface ICreateUserOptions {
   resetPasswordLink?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IUpdateUserOptions extends DeepPartial<ICreateUserOptions> {}

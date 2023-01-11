@@ -16,6 +16,7 @@ import { AlbumModule } from './album/album.module';
 import { CommentModule } from './comment/comment.module';
 import { ImageModule } from './image/image.module';
 import { VideoModule } from './video/video.module';
+import { ItemsModule } from './items/items.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { VideoModule } from './video/video.module';
     CommentModule,
     ImageModule,
     VideoModule,
+    ItemsModule,
   ],
   controllers: [AppController],
   providers: [],

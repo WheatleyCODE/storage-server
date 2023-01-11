@@ -6,14 +6,18 @@ import { User, UserDocument } from './schemas/user.schema';
 import { UserTransferData } from 'src/transfer';
 import { IUserService, ICreateUserOptions, IUpdateUserOptions } from 'src/types';
 import { ChangeRoleDto } from './dto/change-role.dto';
-import { dtoToOjbectId } from 'src/utils';
+import { dtoToOjbectId, getStorageName } from 'src/utils';
+import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
 export class UserService
   extends DefaultService<UserDocument, IUpdateUserOptions>
   implements IUserService
 {
-  constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly storageService: StorageService,
+  ) {
     super(userModel);
   }
 
@@ -25,11 +29,15 @@ export class UserService
         throw new HttpException('Пользователь с таким Email уже существует', HttpStatus.CONFLICT);
       }
 
-      return await this.userModel.create({
+      const newUser = await this.userModel.create({
         ...options,
         createDate: Date.now(),
         changeDate: Date.now(),
       });
+
+      await this.storageService.create({ user: newUser._id, name: getStorageName(newUser.name) });
+
+      return newUser;
     } catch (e) {
       throw e;
     }
@@ -37,9 +45,27 @@ export class UserService
 
   async delete(id: Types.ObjectId): Promise<UserDocument> {
     try {
-      return await this.userModel.findByIdAndDelete({ id });
+      return await this.userModel.findByIdAndDelete(id);
     } catch (e) {
       throw new HttpException('Ошибка при удалении пользователя', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async deleteUserAndStorage(id: Types.ObjectId): Promise<UserTransferData> {
+    try {
+      const user = await this.userModel.findByIdAndDelete(id);
+
+      if (user) {
+        const { _id } = await this.storageService.getOneBy({ user: id });
+        await this.storageService.delete(_id);
+      }
+
+      return new UserTransferData(user);
+    } catch (e) {
+      throw new HttpException(
+        'Ошибка при удалении пользователя и хранилища',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

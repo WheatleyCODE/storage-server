@@ -1,25 +1,21 @@
 import { Types } from 'mongoose';
 import { CommentDocument } from 'src/comment/schemas/comment.schema';
+import { DeepPartial } from './core.interface';
 
 export interface ICommentService<T, O> {
   someRandom: null;
 }
 
 export interface IStorageItemComments<T> {
-  addComment(id: Types.ObjectId, options: CreateCommentOptions): Promise<CommentDocument>;
+  addComment(id: Types.ObjectId, options: ICreateCommentOptions): Promise<CommentDocument>;
   deleteComment(id: Types.ObjectId, comment: Types.ObjectId): Promise<T>;
 }
 
-export type CreateCommentOptions = {
+export interface ICreateCommentOptions {
   title: string;
   text: string;
   user: Types.ObjectId;
   answer?: Types.ObjectId;
-};
+}
 
-export type UpdateCommentOptions = {
-  title?: string;
-  text?: string;
-  user?: Types.ObjectId;
-  answer?: Types.ObjectId;
-};
+export interface IUpdateCommentOptions extends DeepPartial<ICreateCommentOptions> {}

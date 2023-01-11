@@ -75,14 +75,6 @@ export enum ItemFileTypes {
 }
 
 // ?
-export enum FolderColors {
-  GREY = 'GREY',
-  RED = 'RED',
-  BLUE = 'BLUE',
-  YELLOW = 'YELLOW',
-}
-
-// ?
 export enum UserRoles {
   USER = 'USER',
   ADMIN = 'ADMIN',
@@ -100,13 +92,13 @@ export type ObjectServices = {
 };
 
 // ?
-export type ObjectFileServices = {
-  [ItemTypes.TRACK]: TrackService;
-  [ItemTypes.FILE]: FileService;
-  [ItemTypes.ALBUM]: AlbumService;
-  [ItemTypes.IMAGE]: ImageService;
-  [ItemTypes.VIDEO]: VideoService;
-};
+// export type ObjectFileServices = {
+//   [ItemTypes.TRACK]: TrackService;
+//   [ItemTypes.FILE]: FileService;
+//   [ItemTypes.ALBUM]: AlbumService;
+//   [ItemTypes.IMAGE]: ImageService;
+//   [ItemTypes.VIDEO]: VideoService;
+// };
 
 // ?
 export type StorageCollectionNames = 'folders' | 'tracks' | 'files' | 'albums' | 'videos';

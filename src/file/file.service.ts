@@ -10,32 +10,79 @@ import {
   ItemsData,
   FileType,
   IFileService,
-  CreateFileOptions,
-  UpdateFileOptions,
+  ICreateFileOptions,
+  IUpdateFileOptions,
   ItemTypes,
 } from 'src/types';
+import { FileTransferData } from 'src/transfer';
+import { CreateFileDto } from './dto/create-file.dto';
+import { dtoToOjbectId } from 'src/utils';
+import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
 export class FileService
-  extends StorageItemComments<FileDocument, UpdateFileOptions>
+  extends StorageItemComments<FileDocument, IUpdateFileOptions>
   implements IFileService<FileDocument>
 {
   constructor(
     @InjectModel(File.name) private readonly fileModel: Model<FileDocument>,
     private readonly filesService: FilesService,
+    private readonly storageService: StorageService,
     commentService: CommentService,
   ) {
     super(fileModel, commentService);
   }
 
-  async create(options: CreateFileOptions): Promise<FileDocument> {
+  async createFile(
+    dto: CreateFileDto,
+    user: Types.ObjectId,
+    file: Express.Multer.File,
+  ): Promise<FileTransferData> {
+    try {
+      const storage = await this.storageService.getOneBy({ user });
+
+      if (!storage) {
+        throw new HttpException('Хранилище не надено', HttpStatus.BAD_REQUEST);
+      }
+
+      const correctDto = dtoToOjbectId(dto, ['parent']);
+
+      const fileDoc = await this.create({
+        ...correctDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+        file,
+        fileSize: file.size,
+        user,
+      });
+
+      await this.storageService.addItem(
+        {
+          storage: storage._id,
+          item: fileDoc._id,
+          itemType: fileDoc.type,
+        },
+        fileDoc.fileSize,
+      );
+
+      return new FileTransferData(fileDoc);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async create(options: ICreateFileOptions): Promise<FileDocument> {
     try {
       const pathFile = await this.filesService.createFile(FileType.FILE, options.file);
+      const fileExt = pathFile.split('.').pop();
 
       return await this.fileModel.create({
         ...options,
         type: ItemTypes.FILE,
         file: pathFile,
+        fileExt,
+        createDate: Date.now(),
+        changeDate: Date.now(),
       });
     } catch (e) {
       throw e;

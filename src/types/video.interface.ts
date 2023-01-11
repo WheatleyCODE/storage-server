@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { AccessTypes, ItemTypes } from './core.interface';
+import { AccessTypes, DeepPartial, ItemTypes } from './core.interface';
 import { VideoTransferData } from 'src/transfer';
 
 // ! Разделить интерфейсы на классы по changeFiles, getAllPublicVideos
@@ -13,7 +13,7 @@ export interface IVideoService<T> {
   searchPublicVideos(text: string, count: number, offset: number): Promise<VideoTransferData[]>;
 }
 
-export type CreateVideoOptions = {
+export interface ICreateVideoOptions {
   type?: ItemTypes;
   user: Types.ObjectId;
   name: string;
@@ -28,21 +28,6 @@ export type CreateVideoOptions = {
   imageSize?: number;
   video: Express.Multer.File;
   videoSize: number;
-};
+}
 
-export type UpdateVideoOptions = {
-  type?: ItemTypes;
-  user?: Types.ObjectId;
-  name?: string;
-  parent?: Types.ObjectId;
-  album?: Types.ObjectId;
-  accesLink?: string;
-  accessType?: AccessTypes;
-  creationDate?: number;
-  openDate?: number;
-  description?: string;
-  image?: Express.Multer.File;
-  imageSize?: number;
-  video?: Express.Multer.File;
-  videoSize?: number;
-};
+export interface IUpdateVideoOptions extends DeepPartial<ICreateVideoOptions> {}

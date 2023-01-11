@@ -10,13 +10,13 @@ import {
   ItemsData,
   FileType,
   IImageService,
-  CreateImageOptions,
-  UpdateImageOptions,
+  ICreateImageOptions,
+  IUpdateImageOptions,
 } from 'src/types';
 
 @Injectable()
 export class ImageService
-  extends StorageItemComments<ImageDocument, UpdateImageOptions>
+  extends StorageItemComments<ImageDocument, IUpdateImageOptions>
   implements IImageService<ImageDocument>
 {
   constructor(
@@ -32,7 +32,7 @@ export class ImageService
     throw new Error('Method not implemented.');
   }
 
-  async create(options: CreateImageOptions): Promise<ImageDocument> {
+  async create(options: ICreateImageOptions): Promise<ImageDocument> {
     try {
       const pathFile = await this.filesService.createFile(FileType.IMAGE, options.image);
       return await this.imageModel.create({

@@ -13,14 +13,14 @@ import { VideoModule } from 'src/video/video.module';
 
 @Module({
   imports: [
-    TokensModule,
+    // TokensModule,
     MongooseModule.forFeature([{ name: Storage.name, schema: StorageSchema }]),
-    FolderModule,
-    TrackModule,
-    FileModule,
-    AlbumModule,
-    ImageModule,
-    VideoModule,
+    // FolderModule,
+    // TrackModule,
+    // FileModule,
+    // AlbumModule,
+    // ImageModule,
+    // VideoModule,
   ],
   providers: [StorageService],
   controllers: [StorageController],

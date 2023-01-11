@@ -3,12 +3,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { DefaultService } from 'src/core';
 import { Comment, CommentDocument } from './schemas/comment.schema';
-import { ICommentService, ItemsData, CreateCommentOptions, UpdateCommentOptions } from 'src/types';
+import {
+  ICommentService,
+  ItemsData,
+  ICreateCommentOptions,
+  IUpdateCommentOptions,
+} from 'src/types';
 
 @Injectable()
 export class CommentService
-  extends DefaultService<CommentDocument, UpdateCommentOptions>
-  implements ICommentService<CommentDocument, UpdateCommentOptions>
+  extends DefaultService<CommentDocument, IUpdateCommentOptions>
+  implements ICommentService<CommentDocument, IUpdateCommentOptions>
 {
   constructor(
     @InjectModel(Comment.name)
@@ -20,7 +25,7 @@ export class CommentService
   // ! Реализовать комментрарии
   someRandom: null;
 
-  async create(options: CreateCommentOptions): Promise<CommentDocument> {
+  async create(options: ICreateCommentOptions): Promise<CommentDocument> {
     try {
       return await this.commentModel.create({
         ...options,

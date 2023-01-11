@@ -1,7 +1,7 @@
 import { Model, Types } from 'mongoose';
 import { CommentService } from 'src/comment/comment.service';
 import { CommentDocument } from 'src/comment/schemas/comment.schema';
-import { CreateCommentOptions, IStorageItemComments } from 'src/types';
+import { ICreateCommentOptions, IStorageItemComments } from 'src/types';
 import { StorageItem } from './storage-item';
 
 export abstract class StorageItemComments<T, O>
@@ -12,7 +12,7 @@ export abstract class StorageItemComments<T, O>
     super(model);
   }
 
-  async addComment(id: Types.ObjectId, options: CreateCommentOptions): Promise<CommentDocument> {
+  async addComment(id: Types.ObjectId, options: ICreateCommentOptions): Promise<CommentDocument> {
     try {
       const item: any = await this.findByIdAndCheck(id);
       const comment = await this.commentService.create(options);

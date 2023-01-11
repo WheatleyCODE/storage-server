@@ -6,8 +6,6 @@ import { UserService } from 'src/user/user.service';
 import { TokensService } from 'src/tokens/tokens.service';
 import { ChangePassword, ResetPassword, AuthData } from 'src/types/auth.interface';
 import { UserDocument } from 'src/user/schemas/user.schema';
-import { StorageService } from 'src/storage/storage.service';
-import { getStorageName } from 'src/utils';
 import { UserTransferData } from 'src/transfer';
 import { RegistrationDto } from './dto/registration.dto';
 import { LoginDto } from './dto/login.dto';
@@ -19,7 +17,6 @@ export class AuthService implements IAuthService {
     private readonly userService: UserService,
     private readonly mailService: MailService,
     private readonly tokensService: TokensService,
-    private readonly storageService: StorageService,
   ) {}
 
   async registration(dto: RegistrationDto): Promise<AuthData> {
@@ -37,10 +34,6 @@ export class AuthService implements IAuthService {
       });
 
       await this.mailService.sendActivationMail(email, link);
-
-      const storageName = getStorageName(user.name);
-
-      await this.storageService.create({ user: user._id, name: storageName });
 
       return await this.getTokensAndAuthData(user);
     } catch (e) {

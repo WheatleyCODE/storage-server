@@ -1,11 +1,11 @@
 import { Types } from 'mongoose';
-import { AccessTypes, ItemTypes } from './core.interface';
+import { AccessTypes, DeepPartial, ItemTypes } from './core.interface';
 
 export interface IFileService<T> {
   changeFile(id: Types.ObjectId, file: Express.Multer.File): Promise<T>;
 }
 
-export type CreateFileOptions = {
+export interface ICreateFileOptions {
   type?: ItemTypes;
   user: Types.ObjectId;
   name: string;
@@ -16,20 +16,9 @@ export type CreateFileOptions = {
   openDate: number;
   file: Express.Multer.File;
   fileSize: number;
-};
+}
 
-export type UpdateFileOptions = {
-  type?: ItemTypes;
-  user?: Types.ObjectId;
-  name?: string;
-  parent?: Types.ObjectId;
-  accesLink?: string;
-  accessType?: AccessTypes;
-  creationDate?: number;
-  openDate?: number;
-  file?: Express.Multer.File;
-  fileSize?: number;
-};
+export interface IUpdateFileOptions extends DeepPartial<ICreateFileOptions> {}
 
 export enum FileType {
   AUDIO = 'audio',

@@ -10,26 +10,75 @@ import { TrackTransferData } from 'src/transfer';
 import {
   AccessTypes,
   ItemsData,
-  UpdateTrackOptions,
-  CreateTrackOptions,
+  IUpdateTrackOptions,
+  ICreateTrackOptions,
   FileType,
   ITrackService,
+  ItemTypes,
 } from 'src/types';
+import { CreateTrackDto } from './dto/create-track-dto';
+import { dtoToOjbectId, stringToOjbectId } from 'src/utils';
+import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
 export class TrackService
-  extends StorageItemComments<TrackDocument, UpdateTrackOptions>
+  extends StorageItemComments<TrackDocument, IUpdateTrackOptions>
   implements ITrackService<TrackDocument>
 {
   constructor(
     @InjectModel(Track.name) private readonly trackModel: Model<TrackDocument>,
     private readonly filesService: FilesService,
+    private readonly storageService: StorageService,
     commentService: CommentService,
   ) {
     super(trackModel, commentService);
   }
 
-  async create(options: CreateTrackOptions): Promise<TrackDocument> {
+  async createTrack(
+    dto: CreateTrackDto,
+    user: Types.ObjectId,
+    audio: Express.Multer.File,
+    image?: Express.Multer.File,
+  ): Promise<TrackTransferData> {
+    try {
+      const storage = await this.storageService.getOneBy({ user });
+
+      if (!storage) {
+        throw new HttpException('Хранилище не надено', HttpStatus.BAD_REQUEST);
+      }
+
+      const corDto = dtoToOjbectId(dto, ['album', 'parent']);
+
+      const track = await this.create({
+        ...corDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+        image,
+        imageSize: image?.size,
+        audio,
+        audioSize: audio.size,
+        user,
+      });
+
+      let size = audio.size;
+      if (image?.size) size += image.size;
+
+      await this.storageService.addItem(
+        {
+          storage: storage._id,
+          item: track._id,
+          itemType: track.type,
+        },
+        size,
+      );
+
+      return new TrackTransferData(track);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async create(options: ICreateTrackOptions): Promise<TrackDocument> {
     try {
       let pathImage: string;
 
@@ -37,11 +86,17 @@ export class TrackService
         pathImage = await this.filesService.createFile(FileType.IMAGE, options.image);
 
       const pathAudio = await this.filesService.createFile(FileType.AUDIO, options.audio);
+      const fileExt = pathAudio.split('.').pop();
 
       return await this.trackModel.create({
         ...options,
-        audio: pathAudio,
+        type: ItemTypes.TRACK,
+        file: pathAudio,
+        fileSize: options.audioSize,
+        fileExt,
         image: pathImage,
+        createDate: Date.now(),
+        changeDate: Date.now(),
       });
     } catch (e) {
       throw e;
