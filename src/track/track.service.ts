@@ -17,7 +17,7 @@ import {
   ItemTypes,
 } from 'src/types';
 import { CreateTrackDto } from './dto/create-track-dto';
-import { dtoToOjbectId, stringToOjbectId } from 'src/utils';
+import { dtoToOjbectId } from 'src/utils';
 import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()

@@ -14,7 +14,11 @@ import {
   IUpdateVideoOptions,
   ICreateVideoOptions,
   IVideoService,
+  ItemTypes,
 } from 'src/types';
+import { CreateVideoDto } from './dto/create-video.dto';
+import { StorageService } from 'src/storage/storage.service';
+import { dtoToOjbectId } from 'src/utils';
 
 @Injectable()
 export class VideoService
@@ -24,9 +28,55 @@ export class VideoService
   constructor(
     @InjectModel(Video.name) private readonly videoModel: Model<VideoDocument>,
     private readonly filesService: FilesService,
+    private readonly storageService: StorageService,
     commentService: CommentService,
   ) {
     super(videoModel, commentService);
+  }
+
+  async createVideo(
+    dto: CreateVideoDto,
+    user: Types.ObjectId,
+    video: Express.Multer.File,
+    image: Express.Multer.File,
+  ): Promise<VideoTransferData> {
+    try {
+      const storage = await this.storageService.getOneBy({ user });
+
+      if (!storage) {
+        throw new HttpException('Хранилище не надено', HttpStatus.BAD_REQUEST);
+      }
+
+      const corDto = dtoToOjbectId(dto, ['parent']);
+
+      const videoDoc = await this.create({
+        ...corDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+        image,
+        imageSize: image.size,
+        video,
+        videoSize: video.size,
+        user,
+      });
+
+      // ! Чек есть ли?
+      let size = video.size;
+      if (image?.size) size += image.size;
+
+      await this.storageService.addItem(
+        {
+          storage: storage._id,
+          item: videoDoc._id,
+          itemType: videoDoc.type,
+        },
+        size,
+      );
+
+      return new VideoTransferData(videoDoc);
+    } catch (e) {
+      throw e;
+    }
   }
 
   async create(options: ICreateVideoOptions): Promise<VideoDocument> {
@@ -37,11 +87,17 @@ export class VideoService
         pathImage = await this.filesService.createFile(FileType.IMAGE, options.image);
 
       const pathVideo = await this.filesService.createFile(FileType.VIDEO, options.video);
+      const fileExt = pathVideo.split('.').pop();
 
       return await this.videoModel.create({
+        type: ItemTypes.VIDEO,
         ...options,
-        video: pathVideo,
+        file: pathVideo,
+        fileSize: options.videoSize,
+        fileExt,
         image: pathImage,
+        createDate: Date.now(),
+        changeDate: Date.now(),
       });
     } catch (e) {
       throw e;

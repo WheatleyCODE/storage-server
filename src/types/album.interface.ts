@@ -1,11 +1,17 @@
 import { Types } from 'mongoose';
 import { ChangeTracksDto } from 'src/album/dto/change-tracks.dto';
+import { CreateAlbumDto } from 'src/album/dto/create-album.dto';
 import { AlbumTransferData } from 'src/transfer';
 import { AccessTypes, DeepPartial, ItemTypes } from './core.interface';
 
 export interface IAlbumService<T> {
   changeFile(id: Types.ObjectId, file: Express.Multer.File): Promise<T>;
   changeTracks(dto: ChangeTracksDto): Promise<AlbumTransferData>;
+  createAlbum(
+    dto: CreateAlbumDto,
+    user: Types.ObjectId,
+    image: Express.Multer.File,
+  ): Promise<AlbumTransferData>;
 }
 
 export interface ICreateAlbumOptions {

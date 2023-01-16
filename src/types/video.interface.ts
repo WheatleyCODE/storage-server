@@ -1,9 +1,16 @@
 import { Types } from 'mongoose';
 import { AccessTypes, DeepPartial, ItemTypes } from './core.interface';
 import { VideoTransferData } from 'src/transfer';
+import { CreateVideoDto } from 'src/video/dto/create-video.dto';
 
 // ! Разделить интерфейсы на классы по changeFiles, getAllPublicVideos
 export interface IVideoService<T> {
+  createVideo(
+    dto: CreateVideoDto,
+    user: Types.ObjectId,
+    video: Express.Multer.File,
+    image: Express.Multer.File,
+  ): Promise<VideoTransferData>;
   changeFiles(
     id: Types.ObjectId,
     video?: Express.Multer.File,

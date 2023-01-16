@@ -1,8 +1,15 @@
 import { Types } from 'mongoose';
+import { CreateFileDto } from 'src/file/dto/create-file.dto';
+import { FileTransferData } from 'src/transfer';
 import { AccessTypes, DeepPartial, ItemTypes } from './core.interface';
 
 export interface IFileService<T> {
   changeFile(id: Types.ObjectId, file: Express.Multer.File): Promise<T>;
+  createFile(
+    dto: CreateFileDto,
+    user: Types.ObjectId,
+    file: Express.Multer.File,
+  ): Promise<FileTransferData>;
 }
 
 export interface ICreateFileOptions {

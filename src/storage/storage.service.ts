@@ -292,6 +292,7 @@ export class StorageService
       const collection = getStorageCollectionName(itemType);
       strg[collection].push(item);
       // strg.usedSpace += size || this.objectServices[itemType].ITEM_WIEGTH;
+      strg.usedSpace += size;
 
       return strg.save();
     } catch (e) {

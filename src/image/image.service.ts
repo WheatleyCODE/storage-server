@@ -6,14 +6,18 @@ import { StorageItemComments } from 'src/core';
 import { CommentService } from 'src/comment/comment.service';
 import { FilesService } from 'src/files/files.service';
 import { Image, ImageDocument } from './schemas/image.schema';
+import { StorageService } from 'src/storage/storage.service';
+import { ImageTransferData } from 'src/transfer/image.transfer-data';
+import { CreateImageDto } from './dto/create-image.dto';
 import {
   ItemsData,
   FileType,
   IImageService,
   ICreateImageOptions,
   IUpdateImageOptions,
+  ItemTypes,
 } from 'src/types';
-
+import { dtoToOjbectId } from 'src/utils';
 @Injectable()
 export class ImageService
   extends StorageItemComments<ImageDocument, IUpdateImageOptions>
@@ -22,6 +26,7 @@ export class ImageService
   constructor(
     @InjectModel(Image.name) private readonly imageModel: Model<ImageDocument>,
     private readonly filesService: FilesService,
+    private readonly storageService: StorageService,
     commentService: CommentService,
   ) {
     super(imageModel, commentService);
@@ -35,10 +40,55 @@ export class ImageService
   async create(options: ICreateImageOptions): Promise<ImageDocument> {
     try {
       const pathFile = await this.filesService.createFile(FileType.IMAGE, options.image);
+      const fileExt = pathFile.split('.').pop();
+
       return await this.imageModel.create({
+        type: ItemTypes.IMAGE,
         ...options,
-        image: pathFile,
+        file: pathFile,
+        fileSize: options.imageSize,
+        fileExt,
+        createDate: Date.now(),
+        changeDate: Date.now(),
       });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async createImage(
+    dto: CreateImageDto,
+    user: Types.ObjectId,
+    file: Express.Multer.File,
+  ): Promise<ImageTransferData> {
+    try {
+      const storage = await this.storageService.getOneBy({ user });
+
+      if (!storage) {
+        throw new HttpException('Хранилище не надено', HttpStatus.BAD_REQUEST);
+      }
+
+      const corDto = dtoToOjbectId(dto, ['parent']);
+
+      const imageDoc = await this.create({
+        ...corDto,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+        image: file,
+        imageSize: file.size,
+        user,
+      });
+
+      await this.storageService.addItem(
+        {
+          storage: storage._id,
+          item: imageDoc._id,
+          itemType: imageDoc.type,
+        },
+        imageDoc.fileSize,
+      );
+
+      return new ImageTransferData(imageDoc);
     } catch (e) {
       throw e;
     }
