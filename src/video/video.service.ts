@@ -8,7 +8,6 @@ import { Video, VideoDocument } from './schemas/video.schema';
 import { CommentService } from 'src/comment/comment.service';
 import { VideoTransferData } from 'src/transfer';
 import {
-  AccessTypes,
   ItemsData,
   FileType,
   IUpdateVideoOptions,
@@ -19,6 +18,7 @@ import {
 import { CreateVideoDto } from './dto/create-video.dto';
 import { StorageService } from 'src/storage/storage.service';
 import { dtoToOjbectId } from 'src/utils';
+import { ChangeFileDto } from 'src/album/dto/change-file.dto';
 
 @Injectable()
 export class VideoService
@@ -128,49 +128,52 @@ export class VideoService
     }
   }
 
-  async searchPublicVideos(text: string, count = 10, offset = 0): Promise<VideoTransferData[]> {
+  async changeFile(
+    dto: ChangeFileDto,
+    user: Types.ObjectId,
+    video: Express.Multer.File,
+  ): Promise<VideoTransferData> {
     try {
-      const videos = await this.videoModel
-        .find({ name: { $regex: new RegExp(text, 'i') } })
-        .skip(offset)
-        .limit(count);
-      return videos.map((track) => new VideoTransferData(track));
+      const { id } = dtoToOjbectId(dto, ['id']);
+      const videoDoc = await this.findByIdAndCheck(id);
+
+      await this.storageService.changeUsedSpace(user, videoDoc.fileSize, video.size);
+
+      const newPathAudio = await this.filesService.changeFile(FileType.AUDIO, video, videoDoc.file);
+      videoDoc.file = newPathAudio;
+      videoDoc.fileSize = video.size;
+
+      await videoDoc.save();
+
+      return new VideoTransferData(videoDoc);
     } catch (e) {
-      throw new HttpException('Ошибка при поиске видео', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw e;
     }
   }
 
-  async changeFiles(
-    id: Types.ObjectId,
-    video?: Express.Multer.File,
-    image?: Express.Multer.File,
-  ): Promise<VideoDocument> {
+  async changeImage(
+    dto: ChangeFileDto,
+    user: Types.ObjectId,
+    image: Express.Multer.File,
+  ): Promise<VideoTransferData> {
     try {
+      const { id } = dtoToOjbectId(dto, ['id']);
       const videoDoc = await this.findByIdAndCheck(id);
 
-      if (video) {
-        const newPathVideo = await this.filesService.changeFile(
-          FileType.AUDIO,
-          video,
-          videoDoc.file,
-        );
+      await this.storageService.changeUsedSpace(user, videoDoc.imageSize, image.size);
 
-        videoDoc.file = newPathVideo;
-        videoDoc.fileSize = video.size;
-      }
+      const newPathImage = await this.filesService.changeFile(
+        FileType.IMAGE,
+        image,
+        videoDoc.image,
+      );
 
-      if (image) {
-        const newPathImage = await this.filesService.changeFile(
-          FileType.IMAGE,
-          image,
-          videoDoc.image,
-        );
+      videoDoc.image = newPathImage;
+      videoDoc.imageSize = image.size;
 
-        videoDoc.image = newPathImage;
-        videoDoc.imageSize = image.size;
-      }
+      await videoDoc.save();
 
-      return await videoDoc.save();
+      return new VideoTransferData(videoDoc);
     } catch (e) {
       throw e;
     }
@@ -240,19 +243,6 @@ export class VideoService
       return { path, filename };
     } catch (e) {
       throw e;
-    }
-  }
-
-  async getAllPublicVideos(count = 10, offset = 0): Promise<VideoTransferData[]> {
-    try {
-      const videos = await this.videoModel
-        .find({ accessType: AccessTypes.PUBLIC })
-        .skip(offset)
-        .limit(count);
-
-      return videos.map((track) => new VideoTransferData(track));
-    } catch (e) {
-      throw new HttpException('Ошибка при поиске видео', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

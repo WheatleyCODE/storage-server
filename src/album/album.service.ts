@@ -21,11 +21,12 @@ import {
 } from 'src/types';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { StorageService } from 'src/storage/storage.service';
+import { ChangeFileDto } from './dto/change-file.dto';
 
 @Injectable()
 export class AlbumService
   extends StorageItemComments<AlbumDocument, IUpdateAlbumOptions>
-  implements IAlbumService<AlbumDocument>
+  implements IAlbumService
 {
   constructor(
     @InjectModel(Album.name) private readonly albumModel: Model<AlbumDocument>,
@@ -37,7 +38,7 @@ export class AlbumService
     super(albumModel, commentService);
   }
 
-  async changeTracks(dto: ChangeTracksDto): Promise<AlbumTransferData> {
+  async changeTracks(dto: ChangeTracksDto, user: Types.ObjectId): Promise<AlbumTransferData> {
     try {
       const { album, tracks, isDelete } = dtoToOjbectId(dto, ['album', 'tracks']);
       const albumDoc = await this.findByIdAndCheck(album);
@@ -60,6 +61,29 @@ export class AlbumService
       }
 
       albumDoc.tracks = [...albumDoc.tracks, ...tracks];
+      await albumDoc.save();
+
+      return new AlbumTransferData(albumDoc);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeImage(
+    dto: ChangeFileDto,
+    user: Types.ObjectId,
+    file: Express.Multer.File,
+  ): Promise<AlbumTransferData> {
+    try {
+      const { id } = dtoToOjbectId(dto, ['id']);
+      const albumDoc = await this.findByIdAndCheck(id);
+
+      await this.storageService.changeUsedSpace(user, albumDoc.imageSize, file.size);
+
+      const newPathImage = await this.filesService.changeFile(FileType.IMAGE, file, albumDoc.image);
+      albumDoc.image = newPathImage;
+      albumDoc.imageSize = file.size;
+
       await albumDoc.save();
 
       return new AlbumTransferData(albumDoc);
@@ -145,20 +169,6 @@ export class AlbumService
       };
 
       return Object.assign(deletedAlbum, itemsData);
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async changeFile(id: Types.ObjectId, file: Express.Multer.File): Promise<AlbumDocument> {
-    try {
-      const albumDoc = await this.findByIdAndCheck(id);
-
-      const newPathImage = await this.filesService.changeFile(FileType.IMAGE, file, albumDoc.image);
-      albumDoc.image = newPathImage;
-      albumDoc.imageSize = file.size;
-
-      return await albumDoc.save();
     } catch (e) {
       throw e;
     }

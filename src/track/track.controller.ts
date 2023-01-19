@@ -16,6 +16,7 @@ import { ValidationPipe } from 'src/pipes';
 import { CreateTrackDto } from './dto/create-track-dto';
 import { UserReq } from 'src/types';
 import { stringToOjbectId } from 'src/utils';
+import { ChangeFileDto } from 'src/album/dto/change-file.dto';
 
 @Controller('/api/track')
 export class TrackController {
@@ -45,21 +46,29 @@ export class TrackController {
     );
   }
 
-  // @UseInterceptors(
-  //   FileFieldsInterceptor([
-  //     { name: 'image', maxCount: 1 },
-  //     { name: 'audio', maxCount: 1 },
-  //   ]),
-  // )
-  // @Post('/change/track/files')
-  // createTrackTest(
-  //   @UploadedFiles() files: { image?: Express.Multer.File[]; audio?: Express.Multer.File[] },
-  //   @Body() dto: ChangeTrackFilesDto,
-  // ): Promise<TrackTransferData> {
-  //   return this.storageService.changeTrackFiles(
-  //     dto,
-  //     files?.audio && files.audio[0],
-  //     files?.image && files.image[0],
-  //   );
-  // }
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 1 }]))
+  @Post('/change/image')
+  @UsePipes(ValidationPipe)
+  @UseGuards(JwtAuthGuard)
+  changeImage(
+    @UploadedFiles() files: { image?: Express.Multer.File[] },
+    @Body() dto: ChangeFileDto,
+    @Req() req: UserReq,
+  ): Promise<TrackTransferData> {
+    const id = stringToOjbectId(req.userTD.id);
+    return this.trackService.changeImage(dto, id, files?.image && files.image[0]);
+  }
+
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'audio', maxCount: 1 }]))
+  @Post('/change/file')
+  @UsePipes(ValidationPipe)
+  @UseGuards(JwtAuthGuard)
+  changeFile(
+    @UploadedFiles() files: { audio?: Express.Multer.File[] },
+    @Body() dto: ChangeFileDto,
+    @Req() req: UserReq,
+  ): Promise<TrackTransferData> {
+    const id = stringToOjbectId(req.userTD.id);
+    return this.trackService.changeFile(dto, id, files?.audio && files.audio[0]);
+  }
 }

@@ -85,7 +85,7 @@ export class StorageService
     }
   }
 
-  async changeUsedSpace(id: Types.ObjectId, bytes: number): Promise<StorageDocument> {
+  async addUsedSpace(id: Types.ObjectId, bytes: number): Promise<StorageDocument> {
     try {
       const storage = await this.findByIdAndCheck(id);
       storage.usedSpace += bytes;
@@ -135,10 +135,27 @@ export class StorageService
   //   }
   // }
 
+  // ! think
   async getOneBy(options: IUpdateStorageOptions): Promise<StorageDocument> {
     try {
       const storage = await this.findOneByAndCheck(options);
-      return await storage.populate('folders');
+      await storage.populate('folders');
+      await storage.populate('files');
+      await storage.populate('tracks');
+      await storage.populate('videos');
+      return await storage.populate('iamges');
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeUsedSpace(user: Types.ObjectId, prevSize, newSize): Promise<StorageDocument> {
+    try {
+      const storage = await this.findOneByAndCheck({ user });
+
+      storage.usedSpace -= prevSize;
+      storage.usedSpace += newSize;
+      return await storage.save();
     } catch (e) {
       throw e;
     }

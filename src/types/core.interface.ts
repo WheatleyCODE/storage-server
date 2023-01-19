@@ -48,14 +48,12 @@ export interface UserRes extends Response {
   zip: (arr: { path: string; name: string }[]) => any;
 }
 
-// ?
 export enum AccessTypes {
   PRIVATE = 'PRIVATE',
   PUBLIC = 'PUBLIC',
   LINK = 'LINK',
 }
 
-// ?
 export enum ItemTypes {
   FOLDER = 'FOLDER',
   TRACK = 'TRACK',
@@ -65,23 +63,6 @@ export enum ItemTypes {
   VIDEO = 'VIDEO',
 }
 
-// ?
-export enum ItemFileTypes {
-  TRACK = 'TRACK',
-  FILE = 'FILE',
-  ALBUM = 'ALBUM',
-  IMAGE = 'IMAGE',
-  VIDEO = 'VIDEO',
-}
-
-// ?
-export enum UserRoles {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
-  EMPLOYEE = 'EMPLOYEE',
-}
-
-// ?
 export type ObjectServices = {
   [ItemTypes.FOLDER]: FolderService;
   [ItemTypes.TRACK]: TrackService;
@@ -91,19 +72,8 @@ export type ObjectServices = {
   [ItemTypes.VIDEO]: VideoService;
 };
 
-// ?
-// export type ObjectFileServices = {
-//   [ItemTypes.TRACK]: TrackService;
-//   [ItemTypes.FILE]: FileService;
-//   [ItemTypes.ALBUM]: AlbumService;
-//   [ItemTypes.IMAGE]: ImageService;
-//   [ItemTypes.VIDEO]: VideoService;
-// };
-
-// ?
 export type StorageCollectionNames = 'folders' | 'tracks' | 'files' | 'albums' | 'videos';
 
-// ?
 export const StorageItemTypes: ItemTypes[] = [
   ItemTypes.FOLDER,
   ItemTypes.TRACK,
@@ -113,14 +83,12 @@ export const StorageItemTypes: ItemTypes[] = [
   ItemTypes.VIDEO,
 ];
 
-// ?
 export type ItemsData = {
   count: number;
   items: ItemDocument[];
   size: number;
 };
 
-// ?
 export type ItemDocument =
   | FolderDocument
   | TrackDocument
@@ -133,13 +101,6 @@ export interface ItemDto {
   type: ItemTypes;
 }
 
-// ?
-export interface ItemFileDto {
-  id: Types.ObjectId;
-  type: ItemFileTypes;
-}
-
-// ?
 export type ItemTransferData =
   | FolderTransferData
   | TrackTransferData
@@ -153,7 +114,6 @@ export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
 
-// ?
 export interface ChildrensTransferData {
   childrens: ItemTransferData[];
   parents: FolderTransferData[];

@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { AccessTypes, DeepPartial, ItemTypes } from './core.interface';
 import { TrackTransferData } from 'src/transfer';
 import { CreateTrackDto } from 'src/track/dto/create-track-dto';
-import { ChangeTrackFilesDto } from 'src/storage/dto/change-track-files.dto';
+import { ChangeFileDto } from 'src/album/dto/change-file.dto';
 
 export interface ITrackService<T> {
   createTrack(
@@ -11,15 +11,15 @@ export interface ITrackService<T> {
     audio: Express.Multer.File,
     image?: Express.Multer.File,
   ): Promise<TrackTransferData>;
-  changeFiles(
-    id: Types.ObjectId,
-    audio?: Express.Multer.File,
-    image?: Express.Multer.File,
-  ): Promise<T>;
-  changeTrackFiles(
-    dto: ChangeTrackFilesDto,
-    audio?: Express.Multer.File,
-    image?: Express.Multer.File,
+  changeFile(
+    dto: ChangeFileDto,
+    user: Types.ObjectId,
+    audio: Express.Multer.File,
+  ): Promise<TrackTransferData>;
+  changeImage(
+    dto: ChangeFileDto,
+    user: Types.ObjectId,
+    image: Express.Multer.File,
   ): Promise<TrackTransferData>;
 }
 

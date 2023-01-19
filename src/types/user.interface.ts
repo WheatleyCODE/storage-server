@@ -1,7 +1,13 @@
 import { Types } from 'mongoose';
 import { UserTransferData } from 'src/transfer';
 import { ChangeRoleDto } from 'src/user/dto/change-role.dto';
-import { DeepPartial, UserRoles } from './core.interface';
+import { DeepPartial } from './core.interface';
+
+export enum UserRoles {
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+  EMPLOYEE = 'EMPLOYEE',
+}
 
 export interface IUserService {
   changeRole(dto: ChangeRoleDto): Promise<UserTransferData>;

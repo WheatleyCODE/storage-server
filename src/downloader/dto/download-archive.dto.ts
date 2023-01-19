@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray } from 'class-validator';
-import { ItemFileDto } from 'src/types';
+import { ItemDto } from 'src/types';
 
 export class DownloadArchiveDto {
   @ApiProperty({
@@ -8,5 +8,5 @@ export class DownloadArchiveDto {
     description: 'Массив ItemFileDto[]',
   })
   @IsArray({ message: 'Должен быть массив' })
-  items: ItemFileDto[];
+  items: ItemDto[];
 }

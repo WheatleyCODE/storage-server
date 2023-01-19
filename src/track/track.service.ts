@@ -8,7 +8,6 @@ import { Track, TrackDocument } from './schemas/track.schema';
 import { CommentService } from 'src/comment/comment.service';
 import { TrackTransferData } from 'src/transfer';
 import {
-  AccessTypes,
   ItemsData,
   IUpdateTrackOptions,
   ICreateTrackOptions,
@@ -19,7 +18,7 @@ import {
 import { CreateTrackDto } from './dto/create-track-dto';
 import { dtoToOjbectId } from 'src/utils';
 import { StorageService } from 'src/storage/storage.service';
-import { ChangeTrackFilesDto } from 'src/storage/dto/change-track-files.dto';
+import { ChangeFileDto } from 'src/album/dto/change-file.dto';
 
 @Injectable()
 export class TrackService
@@ -128,51 +127,52 @@ export class TrackService
     }
   }
 
-  async changeTrackFiles(
-    dto: ChangeTrackFilesDto,
-    audio?: Express.Multer.File,
-    image?: Express.Multer.File,
+  async changeFile(
+    dto: ChangeFileDto,
+    user: Types.ObjectId,
+    audio: Express.Multer.File,
   ): Promise<TrackTransferData> {
     try {
-      const { track, storage } = dtoToOjbectId(dto, ['track', 'storage']);
-      const strg = await this.storageService.getOneById(storage);
-      const prevTrack = await this.findByIdAndCheck(track);
+      const { id } = dtoToOjbectId(dto, ['id']);
+      const trackDoc = await this.findByIdAndCheck(id);
 
-      const newTrack = await this.changeFiles(track, audio, image);
-      const prevSize = prevTrack.fileSize + (prevTrack.imageSize || 0);
-      const newSize = newTrack.fileSize + (newTrack.imageSize || 0);
+      await this.storageService.changeUsedSpace(user, trackDoc.fileSize, audio.size);
 
-      strg.usedSpace -= prevSize;
-      strg.usedSpace += newSize;
-      await strg.save();
+      const newPathAudio = await this.filesService.changeFile(FileType.AUDIO, audio, trackDoc.file);
+      trackDoc.file = newPathAudio;
+      trackDoc.fileSize = audio.size;
 
-      return new TrackTransferData(newTrack);
+      await trackDoc.save();
+
+      return new TrackTransferData(trackDoc);
     } catch (e) {
       throw e;
     }
   }
 
-  async changeFiles(
-    id: Types.ObjectId,
-    audio?: Express.Multer.File,
-    image?: Express.Multer.File,
-  ): Promise<TrackDocument> {
+  async changeImage(
+    dto: ChangeFileDto,
+    user: Types.ObjectId,
+    image: Express.Multer.File,
+  ): Promise<TrackTransferData> {
     try {
-      const track = await this.findByIdAndCheck(id);
+      const { id } = dtoToOjbectId(dto, ['id']);
+      const trackDoc = await this.findByIdAndCheck(id);
 
-      if (audio) {
-        const newPathAudio = await this.filesService.changeFile(FileType.AUDIO, audio, track.file);
-        track.file = newPathAudio;
-        track.fileSize = audio.size;
-      }
+      await this.storageService.changeUsedSpace(user, trackDoc.imageSize, image.size);
 
-      if (image) {
-        const newPathImage = await this.filesService.changeFile(FileType.IMAGE, image, track.image);
-        track.image = newPathImage;
-        track.imageSize = image.size;
-      }
+      const newPathImage = await this.filesService.changeFile(
+        FileType.IMAGE,
+        image,
+        trackDoc.image,
+      );
 
-      return await track.save();
+      trackDoc.image = newPathImage;
+      trackDoc.imageSize = image.size;
+
+      await trackDoc.save();
+
+      return new TrackTransferData(trackDoc);
     } catch (e) {
       throw e;
     }
@@ -218,7 +218,6 @@ export class TrackService
     }
   }
 
-  // ! Можно вынести выше
   async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
     try {
       const { name, file, fileExt } = await this.findByIdAndCheck(id);
@@ -231,7 +230,6 @@ export class TrackService
     }
   }
 
-  // ! Можно вынести выше
   async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
     try {
       const { name, file, fileExt } = await this.findByIdAndCheck(id);

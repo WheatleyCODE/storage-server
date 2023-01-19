@@ -4,7 +4,7 @@ import { FileService } from 'src/file/file.service';
 import { FolderService } from 'src/folder/folder.service';
 import { ImageService } from 'src/image/image.service';
 import { TrackService } from 'src/track/track.service';
-import { ItemFileDto, ItemTypes, ObjectServices } from 'src/types';
+import { ItemDto, ItemTypes, ObjectServices } from 'src/types';
 import { dtoToOjbectId } from 'src/utils';
 import { VideoService } from 'src/video/video.service';
 
@@ -30,7 +30,7 @@ export class DownloaderService {
     };
   }
 
-  async downloadFile(dto: ItemFileDto): Promise<{ file: StreamableFile; filename: string }> {
+  async downloadFile(dto: ItemDto): Promise<{ file: StreamableFile; filename: string }> {
     try {
       const { id, type } = dtoToOjbectId(dto, ['id']);
       const { file, filename } = await this.objectServices[type].download(id);
@@ -40,7 +40,7 @@ export class DownloaderService {
     }
   }
 
-  async downloadArchive(dto: ItemFileDto[]): Promise<{ path: string; name: string }[]> {
+  async downloadArchive(dto: ItemDto[]): Promise<{ path: string; name: string }[]> {
     try {
       const pathArr: { path: string; name: string }[] = [];
       const items = dto.map((item) => dtoToOjbectId(item, ['id']));

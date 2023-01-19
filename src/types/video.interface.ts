@@ -2,8 +2,7 @@ import { Types } from 'mongoose';
 import { AccessTypes, DeepPartial, ItemTypes } from './core.interface';
 import { VideoTransferData } from 'src/transfer';
 import { CreateVideoDto } from 'src/video/dto/create-video.dto';
-
-// ! Разделить интерфейсы на классы по changeFiles, getAllPublicVideos
+import { ChangeFileDto } from 'src/album/dto/change-file.dto';
 export interface IVideoService<T> {
   createVideo(
     dto: CreateVideoDto,
@@ -11,13 +10,16 @@ export interface IVideoService<T> {
     video: Express.Multer.File,
     image: Express.Multer.File,
   ): Promise<VideoTransferData>;
-  changeFiles(
-    id: Types.ObjectId,
-    video?: Express.Multer.File,
-    image?: Express.Multer.File,
-  ): Promise<T>;
-  getAllPublicVideos(count: number, offset: number): Promise<VideoTransferData[]>;
-  searchPublicVideos(text: string, count: number, offset: number): Promise<VideoTransferData[]>;
+  changeFile(
+    dto: ChangeFileDto,
+    user: Types.ObjectId,
+    audio: Express.Multer.File,
+  ): Promise<VideoTransferData>;
+  changeImage(
+    dto: ChangeFileDto,
+    user: Types.ObjectId,
+    image: Express.Multer.File,
+  ): Promise<VideoTransferData>;
 }
 
 export interface ICreateVideoOptions {
