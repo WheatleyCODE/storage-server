@@ -4,6 +4,7 @@ import { ValidationPipe } from 'src/pipes';
 import { FolderTransferData } from 'src/transfer';
 import { UserReq } from 'src/types';
 import { stringToOjbectId } from 'src/utils';
+import { ChangeColorDto } from './dto/change-color.dto';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { FolderService } from './folder.service';
 
@@ -17,5 +18,12 @@ export class FolderController {
   createFolder(@Body() dto: CreateFolderDto, @Req() req: UserReq): Promise<FolderTransferData> {
     const id = stringToOjbectId(req.userTD.id);
     return this.folderService.createFolder(dto, id);
+  }
+
+  @Post('/change/color')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  changeColor(@Body() dto: ChangeColorDto): Promise<FolderTransferData[]> {
+    return this.folderService.changeFolderColor(dto);
   }
 }

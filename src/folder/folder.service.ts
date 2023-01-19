@@ -17,6 +17,7 @@ import { CreateFolderDto } from './dto/create-folder.dto';
 import { FolderTransferData } from 'src/transfer';
 import { dtoToOjbectId } from 'src/utils';
 import { StorageService } from 'src/storage/storage.service';
+import { ChangeColorDto } from 'src/folder/dto/change-color.dto';
 
 @Injectable()
 export class FolderService
@@ -42,14 +43,18 @@ export class FolderService
         openDate: Date.now(),
         user,
       });
+      const FOLDER_SIZE = 0;
 
       const storage = await this.storageService.getOneBy({ user });
 
-      await this.storageService.addItem({
-        storage: storage._id,
-        item: folder._id,
-        itemType: folder.type,
-      });
+      await this.storageService.addItem(
+        {
+          storage: storage._id,
+          item: folder._id,
+          itemType: folder.type,
+        },
+        FOLDER_SIZE,
+      );
 
       return new FolderTransferData(folder);
     } catch (e) {
@@ -68,6 +73,24 @@ export class FolderService
     } catch (e) {
       console.log(e);
       throw new HttpException('Ошибка при создании папки', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async changeFolderColor(dto: ChangeColorDto): Promise<FolderTransferData[]> {
+    try {
+      const { color } = dto;
+      const items = dto.items.map((item) => dtoToOjbectId(item, ['id']));
+
+      const folderDocs: FolderDocument[] = [];
+
+      for await (const { id } of items) {
+        const folderDoc = await this.changeColor(id, color);
+        folderDocs.push(folderDoc);
+      }
+
+      return folderDocs.map((doc) => new FolderTransferData(doc));
+    } catch (e) {
+      throw e;
     }
   }
 
@@ -109,10 +132,11 @@ export class FolderService
 
       await this.deleteByIds(deletedFolders.map((folder) => folder._id));
 
+      // ! fix zero
       const itemsData: ItemsData = {
         count: deletedFolders.length,
         items: deletedFolders,
-        size: deletedFolders.length * this.ITEM_WIEGTH,
+        size: 0,
       };
 
       return Object.assign(firstFolder, itemsData);

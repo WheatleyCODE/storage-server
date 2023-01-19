@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { AccessTypes, DeepPartial, ItemTypes } from './core.interface';
 import { TrackTransferData } from 'src/transfer';
 import { CreateTrackDto } from 'src/track/dto/create-track-dto';
+import { ChangeTrackFilesDto } from 'src/storage/dto/change-track-files.dto';
 
 export interface ITrackService<T> {
   createTrack(
@@ -15,8 +16,11 @@ export interface ITrackService<T> {
     audio?: Express.Multer.File,
     image?: Express.Multer.File,
   ): Promise<T>;
-  getAllPublicTracks(count: number, offset: number): Promise<TrackTransferData[]>;
-  searchPublicTracks(text: string, count: number, offset: number): Promise<TrackTransferData[]>;
+  changeTrackFiles(
+    dto: ChangeTrackFilesDto,
+    audio?: Express.Multer.File,
+    image?: Express.Multer.File,
+  ): Promise<TrackTransferData>;
 }
 
 export interface ICreateTrackOptions {
@@ -30,7 +34,7 @@ export interface ICreateTrackOptions {
   creationDate: number;
   openDate: number;
   author: string;
-  text: string;
+  text?: string;
   image?: Express.Multer.File;
   imageSize?: number;
   audio: Express.Multer.File;

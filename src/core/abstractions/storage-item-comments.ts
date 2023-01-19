@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { CommentService } from 'src/comment/comment.service';
 import { CommentDocument } from 'src/comment/schemas/comment.schema';
@@ -6,7 +7,7 @@ import { StorageItem } from './storage-item';
 
 export abstract class StorageItemComments<T, O>
   extends StorageItem<T, O>
-  implements IStorageItemComments<T>
+  implements IStorageItemComments
 {
   constructor(model: Model<any>, private commentService: CommentService) {
     super(model);
@@ -25,10 +26,17 @@ export abstract class StorageItemComments<T, O>
     }
   }
 
-  async deleteComment(id: Types.ObjectId, comment: Types.ObjectId): Promise<T> {
+  async deleteComment(id: Types.ObjectId, comment: Types.ObjectId): Promise<CommentDocument> {
     try {
+      const commentDoc = await this.commentService.getOneById(comment);
+
+      if (!commentDoc) {
+        throw new HttpException('Коментарий не найден', HttpStatus.BAD_REQUEST);
+      }
+
       const itemDoc: any = await this.findByIdAndCheck(id);
-      const { items } = await this.commentService.delete(comment);
+      const delComment = await this.commentService.delete(comment);
+      const { items } = delComment;
 
       items.forEach((item) => {
         itemDoc.comments = itemDoc.comments.filter(
@@ -36,9 +44,11 @@ export abstract class StorageItemComments<T, O>
         );
       });
 
+      console.log('4');
+
       await itemDoc.save();
 
-      return itemDoc;
+      return delComment;
     } catch (e) {
       throw e;
     }

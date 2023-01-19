@@ -14,5 +14,5 @@ export class CreateFileDto {
     example: '507f191e810c19729de860ea | undefined',
     description: 'ID папки родителя или ничего',
   })
-  readonly parent: Types.ObjectId | undefined;
+  readonly parent?: Types.ObjectId;
 }

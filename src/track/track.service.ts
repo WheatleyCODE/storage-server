@@ -19,6 +19,7 @@ import {
 import { CreateTrackDto } from './dto/create-track-dto';
 import { dtoToOjbectId } from 'src/utils';
 import { StorageService } from 'src/storage/storage.service';
+import { ChangeTrackFilesDto } from 'src/storage/dto/change-track-files.dto';
 
 @Injectable()
 export class TrackService
@@ -127,15 +128,27 @@ export class TrackService
     }
   }
 
-  async searchPublicTracks(text: string, count = 10, offset = 0): Promise<TrackTransferData[]> {
+  async changeTrackFiles(
+    dto: ChangeTrackFilesDto,
+    audio?: Express.Multer.File,
+    image?: Express.Multer.File,
+  ): Promise<TrackTransferData> {
     try {
-      const tracks = await this.trackModel
-        .find({ name: { $regex: new RegExp(text, 'i') } })
-        .skip(offset)
-        .limit(count);
-      return tracks.map((track) => new TrackTransferData(track));
+      const { track, storage } = dtoToOjbectId(dto, ['track', 'storage']);
+      const strg = await this.storageService.getOneById(storage);
+      const prevTrack = await this.findByIdAndCheck(track);
+
+      const newTrack = await this.changeFiles(track, audio, image);
+      const prevSize = prevTrack.fileSize + (prevTrack.imageSize || 0);
+      const newSize = newTrack.fileSize + (newTrack.imageSize || 0);
+
+      strg.usedSpace -= prevSize;
+      strg.usedSpace += newSize;
+      await strg.save();
+
+      return new TrackTransferData(newTrack);
     } catch (e) {
-      throw new HttpException('Ошибка при поиске треков', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw e;
     }
   }
 
@@ -228,19 +241,6 @@ export class TrackService
       return { path, filename };
     } catch (e) {
       throw e;
-    }
-  }
-
-  async getAllPublicTracks(count = 10, offset = 0): Promise<TrackTransferData[]> {
-    try {
-      const tracks = await this.trackModel
-        .find({ accessType: AccessTypes.PUBLIC })
-        .skip(offset)
-        .limit(count);
-
-      return tracks.map((track) => new TrackTransferData(track));
-    } catch (e) {
-      throw new HttpException('Ошибка при поиске треков', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

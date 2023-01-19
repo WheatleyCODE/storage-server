@@ -1,16 +1,13 @@
 import {
   Body,
   Controller,
-  Get,
   Post,
-  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
   UsePipes,
   Req,
 } from '@nestjs/common';
-import { SearchTrackDto } from './dto/serch-track.dto';
 import { TrackService } from './track.service';
 import { TrackTransferData } from 'src/transfer';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -48,20 +45,21 @@ export class TrackController {
     );
   }
 
-  @Get('/public')
-  getAllTracks(
-    @Query('count') count: number,
-    @Query('offset') offset: number,
-  ): Promise<TrackTransferData[]> {
-    return this.trackService.getAllPublicTracks(count, offset);
-  }
-
-  @Get('/public/search')
-  search(
-    @Query('count') count: number,
-    @Query('offset') offset: number,
-    @Body() dto: SearchTrackDto,
-  ): Promise<TrackTransferData[]> {
-    return this.trackService.searchPublicTracks(dto.text, count, offset);
-  }
+  // @UseInterceptors(
+  //   FileFieldsInterceptor([
+  //     { name: 'image', maxCount: 1 },
+  //     { name: 'audio', maxCount: 1 },
+  //   ]),
+  // )
+  // @Post('/change/track/files')
+  // createTrackTest(
+  //   @UploadedFiles() files: { image?: Express.Multer.File[]; audio?: Express.Multer.File[] },
+  //   @Body() dto: ChangeTrackFilesDto,
+  // ): Promise<TrackTransferData> {
+  //   return this.storageService.changeTrackFiles(
+  //     dto,
+  //     files?.audio && files.audio[0],
+  //     files?.image && files.image[0],
+  //   );
+  // }
 }

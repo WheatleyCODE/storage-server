@@ -30,7 +30,7 @@ export interface ICreateVideoOptions {
   accessType?: AccessTypes;
   creationDate: number;
   openDate: number;
-  description: string;
+  description?: string;
   image?: Express.Multer.File;
   imageSize?: number;
   video: Express.Multer.File;

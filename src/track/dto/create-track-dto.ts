@@ -22,17 +22,17 @@ export class CreateTrackDto {
     description: 'Текст трека',
   })
   @IsString({ message: 'Должно быть строкой' })
-  readonly text: string;
+  readonly text?: string;
 
   @ApiProperty({
     example: '507f191e810c19729de860ea | undefined',
     description: 'ID папки родителя или ничего',
   })
-  readonly parent: Types.ObjectId | undefined;
+  readonly parent?: Types.ObjectId;
 
   @ApiProperty({
     example: '507f191e810c19729de860ea | undefined',
     description: 'ID альбома или ничего',
   })
-  readonly album: Types.ObjectId | undefined;
+  readonly album?: Types.ObjectId;
 }

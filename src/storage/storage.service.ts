@@ -1,63 +1,17 @@
-import { HttpException, HttpStatus, Injectable, StreamableFile } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { DefaultService } from 'src/core';
-import { FolderService } from 'src/folder/folder.service';
-import { CreateTrackDto } from 'src/track/dto/create-track-dto';
-import { TrackService } from 'src/track/track.service';
-import {
-  FolderTransferData,
-  StorageTransferData,
-  TrackTransferData,
-  FileTransferData,
-  AlbumTransferData,
-  CommentTransferData,
-  ItemTDataFactory,
-  VideoTransferData,
-} from 'src/transfer';
-import { ImageTransferData } from 'src/transfer/image.transfer-data';
-import { VideoService } from 'src/video/video.service';
-import { FolderDocument } from 'src/folder/schemas/folder.schema';
+import { StorageTransferData } from 'src/transfer';
 import { Storage, StorageDocument } from './schemas/storage.schema';
-import { CreateFileDto } from 'src/file/dto/create-file.dto';
-import { FileService } from 'src/file/file.service';
-import { AlbumService } from 'src/album/album.service';
-import { CopyFileDto } from './dto/copy-file.dto';
-import { CreateFolderDto } from 'src/folder/dto/create-folder.dto';
-import { CreateAlbumDto } from 'src/album/dto/create-album.dto';
-import { AddCommentDto } from 'src/comment/dto/add-comment.dto';
-import { DeleteCommentDto } from 'src/comment/dto/delete-comment.dto';
-import { ChangeColorDto } from './dto/change-color.dto';
-import { ChangeNameDto } from './dto/change-name.dto';
-import { ChangeParentDto } from './dto/change-parent.dto';
-import { ImageService } from 'src/image/image.service';
-import { CreateImageDto } from 'src/image/dto/create-image.dto';
-import { UploadFilesDto } from './dto/upload-files.dto';
-import { CreateVideoDto } from 'src/video/dto/create-video.dto';
 import { AddItemDto } from './dto/add-item.dto';
-import { DeleteItemDto } from './dto/delete-item.dto';
-import { AddListenDto } from './dto/add-listen.dto';
-import { ChangeAccessTypeDto } from './dto/change-access-type.dto';
-import { ChangeTrackFilesDto } from './dto/change-track-files.dto';
-import { ChangeIsTrashDto } from './dto/change-is-trash.dto';
-import { ChangeLikeDto } from './dto/change-like.dto';
-import { ChangeOpenDateDto } from './dto/change-open-date.dto';
-import { CreateAccessLinkDto } from './dto/create-access-link.dto';
-import { SearchItemDto } from './dto/search-item.dto';
 import { dtoToOjbectId, getStorageCollectionName } from 'src/utils';
 import {
   ICreateStorageOptions,
   ItemDocument,
-  ItemFileTypes,
-  ItemTypes,
-  ObjectServices,
   StorageCollectionsPopulated,
   StorageItemTypes,
   IUpdateStorageOptions,
-  ItemTransferData,
-  AccessTypes,
-  ChildrensTransferData,
-  ItemFileDto,
   IStorageService,
 } from 'src/types';
 
@@ -66,31 +20,11 @@ export class StorageService
   extends DefaultService<StorageDocument, IUpdateStorageOptions>
   implements IStorageService<StorageDocument>
 {
-  // private readonly objectServices: ObjectServices;
-  // private readonly objectFileServices: ObjectFileServices;
-
   constructor(
     @InjectModel(Storage.name)
-    private readonly storageModel: Model<StorageDocument>, // private readonly folderService: FolderService, // private readonly trackService: TrackService, // private readonly fileService: FileService, // private readonly albumService: AlbumService, // private readonly imageService: ImageService, // private readonly videoService: VideoService,
+    private readonly storageModel: Model<StorageDocument>,
   ) {
     super(storageModel);
-
-    // this.objectServices = {
-    //   [ItemTypes.FOLDER]: folderService,
-    //   [ItemTypes.TRACK]: trackService,
-    //   [ItemTypes.FILE]: fileService,
-    //   [ItemTypes.ALBUM]: albumService,
-    //   [ItemTypes.IMAGE]: imageService,
-    //   [ItemTypes.VIDEO]: videoService,
-    // };
-
-    // this.objectFileServices = {
-    //   [ItemFileTypes.TRACK]: trackService,
-    //   [ItemFileTypes.FILE]: fileService,
-    //   [ItemFileTypes.ALBUM]: albumService,
-    //   [ItemFileTypes.IMAGE]: imageService,
-    //   [ItemFileTypes.VIDEO]: videoService,
-    // };
   }
 
   async getStorage(user: Types.ObjectId): Promise<StorageTransferData> {
@@ -102,129 +36,6 @@ export class StorageService
       throw e;
     }
   }
-
-  // async copyFile(dto: CopyFileDto, user: Types.ObjectId): Promise<ItemTransferData[]> {
-  //   try {
-  //     const items = dto.items.map((item) => dtoToOjbectId(item, ['id']));
-  //     const strg = await this.findOneByAndCheck({ user });
-  //     const newItemFiles: ItemDocument[] = [];
-
-  //     for await (const { type, id } of items) {
-  //       const newItemFile = await this.objectFileServices[type].copy(id);
-
-  //       newItemFile.items.forEach((item) => {
-  //         const collection = getStorageCollectionName(item.type);
-  //         strg[collection].push(item._id);
-  //       });
-
-  //       strg.usedSpace += newItemFile.size;
-  //       newItemFiles.push(newItemFile);
-  //     }
-
-  //     await strg.save();
-  //     return newItemFiles.map((item) => ItemTDataFactory.create(item));
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async createImage(
-  //   dto: CreateImageDto,
-  //   user: Types.ObjectId,
-  //   image: Express.Multer.File,
-  // ): Promise<ImageTransferData> {
-  //   try {
-  //     const strg = await this.findOneByAndCheck({ user });
-  //     const correctDto = dtoToOjbectId(dto, ['parent']);
-
-  //     const imageDoc = await this.imageService.create({
-  //       ...correctDto,
-  //       creationDate: Date.now(),
-  //       openDate: Date.now(),
-  //       image,
-  //       imageSize: image.size,
-  //       user,
-  //     });
-
-  //     await this.addItem(
-  //       {
-  //         storage: strg._id,
-  //         item: imageDoc._id,
-  //         itemType: imageDoc.type,
-  //       },
-  //       imageDoc.fileSize,
-  //     );
-
-  //     return new ImageTransferData(imageDoc);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async createVideo(
-  //   dto: CreateVideoDto,
-  //   user: Types.ObjectId,
-  //   video: Express.Multer.File,
-  //   image?: Express.Multer.File,
-  // ): Promise<VideoTransferData> {
-  //   try {
-  //     const storage = await this.findOneByAndCheck({ user });
-  //     const correctDto = dtoToOjbectId(dto, ['parent']);
-
-  //     const videoDoc = await this.videoService.create({
-  //       ...correctDto,
-  //       creationDate: Date.now(),
-  //       openDate: Date.now(),
-  //       image,
-  //       imageSize: image?.size,
-  //       video,
-  //       videoSize: video.size,
-  //       user,
-  //     });
-
-  //     let size = video.size;
-  //     if (image?.size) size += image.size;
-
-  //     await this.addItem(
-  //       {
-  //         storage: storage._id,
-  //         item: videoDoc._id,
-  //         itemType: videoDoc.type,
-  //       },
-  //       size,
-  //     );
-
-  //     return new VideoTransferData(videoDoc);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async changeTrackFiles(
-  //   dto: ChangeTrackFilesDto,
-  //   audio?: Express.Multer.File,
-  //   image?: Express.Multer.File,
-  // ): Promise<TrackTransferData> {
-  //   try {
-  //     const { track, storage } = dtoToOjbectId(dto, ['track', 'storage']);
-  //     const strg = await this.findByIdAndCheck(storage);
-  //     const prevTrack = await this.trackService.getOneById(track);
-
-  //     if (!prevTrack) throw new HttpException('Трек не найден', HttpStatus.BAD_REQUEST);
-
-  //     const newTrack = await this.trackService.changeFiles(track, audio, image);
-  //     const prevSize = prevTrack.fileSize + (prevTrack.imageSize || 0);
-  //     const newSize = newTrack.fileSize + (newTrack.imageSize || 0);
-
-  //     strg.usedSpace -= prevSize;
-  //     strg.usedSpace += newSize;
-  //     await strg.save();
-
-  //     return new TrackTransferData(newTrack);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
 
   async create(options: ICreateStorageOptions): Promise<StorageDocument> {
     try {
@@ -284,7 +95,7 @@ export class StorageService
     }
   }
 
-  async addItem(dto: AddItemDto, size?: number): Promise<StorageDocument> {
+  async addItem(dto: AddItemDto, size: number): Promise<StorageDocument> {
     try {
       const { storage, item, itemType } = dtoToOjbectId(dto, ['storage', 'item']);
 
@@ -300,74 +111,7 @@ export class StorageService
     }
   }
 
-  // async deleteItem(dto: DeleteItemDto, user: Types.ObjectId): Promise<StorageTransferData> {
-  //   try {
-  //     const itemsDto = dto.items.map((item) => dtoToOjbectId(item, ['id']));
-
-  //     let itemsDocs: ItemDocument[] = [];
-  //     let sumSize = 0;
-
-  //     const strg = await this.findOneByAndCheck({ user });
-  //     // const prevFolderCount = strg.folders.length;
-
-  //     for await (const { type, id } of itemsDto) {
-  //       const { items, size } = await this.objectServices[type].delete(id);
-  //       itemsDocs = [...itemsDocs, ...items];
-  //       sumSize += size;
-  //     }
-
-  //     itemsDocs.forEach((item) => {
-  //       const collection = getStorageCollectionName(item.type);
-
-  //       strg[collection] = strg[collection].filter(
-  //         (itm) => item._id.toString() !== itm._id.toString(),
-  //       );
-  //     });
-
-  //     strg.usedSpace -= sumSize;
-  //     await strg.save();
-
-  //     // if (prevFolderCount > strg.folders.length) {
-  //     //   const stor = await this.checkParentsAndDelete(strg._id);
-  //     //   const populatedStrg = await this.populateCollections(stor);
-  //     //   return new StorageTransferData(populatedStrg);
-  //     // }
-
-  //     const populatedStrg = await this.populateCollections(strg);
-  //     return new StorageTransferData(populatedStrg);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async checkParentsAndDelete(storage: Types.ObjectId): Promise<StorageDocument> {
-  //   try {
-  //     const deletedTracks: Types.ObjectId[] = [];
-
-  //     let size = 0;
-  //     const strg = await this.findByIdAndCheck(storage);
-
-  //     for await (const id of strg.tracks) {
-  //       const track = await this.trackService.getOneById(id);
-  //       const parent = await this.trackService.getOneBy({ parent: track._id });
-
-  //       if (!parent) {
-  //         const deletedTrack = await this.trackService.delete(track._id);
-  //         deletedTracks.push(deletedTrack._id);
-  //         size += deletedTrack.size;
-  //       }
-  //     }
-
-  //     const delTracks = deletedTracks.map((ids) => ids.toString());
-  //     strg.tracks = strg.tracks.filter((itm) => !delTracks.includes(itm.toString()));
-
-  //     strg.usedSpace -= size;
-  //     return await strg.save();
-  //   } catch (e) {
-  //     throw new HttpException('Ошибка при проверке родителей', HttpStatus.INTERNAL_SERVER_ERROR);
-  //   }
-  // }
-
+  // ! think в items service
   // async searchItems(dto: SearchItemDto, user: Types.ObjectId): Promise<ItemTransferData[]> {
   //   try {
   //     const { text } = dto;
@@ -391,34 +135,6 @@ export class StorageService
   //   }
   // }
 
-  // async changeLike(dto: ChangeLikeDto): Promise<ItemTransferData> {
-  //   try {
-  //     const { item, user, itemType, isLike } = dtoToOjbectId(dto, ['item', 'user']);
-  //     const itemDoc = await this.objectServices[itemType].changeLike(item, user, isLike);
-  //     return ItemTDataFactory.create(itemDoc);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async changeColor(dto: ChangeColorDto): Promise<FolderTransferData[]> {
-  //   try {
-  //     const { color } = dto;
-  //     const items = dto.items.map((item) => dtoToOjbectId(item, ['id']));
-
-  //     const folderDocs: FolderDocument[] = [];
-
-  //     for await (const { id } of items) {
-  //       const folderDoc = await this.folderService.changeColor(id, color);
-  //       folderDocs.push(folderDoc);
-  //     }
-
-  //     return folderDocs.map((doc) => new FolderTransferData(doc));
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
   async getOneBy(options: IUpdateStorageOptions): Promise<StorageDocument> {
     try {
       const storage = await this.findOneByAndCheck(options);
@@ -428,9 +144,7 @@ export class StorageService
     }
   }
 
-  private async populateCollections(
-    storage: StorageDocument,
-  ): Promise<StorageCollectionsPopulated> {
+  async populateCollections(storage: StorageDocument): Promise<StorageCollectionsPopulated> {
     try {
       for await (const itemType of StorageItemTypes) {
         await storage.populate<ItemDocument>(getStorageCollectionName(itemType));
@@ -441,246 +155,4 @@ export class StorageService
       throw new HttpException('Ошибка при populateCollections', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
-  // async changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemTransferData> {
-  //   try {
-  //     const { id, accessType, type } = dtoToOjbectId(dto, ['id']);
-
-  //     const itemDoc = await this.objectServices[type].changeAccessType(id, accessType);
-
-  //     return ItemTDataFactory.create(itemDoc);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async changeAccessLink(dto: CreateAccessLinkDto): Promise<ItemTransferData> {
-  //   try {
-  //     const { id, type } = dtoToOjbectId(dto, ['id']);
-  //     const itemDoc = await this.objectServices[type].changeAccessLink(id);
-  //     itemDoc.accessType = AccessTypes.LINK;
-  //     await itemDoc.save();
-  //     return ItemTDataFactory.create(itemDoc);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemTransferData[]> {
-  //   try {
-  //     const itemDocs: ItemDocument[] = [];
-
-  //     const { isTrash } = dto;
-  //     const items = dto.items.map((item) => dtoToOjbectId(item, ['id']));
-
-  //     for await (const { id, type } of items) {
-  //       const itemDoc = await this.objectServices[type].changeIsTrash(id, isTrash);
-  //       itemDocs.push(itemDoc);
-  //     }
-
-  //     return itemDocs.map((itemDoc) => ItemTDataFactory.create(itemDoc));
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async changeName(dto: ChangeNameDto): Promise<ItemTransferData> {
-  //   try {
-  //     const { id, name, type } = dtoToOjbectId(dto, ['id']);
-
-  //     const itemDoc = await this.objectServices[type].changeName(id, name);
-
-  //     return ItemTDataFactory.create(itemDoc);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async changeParent(dto: ChangeParentDto): Promise<ItemTransferData[]> {
-  //   try {
-  //     const itemDocs: ItemDocument[] = [];
-  //     const { parent } = dtoToOjbectId(dto, ['parent']);
-  //     const items = dto.items.map((item) => dtoToOjbectId(item, ['id']));
-
-  //     for await (const { id, type } of items) {
-  //       const itemDoc = await this.objectServices[type].changeParent(id, parent);
-  //       itemDocs.push(itemDoc);
-  //     }
-
-  //     return itemDocs.map((itemDoc) => ItemTDataFactory.create(itemDoc));
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async getChildrens(id: Types.ObjectId): Promise<ChildrensTransferData> {
-  //   try {
-  //     let itemDocs: ItemDocument[] = [];
-
-  //     for await (const type of StorageItemTypes) {
-  //       const itemDoc = await this.objectServices[type].getChildrens(id);
-  //       itemDocs = [...itemDocs, ...itemDoc];
-  //     }
-
-  //     const parentDocs = await this.folderService.getParents(id);
-
-  //     const childrens = itemDocs.map((itemDoc) => ItemTDataFactory.create(itemDoc));
-  //     const parents = parentDocs.map((parentDoc) => new FolderTransferData(parentDoc));
-
-  //     return {
-  //       parents,
-  //       childrens,
-  //     };
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async addListen(dto: AddListenDto): Promise<ItemTransferData> {
-  //   try {
-  //     const { item, itemType } = dtoToOjbectId(dto, ['item']);
-  //     const itemDoc = await this.objectServices[itemType].addListen(item);
-  //     return ItemTDataFactory.create(itemDoc);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async uploadFiles(
-  //   dto: UploadFilesDto,
-  //   user: Types.ObjectId,
-  //   files: Express.Multer.File[],
-  // ): Promise<ItemTransferData[]> {
-  //   try {
-  //     const { parent } = dto;
-  //     await this.findOneByAndCheck({ user });
-
-  //     const object = {
-  //       image: ['jpg', 'png'],
-  //       audio: ['mp3'],
-  //       video: ['mp4'],
-  //     };
-
-  //     const itemsTransferData: ItemTransferData[] = [];
-
-  //     for await (const file of files) {
-  //       const filename = file.originalname.split('.');
-
-  //       if (object.audio.includes(filename[filename.length - 1])) {
-  //         const track = await this.createTrack(
-  //           {
-  //             name: filename[0],
-  //             author: 'Не понятно',
-  //             text: 'Без текста',
-  //             parent,
-  //             album: undefined,
-  //           },
-  //           user,
-  //           file,
-  //         );
-  //         itemsTransferData.push(track);
-  //         continue;
-  //       }
-
-  //       if (object.image.includes(filename[filename.length - 1])) {
-  //         const image = await this.createImage(
-  //           {
-  //             name: filename[0],
-  //             parent,
-  //           },
-  //           user,
-  //           file,
-  //         );
-  //         itemsTransferData.push(image);
-  //         continue;
-  //       }
-
-  //       if (object.video.includes(filename[filename.length - 1])) {
-  //         const video = await this.createVideo(
-  //           {
-  //             name: filename[0],
-  //             parent,
-  //             description: 'Без описания',
-  //           },
-  //           user,
-  //           file,
-  //         );
-  //         itemsTransferData.push(video);
-  //         continue;
-  //       }
-
-  //       const fileTD = await this.createFile({ name: filename[0], parent }, user, file);
-  //       itemsTransferData.push(fileTD);
-  //     }
-
-  //     return itemsTransferData;
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async changeOpenDate(dto: ChangeOpenDateDto): Promise<ItemTransferData> {
-  //   try {
-  //     const { item, itemType } = dtoToOjbectId(dto, ['item']);
-  //     const itemDoc = await this.objectServices[itemType].changeOpenDate(item);
-  //     return ItemTDataFactory.create(itemDoc);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async downloadFile(dto: ItemFileDto): Promise<{ file: StreamableFile; filename: string }> {
-  //   try {
-  //     const { id, type } = dtoToOjbectId(dto, ['id']);
-  //     const { file, filename } = await this.objectFileServices[type].download(id);
-  //     return { file: new StreamableFile(file), filename };
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async downloadArchive(dto: ItemFileDto[]): Promise<{ path: string; name: string }[]> {
-  //   try {
-  //     const pathArr: { path: string; name: string }[] = [];
-  //     const items = dto.map((item) => dtoToOjbectId(item, ['id']));
-
-  //     for await (const { id, type } of items) {
-  //       const { path, filename } = await this.objectFileServices[type].getFilePath(id);
-  //       pathArr.push({ path, name: filename });
-  //     }
-
-  //     return pathArr;
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async createComment(dto: AddCommentDto): Promise<CommentTransferData> {
-  //   try {
-  //     const { item, itemType, user, answer } = dtoToOjbectId(dto, ['item', 'user', 'answer']);
-
-  //     const comment = await this.objectServices[itemType].addComment(item, {
-  //       title: dto.title,
-  //       text: dto.text,
-  //       answer,
-  //       user,
-  //     });
-
-  //     return new CommentTransferData(comment);
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // async deleteComment(dto: DeleteCommentDto): Promise<any> {
-  //   try {
-  //     const { item, itemType, comment } = dtoToOjbectId(dto, ['item', 'comment']);
-
-  //     const delComment = await this.objectServices[itemType].deleteComment(item, comment);
-
-  //     return delComment;
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
 }

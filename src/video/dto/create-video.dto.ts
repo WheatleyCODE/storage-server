@@ -15,11 +15,11 @@ export class CreateVideoDto {
     description: 'Описание трека',
   })
   @IsString({ message: 'Должно быть строкой' })
-  readonly description: string;
+  readonly description?: string;
 
   @ApiProperty({
     example: '507f191e810c19729de860ea | undefined',
     description: 'ID папки родителя или ничего',
   })
-  readonly parent: Types.ObjectId | undefined;
+  readonly parent?: Types.ObjectId;
 }

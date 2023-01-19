@@ -14,3 +14,4 @@ export * from './mail.interface';
 export * from './storage-item.interface';
 export * from './files.interface';
 export * from './items.interface';
+export * from './finder.interface';

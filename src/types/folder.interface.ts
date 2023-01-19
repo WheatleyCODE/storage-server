@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import { CreateFolderDto } from 'src/folder/dto/create-folder.dto';
 import { FolderTransferData } from 'src/transfer';
-import { AccessTypes, DeepPartial, ItemTypes } from './core.interface';
+import { AccessTypes, ChildrensTransferData, DeepPartial, ItemTypes } from './core.interface';
 
 export enum FolderColors {
   GREY = 'GREY',

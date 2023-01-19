@@ -3,7 +3,7 @@ import { Model, Types } from 'mongoose';
 import { IDatabase } from 'src/types';
 
 export abstract class MongoDatabase<T, O> extends IDatabase<T, O> {
-  constructor(private readonly model: Model<any>) {
+  constructor(protected readonly model: Model<any>) {
     super();
   }
 

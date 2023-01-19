@@ -38,7 +38,7 @@ export class VideoService
     dto: CreateVideoDto,
     user: Types.ObjectId,
     video: Express.Multer.File,
-    image: Express.Multer.File,
+    image?: Express.Multer.File,
   ): Promise<VideoTransferData> {
     try {
       const storage = await this.storageService.getOneBy({ user });
@@ -54,7 +54,7 @@ export class VideoService
         creationDate: Date.now(),
         openDate: Date.now(),
         image,
-        imageSize: image.size,
+        imageSize: image?.size,
         video,
         videoSize: video.size,
         user,
@@ -179,7 +179,8 @@ export class VideoService
   async copy(id: Types.ObjectId): Promise<VideoDocument & ItemsData> {
     try {
       const videoDoc = await this.findByIdAndCheck(id);
-      const { user, name, isTrash, description, imageSize, fileSize, parent } = videoDoc;
+      const { user, name, isTrash, description, imageSize, fileSize, parent, fileExt, type } =
+        videoDoc;
 
       let imageNewPath;
 
@@ -190,6 +191,7 @@ export class VideoService
       const videoNewPath = await this.filesService.copyFile(videoDoc.file, FileType.VIDEO);
 
       const newVideo = await this.videoModel.create({
+        type,
         user,
         name: `${name} copy`,
         description,
@@ -198,9 +200,11 @@ export class VideoService
         fileSize,
         isTrash,
         audio: imageNewPath,
-        video: videoNewPath,
-        creationDate: Date.now(),
+        file: videoNewPath,
+        fileExt,
         openDate: Date.now(),
+        createDate: Date.now(),
+        changeDate: Date.now(),
       });
 
       const itemsData: ItemsData = {
@@ -211,7 +215,6 @@ export class VideoService
 
       return Object.assign(newVideo, itemsData);
     } catch (e) {
-      console.log(e);
       throw e;
     }
   }

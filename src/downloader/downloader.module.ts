@@ -1,19 +1,16 @@
 import { Module } from '@nestjs/common';
+import { DownloaderService } from './downloader.service';
+import { DownloaderController } from './downloader.controller';
+import { TokensModule } from 'src/tokens/tokens.module';
 import { AlbumModule } from 'src/album/album.module';
 import { FileModule } from 'src/file/file.module';
 import { FolderModule } from 'src/folder/folder.module';
 import { ImageModule } from 'src/image/image.module';
-import { StorageModule } from 'src/storage/storage.module';
-import { TokensModule } from 'src/tokens/tokens.module';
 import { TrackModule } from 'src/track/track.module';
 import { VideoModule } from 'src/video/video.module';
-import { ItemsController } from './items.controller';
-import { ItemsService } from './items.service';
 
 @Module({
-  controllers: [ItemsController],
   imports: [
-    StorageModule,
     TokensModule,
     FolderModule,
     TrackModule,
@@ -22,7 +19,8 @@ import { ItemsService } from './items.service';
     ImageModule,
     VideoModule,
   ],
-  providers: [ItemsService],
-  exports: [ItemsService],
+  providers: [DownloaderService],
+  controllers: [DownloaderController],
+  exports: [],
 })
-export class ItemsModule {}
+export class DownloaderModule {}

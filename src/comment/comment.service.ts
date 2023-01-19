@@ -13,7 +13,7 @@ import {
 @Injectable()
 export class CommentService
   extends DefaultService<CommentDocument, IUpdateCommentOptions>
-  implements ICommentService<CommentDocument, IUpdateCommentOptions>
+  implements ICommentService
 {
   constructor(
     @InjectModel(Comment.name)
@@ -22,19 +22,19 @@ export class CommentService
     super(commentModel);
   }
 
-  // ! Реализовать комментрарии
-  someRandom: null;
-
   async create(options: ICreateCommentOptions): Promise<CommentDocument> {
     try {
       return await this.commentModel.create({
         ...options,
+        changeDate: Date.now(),
+        createDate: Date.now(),
       });
     } catch (e) {
       throw new HttpException('Ошибка при создании комментария', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
+  // ! Fix
   async delete(id: Types.ObjectId): Promise<CommentDocument & ItemsData> {
     try {
       const deletedComments: CommentDocument[] = [];

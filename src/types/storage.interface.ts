@@ -23,7 +23,7 @@ import { AddItemDto } from 'src/storage/dto/add-item.dto';
 export interface IStorageService<T> {
   changeDiskSpace(id: Types.ObjectId, bytes: number): Promise<T>;
   changeUsedSpace(id: Types.ObjectId, bytes: number): Promise<T>;
-  addItem(dto: AddItemDto): Promise<T>;
+  addItem(dto: AddItemDto, size: number): Promise<T>;
   // deleteItem(dto: DeleteItemDto, user: Types.ObjectId): Promise<StorageTransferData>;
   // searchItems(dto: SearchItemDto, user: Types.ObjectId): Promise<ItemTransferData[]>;
   // changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemTransferData>;

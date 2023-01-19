@@ -17,6 +17,10 @@ import { CommentModule } from './comment/comment.module';
 import { ImageModule } from './image/image.module';
 import { VideoModule } from './video/video.module';
 import { ItemsModule } from './items/items.module';
+import { DownloaderModule } from './downloader/downloader.module';
+import { UploaderModule } from './uploader/uploader.module';
+import { CommentatorModule } from './commentator/commentator.module';
+import { FinderModule } from './finder/finder.module';
 
 @Module({
   imports: [
@@ -38,6 +42,10 @@ import { ItemsModule } from './items/items.module';
     ImageModule,
     VideoModule,
     ItemsModule,
+    DownloaderModule,
+    UploaderModule,
+    CommentatorModule,
+    FinderModule,
   ],
   controllers: [AppController],
   providers: [],

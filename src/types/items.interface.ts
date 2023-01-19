@@ -1,24 +1,29 @@
 import { Types } from 'mongoose';
-import { AddListenDto } from 'src/storage/dto/add-listen.dto';
-import { ChangeAccessTypeDto } from 'src/storage/dto/change-access-type.dto';
-import { ChangeIsTrashDto } from 'src/storage/dto/change-is-trash.dto';
-import { ChangeLikeDto } from 'src/storage/dto/change-like.dto';
-import { ChangeOpenDateDto } from 'src/storage/dto/change-open-date.dto';
-import { CopyFileDto } from 'src/storage/dto/copy-file.dto';
-import { CreateAccessLinkDto } from 'src/storage/dto/create-access-link.dto';
-import { DeleteItemDto } from 'src/storage/dto/delete-item.dto';
+import { ChangeIsTrashDto } from 'src/items/dto/change-is-trash.dto';
+import { CopyItemDto } from 'src/items/dto/copy-item.dto';
+import { CreateAccessLinkDto } from 'src/items/dto/create-access-link.dto';
+import { DeleteItemDto } from 'src/items/dto/delete-item.dto';
 import { SearchItemDto } from 'src/storage/dto/search-item.dto';
-import { StorageTransferData } from 'src/transfer';
-import { ItemTransferData } from './core.interface';
+import { ChildrensTransferData, ItemTransferData } from './core.interface';
+import { ChangeParentDto } from 'src/items/dto/change-parent.dto';
+import { ChangeAccessTypeDto } from 'src/items/dto/change-access-type.dto';
+import { ChangeLikeDto } from 'src/items/dto/change-like.dto';
+import { AddListenDto } from 'src/items/dto/add-listen.dto';
+import { ChangeNameDto } from 'src/items/dto/change-name.dto';
 
 export interface IItemsService {
-  deleteItem(dto: DeleteItemDto, user: Types.ObjectId): Promise<StorageTransferData>;
+  deleteItem(dto: DeleteItemDto, user: Types.ObjectId): Promise<ItemTransferData[]>;
   searchItems(dto: SearchItemDto, user: Types.ObjectId): Promise<ItemTransferData[]>;
-  changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemTransferData>;
+  changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemTransferData[]>;
   changeAccessLink(dto: CreateAccessLinkDto): Promise<ItemTransferData>;
   changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemTransferData[]>;
-  changeLike(dto: ChangeOpenDateDto): Promise<ItemTransferData>;
+  changeLike(dto: ChangeLikeDto): Promise<ItemTransferData>;
   addListen(dto: AddListenDto): Promise<ItemTransferData>;
-  changeOpenDate(dto: ChangeLikeDto): Promise<ItemTransferData>;
-  copyFile(dto: CopyFileDto, user: Types.ObjectId): Promise<ItemTransferData[]>;
+  // changeOpenDate(dto: ChangeOpenDateDto): Promise<ItemTransferData>;
+  copyItem(dto: CopyItemDto, user: Types.ObjectId): Promise<ItemTransferData[]>;
+  changeName(dto: ChangeNameDto): Promise<ItemTransferData>;
+  changeParent(dto: ChangeParentDto): Promise<ItemTransferData[]>;
+  getChildrens(id: Types.ObjectId): Promise<ChildrensTransferData>;
 }
+
+export type DateFilds = 'openDate' | 'changeDate' | 'createDate';

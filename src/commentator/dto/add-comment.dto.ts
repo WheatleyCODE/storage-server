@@ -9,14 +9,14 @@ export class AddCommentDto {
     description: 'ID Элемента хранилища | StorageItems',
   })
   @IsString({ message: 'Должно быть строкой' })
-  readonly item: Types.ObjectId;
+  readonly id: Types.ObjectId;
 
   @ApiProperty({
     example: 'FOLDER',
     description: 'Тип Элемента хранилища | ItemTypes',
   })
   @IsString({ message: 'Должно быть строкой' })
-  readonly itemType: ItemTypes;
+  readonly type: ItemTypes;
 
   @ApiProperty({
     example: 'Заголовок',
@@ -31,13 +31,6 @@ export class AddCommentDto {
   })
   @IsString({ message: 'Должно быть строкой' })
   readonly text: string;
-
-  @ApiProperty({
-    example: '507f191e810c19729de860ea',
-    description: 'ID Пользователя',
-  })
-  @IsString({ message: 'Должно быть строкой' })
-  readonly user: Types.ObjectId;
 
   @ApiProperty({
     example: '507f191e810c19729de860ea',

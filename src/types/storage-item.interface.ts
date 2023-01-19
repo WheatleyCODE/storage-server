@@ -2,8 +2,6 @@ import { Types } from 'mongoose';
 import { AccessTypes } from 'src/types';
 
 export interface IStorageItem<T> {
-  readonly ITEM_WIEGTH: number;
-
   changeAccessType(id: Types.ObjectId, type: AccessTypes): Promise<T>;
   changeAccessLink(id: Types.ObjectId): Promise<T>;
   changeOpenDate(id: Types.ObjectId): Promise<T>;
@@ -14,4 +12,6 @@ export interface IStorageItem<T> {
   changeLike(id: Types.ObjectId, user: Types.ObjectId, isLike: boolean): Promise<T>;
   addListen(id: Types.ObjectId): Promise<T>;
   changeStar(id: Types.ObjectId, isStar: boolean, user?: Types.ObjectId): Promise<T>;
+  getAllPublic(count: number, offset: number): Promise<T[]>;
+  searchPublic(text: string, count: number, offset: number): Promise<T[]>;
 }

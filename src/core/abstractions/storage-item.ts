@@ -3,13 +3,12 @@ import * as uuid from 'uuid';
 import { ReadStream } from 'fs';
 import { DefaultService } from './default-service';
 import { AccessTypes, ItemsData, IStorageItem } from 'src/types';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 export abstract class StorageItem<T, O> extends DefaultService<T, O> implements IStorageItem<T> {
   constructor(model: Model<any>) {
     super(model);
   }
-
-  readonly ITEM_WIEGTH = 8;
 
   abstract deleteByIds(ids: Types.ObjectId[]): Promise<T[]>;
   abstract download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }>;
@@ -96,16 +95,22 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
     try {
       const item: any = await this.findByIdAndCheck(id);
 
+      if (item.likedUsers.includes(user) && isLike) {
+        return item;
+      }
+
       if (isLike) {
         item.likeCount++;
         item.likedUsers.push(user);
         return await item.save();
       }
 
-      item.likeCount--;
-      item.likedUsers = item.likedUsers.filter(
-        (likedUser) => likedUser.toString() !== user.toString(),
-      );
+      if (!isLike && item.likeCount > 0) {
+        item.likeCount--;
+        item.likedUsers = item.likedUsers.filter(
+          (likedUser) => likedUser.toString() !== user.toString(),
+        );
+      }
       return await item.save();
     } catch (e) {
       throw e;
@@ -135,6 +140,31 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
       return await item.save();
     } catch (e) {
       throw e;
+    }
+  }
+
+  async searchPublic(text: string, count = 10, offset = 0): Promise<T[]> {
+    try {
+      const tracks = await this.model
+        .find({ name: { $regex: new RegExp(text, 'i') }, accessType: AccessTypes.PUBLIC })
+        .skip(offset)
+        .limit(count);
+      return tracks;
+    } catch (e) {
+      throw new HttpException('Ошибка при поиске треков', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getAllPublic(count = 10, offset = 0): Promise<T[]> {
+    try {
+      const tracks = await this.model
+        .find({ accessType: AccessTypes.PUBLIC })
+        .skip(offset)
+        .limit(count);
+
+      return tracks;
+    } catch (e) {
+      throw new HttpException('Ошибка при поиске треков', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
