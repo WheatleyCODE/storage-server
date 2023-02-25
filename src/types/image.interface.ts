@@ -4,7 +4,6 @@ import { ImageTransferData } from 'src/transfer/image.transfer-data';
 import { AccessTypes, DeepPartial, ItemTypes } from './core.interface';
 
 export interface IImageService<T> {
-  changeFile(id: Types.ObjectId, file: Express.Multer.File): Promise<T>;
   createImage(
     dto: CreateImageDto,
     user: Types.ObjectId,

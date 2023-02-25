@@ -6,8 +6,6 @@ import { FolderTransferData } from './folder.transfer-data';
 import { ImageTransferData } from './image.transfer-data';
 import { TrackTransferData } from './track.transfer-data';
 import { VideoTransferData } from './video.transfer-data';
-
-// ! rename
 export abstract class ItemTDataFactory {
   static list = {
     [ItemTypes.FOLDER]: FolderTransferData,

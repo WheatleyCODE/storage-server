@@ -45,7 +45,7 @@ export class FolderService
       });
       const FOLDER_SIZE = 0;
 
-      const storage = await this.storageService.getOneBy({ user });
+      const storage = await this.storageService.getOneByAndCheck({ user });
 
       await this.storageService.addItem(
         {
@@ -71,7 +71,6 @@ export class FolderService
         createDate: Date.now(),
       });
     } catch (e) {
-      console.log(e);
       throw new HttpException('Ошибка при создании папки', HttpStatus.BAD_REQUEST);
     }
   }
@@ -131,12 +130,12 @@ export class FolderService
       await reqDel(firstChildrens);
 
       await this.deleteByIds(deletedFolders.map((folder) => folder._id));
+      const FOLDER_SIZE = 0;
 
-      // ! fix zero
       const itemsData: ItemsData = {
         count: deletedFolders.length,
         items: deletedFolders,
-        size: 0,
+        size: FOLDER_SIZE,
       };
 
       return Object.assign(firstFolder, itemsData);

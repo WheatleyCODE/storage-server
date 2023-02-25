@@ -56,7 +56,7 @@ export class UserService
       const user = await this.userModel.findByIdAndDelete(id);
 
       if (user) {
-        const { _id } = await this.storageService.getOneBy({ user: id });
+        const { _id } = await this.storageService.getOneByAndCheck({ user: id });
         await this.storageService.delete(_id);
       }
 

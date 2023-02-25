@@ -41,11 +41,7 @@ export class VideoService
     image?: Express.Multer.File,
   ): Promise<VideoTransferData> {
     try {
-      const storage = await this.storageService.getOneBy({ user });
-
-      if (!storage) {
-        throw new HttpException('Хранилище не надено', HttpStatus.BAD_REQUEST);
-      }
+      const storage = await this.storageService.getOneByAndCheck({ user });
 
       const corDto = dtoToOjbectId(dto, ['parent']);
 
@@ -60,7 +56,6 @@ export class VideoService
         user,
       });
 
-      // ! Чек есть ли?
       let size = video.size;
       if (image?.size) size += image.size;
 
@@ -139,7 +134,7 @@ export class VideoService
 
       await this.storageService.changeUsedSpace(user, videoDoc.fileSize, video.size);
 
-      const newPathAudio = await this.filesService.changeFile(FileType.AUDIO, video, videoDoc.file);
+      const newPathAudio = await this.filesService.changeFile(FileType.VIDEO, video, videoDoc.file);
       videoDoc.file = newPathAudio;
       videoDoc.fileSize = video.size;
 

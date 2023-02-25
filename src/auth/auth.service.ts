@@ -46,7 +46,7 @@ export class AuthService implements IAuthService {
     httpStatus: HttpStatus,
     text: string,
   ): Promise<UserDocument> {
-    const user = await this.userService.getOneBy({ ...options });
+    const user = await this.userService.getOneByAndCheck({ ...options });
 
     if (!user) throw new HttpException(text, httpStatus);
     return user;
@@ -123,7 +123,7 @@ export class AuthService implements IAuthService {
       }
 
       const userTData = this.tokensService.validateRefreshToken(refreshToken);
-      const tokensDoc = await this.tokensService.getOneBy({ refreshToken });
+      const tokensDoc = await this.tokensService.getOneByAndCheck({ refreshToken });
 
       if (!userTData || !tokensDoc) {
         throw new HttpException(
@@ -132,9 +132,7 @@ export class AuthService implements IAuthService {
         );
       }
 
-      const user = await this.userService.getOneById(tokensDoc.user);
-
-      if (!user) throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+      const user = await this.userService.getOneByIdAndCheck(tokensDoc.user);
 
       return await this.getTokensAndAuthData(user);
     } catch (e) {

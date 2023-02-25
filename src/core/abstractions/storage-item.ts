@@ -1,8 +1,8 @@
-import { Model, Types } from 'mongoose';
+import { isValidObjectId, Model, Types } from 'mongoose';
 import * as uuid from 'uuid';
 import { ReadStream } from 'fs';
 import { DefaultService } from './default-service';
-import { AccessTypes, ItemsData, IStorageItem } from 'src/types';
+import { AccessTypes, ItemsData, IStorageItem, DateFilds } from 'src/types';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export abstract class StorageItem<T, O> extends DefaultService<T, O> implements IStorageItem<T> {
@@ -128,6 +128,7 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
   }
 
   // ! Локально расширить user?: Types.ObjectId
+  // ! Придумать как реализовать звезды
   async changeStar(id: Types.ObjectId, isStar: boolean, user?: Types.ObjectId): Promise<T> {
     try {
       const item: any = await this.findByIdAndCheck(id);
@@ -151,7 +152,7 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
         .limit(count);
       return tracks;
     } catch (e) {
-      throw new HttpException('Ошибка при поиске треков', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Ошибка при поиске', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -163,6 +164,18 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
         .limit(count);
 
       return tracks;
+    } catch (e) {
+      throw new HttpException('Ошибка при поиске всех публичных', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  // ! fix
+  async changeDate(item: any, filds: DateFilds[]): Promise<T> {
+    try {
+      if (typeof item === 'object' && !isValidObjectId(item)) {
+        filds.forEach((fild) => (item[fild] = Date.now()));
+        return await item.save();
+      }
     } catch (e) {
       throw new HttpException('Ошибка при поиске треков', HttpStatus.INTERNAL_SERVER_ERROR);
     }

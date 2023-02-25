@@ -39,11 +39,7 @@ export class FileService
     file: Express.Multer.File,
   ): Promise<FileTransferData> {
     try {
-      const storage = await this.storageService.getOneBy({ user });
-
-      if (!storage) {
-        throw new HttpException('Хранилище не надено', HttpStatus.BAD_REQUEST);
-      }
+      const storage = await this.storageService.getOneByAndCheck({ user });
 
       const correctDto = dtoToOjbectId(dto, ['parent']);
 

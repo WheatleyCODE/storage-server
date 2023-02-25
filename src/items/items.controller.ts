@@ -1,7 +1,7 @@
-import { Body, Controller, Post, Req, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards, UsePipes } from '@nestjs/common';
 import { ValidationPipe } from 'src/pipes';
 import { stringToOjbectId } from 'src/utils';
-import { ItemTransferData, UserReq } from 'src/types';
+import { ChildrensTransferData, ItemTransferData, UserReq } from 'src/types';
 import { JwtAuthGuard } from 'src/guards';
 import { ItemsService } from './items.service';
 import { CopyItemDto } from 'src/items/dto/copy-item.dto';
@@ -83,18 +83,10 @@ export class ItemsController {
     return this.itemsService.changeParent(dto);
   }
 
-  // @Post('/search/items')
-  // @UseGuards(JwtAuthGuard)
-  // @UsePipes(ValidationPipe)
-  // searchItems(@Body() dto: SearchItemDto, @Req() req: UserReq): Promise<ItemTransferData[]> {
-  //   const correctId = stringToOjbectId(req.userTD.id);
-  //   return this.storageService.searchItems(dto, correctId);
-  // }
-
-  // @Get('/childrens/:id')
-  // @UseGuards(JwtAuthGuard)
-  // getChildrens(@Param() param): Promise<ChildrensTransferData> {
-  //   const correctId = stringToOjbectId(param.id);
-  //   return this.storageService.getChildrens(correctId);
-  // }
+  @Get('/childrens/:id')
+  @UseGuards(JwtAuthGuard)
+  getChildrens(@Param() param): Promise<ChildrensTransferData> {
+    const correctId = stringToOjbectId(param.id);
+    return this.itemsService.getChildrens(correctId);
+  }
 }

@@ -19,6 +19,7 @@ import { CreateTrackDto } from './dto/create-track-dto';
 import { dtoToOjbectId } from 'src/utils';
 import { StorageService } from 'src/storage/storage.service';
 import { ChangeFileDto } from 'src/album/dto/change-file.dto';
+import { ChangeTrackDataDto } from './dto/change-track-data.dto';
 
 @Injectable()
 export class TrackService
@@ -41,11 +42,7 @@ export class TrackService
     image?: Express.Multer.File,
   ): Promise<TrackTransferData> {
     try {
-      const storage = await this.storageService.getOneBy({ user });
-
-      if (!storage) {
-        throw new HttpException('Хранилище не надено', HttpStatus.BAD_REQUEST);
-      }
+      const storage = await this.storageService.getOneByAndCheck({ user });
 
       const corDto = dtoToOjbectId(dto, ['album', 'parent']);
 
@@ -172,6 +169,16 @@ export class TrackService
 
       await trackDoc.save();
 
+      return new TrackTransferData(trackDoc);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeData(dto: ChangeTrackDataDto): Promise<TrackTransferData> {
+    try {
+      const { id, name, author, text } = dtoToOjbectId(dto, ['id']);
+      const trackDoc = await this.update(id, { name, author, text });
       return new TrackTransferData(trackDoc);
     } catch (e) {
       throw e;

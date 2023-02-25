@@ -61,16 +61,16 @@ export class VideoController {
     return this.videoService.changeImage(dto, id, files?.image && files.image[0]);
   }
 
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'audio', maxCount: 1 }]))
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'video', maxCount: 1 }]))
   @Post('/change/file')
   @UsePipes(ValidationPipe)
   @UseGuards(JwtAuthGuard)
   changeFile(
-    @UploadedFiles() files: { audio?: Express.Multer.File[] },
+    @UploadedFiles() files: { video?: Express.Multer.File[] },
     @Body() dto: ChangeFileDto,
     @Req() req: UserReq,
   ): Promise<VideoTransferData> {
     const id = stringToOjbectId(req.userTD.id);
-    return this.videoService.changeFile(dto, id, files?.audio && files.audio[0]);
+    return this.videoService.changeFile(dto, id, files?.video && files.video[0]);
   }
 }

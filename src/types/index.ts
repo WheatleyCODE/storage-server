@@ -15,3 +15,5 @@ export * from './storage-item.interface';
 export * from './files.interface';
 export * from './items.interface';
 export * from './finder.interface';
+export * from './uploader.interface';
+export * from './downloader.interface';

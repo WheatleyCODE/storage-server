@@ -17,6 +17,7 @@ import { CreateTrackDto } from './dto/create-track-dto';
 import { UserReq } from 'src/types';
 import { stringToOjbectId } from 'src/utils';
 import { ChangeFileDto } from 'src/album/dto/change-file.dto';
+import { ChangeTrackDataDto } from './dto/change-track-data.dto';
 
 @Controller('/api/track')
 export class TrackController {
@@ -70,5 +71,12 @@ export class TrackController {
   ): Promise<TrackTransferData> {
     const id = stringToOjbectId(req.userTD.id);
     return this.trackService.changeFile(dto, id, files?.audio && files.audio[0]);
+  }
+
+  @Post('/change/data')
+  @UsePipes(ValidationPipe)
+  @UseGuards(JwtAuthGuard)
+  changeData(@Body() dto: ChangeTrackDataDto): Promise<TrackTransferData> {
+    return this.trackService.changeData(dto);
   }
 }

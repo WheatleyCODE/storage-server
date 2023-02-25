@@ -32,11 +32,6 @@ export class ImageService
     super(imageModel, commentService);
   }
 
-  // ! Временно
-  changeFile(id: Types.ObjectId, file: Express.Multer.File): Promise<ImageDocument> {
-    throw new Error('Method not implemented.');
-  }
-
   async create(options: ICreateImageOptions): Promise<ImageDocument> {
     try {
       const pathFile = await this.filesService.createFile(FileType.IMAGE, options.image);
@@ -62,11 +57,7 @@ export class ImageService
     file: Express.Multer.File,
   ): Promise<ImageTransferData> {
     try {
-      const storage = await this.storageService.getOneBy({ user });
-
-      if (!storage) {
-        throw new HttpException('Хранилище не надено', HttpStatus.BAD_REQUEST);
-      }
+      const storage = await this.storageService.getOneByAndCheck({ user });
 
       const corDto = dtoToOjbectId(dto, ['parent']);
 

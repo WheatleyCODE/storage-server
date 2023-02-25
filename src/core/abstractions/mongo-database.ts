@@ -45,7 +45,7 @@ export abstract class MongoDatabase<T, O> extends IDatabase<T, O> {
 
   async update(id: Types.ObjectId, options: { [key in keyof O]: O[key] }): Promise<T> {
     try {
-      return await this.model.findByIdAndUpdate(id, options);
+      return await this.model.findByIdAndUpdate(id, options, { new: true });
     } catch (e) {
       throw new HttpException(
         `Ошибка при обновлении, ${this.model.modelName}`,

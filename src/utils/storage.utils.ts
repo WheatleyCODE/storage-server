@@ -1,14 +1,10 @@
-import { ItemFileTypes, StorageCollectionNames, ItemTypes } from 'src/types';
+import { StorageCollectionNames, ItemTypes } from 'src/types';
 
-// ?
-export const getStorageCollectionName = (
-  type: ItemTypes | ItemFileTypes,
-): StorageCollectionNames => {
+export const getStorageCollectionName = (type: ItemTypes): StorageCollectionNames => {
   const name = `${type.toLocaleLowerCase()}s` as StorageCollectionNames;
   return name;
 };
 
-// ? useless
 export const getStorageName = (userName: string): string => {
   return `Хранилище пользователя ${userName}`;
 };

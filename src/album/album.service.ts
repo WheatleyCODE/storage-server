@@ -39,31 +39,37 @@ export class AlbumService
   }
 
   async changeTracks(dto: ChangeTracksDto, user: Types.ObjectId): Promise<AlbumTransferData> {
+    // try {
+    //   if (isDelete) {
+    //     const delTracks = tracks.map((ids) => ids.toString());
+    //     albumDoc.tracks = albumDoc.tracks.filter((itm) => !delTracks.includes(itm.toString()));
+    //     await albumDoc.save();
+    //     return new AlbumTransferData(albumDoc);
+    //   }
+
+    //   albumDoc.tracks = [...albumDoc.tracks, ...tracks];
+    //   await albumDoc.save();
+
+    //   return new AlbumTransferData(albumDoc);
+    // } catch (e) {
+    //   throw e;
+    // }
+
     try {
-      const { album, tracks, isDelete } = dtoToOjbectId(dto, ['album', 'tracks']);
-      const albumDoc = await this.findByIdAndCheck(album);
+      const { id, tracks } = dtoToOjbectId(dto, ['id', 'tracks']);
+      let albumDoc = await this.findByIdAndCheck(id);
+      albumDoc = await albumDoc.populate('tracks');
+      const trackDocs: TrackDocument[] = [];
 
       for await (const track of tracks) {
-        const trackDoc = await this.trackService.getOneById(track);
-
-        if (!trackDoc)
-          throw new HttpException('Ошибка при изменении треков в альбоме', HttpStatus.BAD_REQUEST);
-
-        trackDoc.album = isDelete ? undefined : albumDoc._id;
-        await trackDoc.save();
+        const trackDoc = await this.trackService.getOneByIdAndCheck(track);
+        trackDocs.push(trackDoc);
       }
 
-      if (isDelete) {
-        const delTracks = tracks.map((ids) => ids.toString());
-        albumDoc.tracks = albumDoc.tracks.filter((itm) => !delTracks.includes(itm.toString()));
-        await albumDoc.save();
-        return new AlbumTransferData(albumDoc);
+      for await (const doc of trackDocs) {
+        doc.album = albumDoc._id;
+        await doc.save();
       }
-
-      albumDoc.tracks = [...albumDoc.tracks, ...tracks];
-      await albumDoc.save();
-
-      return new AlbumTransferData(albumDoc);
     } catch (e) {
       throw e;
     }
@@ -98,11 +104,7 @@ export class AlbumService
     image: Express.Multer.File,
   ): Promise<AlbumTransferData> {
     try {
-      const storage = await this.storageService.getOneBy({ user });
-
-      if (!storage) {
-        throw new HttpException('Хранилище не надено', HttpStatus.BAD_REQUEST);
-      }
+      const storage = await this.storageService.getOneByAndCheck({ user });
 
       const correctDto = dtoToOjbectId(dto, ['parent']);
 

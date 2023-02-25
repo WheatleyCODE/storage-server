@@ -3,7 +3,6 @@ import { ChangeIsTrashDto } from 'src/items/dto/change-is-trash.dto';
 import { CopyItemDto } from 'src/items/dto/copy-item.dto';
 import { CreateAccessLinkDto } from 'src/items/dto/create-access-link.dto';
 import { DeleteItemDto } from 'src/items/dto/delete-item.dto';
-import { SearchItemDto } from 'src/storage/dto/search-item.dto';
 import { ChildrensTransferData, ItemTransferData } from './core.interface';
 import { ChangeParentDto } from 'src/items/dto/change-parent.dto';
 import { ChangeAccessTypeDto } from 'src/items/dto/change-access-type.dto';
@@ -13,13 +12,11 @@ import { ChangeNameDto } from 'src/items/dto/change-name.dto';
 
 export interface IItemsService {
   deleteItem(dto: DeleteItemDto, user: Types.ObjectId): Promise<ItemTransferData[]>;
-  searchItems(dto: SearchItemDto, user: Types.ObjectId): Promise<ItemTransferData[]>;
   changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemTransferData[]>;
   changeAccessLink(dto: CreateAccessLinkDto): Promise<ItemTransferData>;
   changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemTransferData[]>;
   changeLike(dto: ChangeLikeDto): Promise<ItemTransferData>;
   addListen(dto: AddListenDto): Promise<ItemTransferData>;
-  // changeOpenDate(dto: ChangeOpenDateDto): Promise<ItemTransferData>;
   copyItem(dto: CopyItemDto, user: Types.ObjectId): Promise<ItemTransferData[]>;
   changeName(dto: ChangeNameDto): Promise<ItemTransferData>;
   changeParent(dto: ChangeParentDto): Promise<ItemTransferData[]>;

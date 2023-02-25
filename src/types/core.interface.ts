@@ -36,8 +36,12 @@ export abstract class IDatabase<T, O> {
 }
 
 export interface IDefaultService<T, O> {
-  getOneById: (id: Types.ObjectId) => Promise<T>;
-  getOneBy: (options: { [key in keyof O]: O[key] }) => Promise<T>;
+  getOneBy(options: { [key in keyof O]: O[key] }): Promise<T>;
+  getOneById(options: { [key in keyof O]: O[key] }): Promise<T>;
+  getOneByIdAndCheck: (id: Types.ObjectId) => Promise<T>;
+  getOneByAndCheck: (options: { [key in keyof O]: O[key] }) => Promise<T>;
+  getAllBy(options: { [key in keyof O]: O[key] }): Promise<T[]>;
+  getAllByIds(ids: Types.ObjectId[]): Promise<T[]>;
 }
 
 export interface UserReq extends Request {
@@ -71,6 +75,8 @@ export type ObjectServices = {
   [ItemTypes.IMAGE]: ImageService;
   [ItemTypes.VIDEO]: VideoService;
 };
+
+export type ObjectServicesKeys = keyof ObjectServices;
 
 export type StorageCollectionNames = 'folders' | 'tracks' | 'files' | 'albums' | 'videos';
 

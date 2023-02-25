@@ -102,7 +102,6 @@ export class StorageService
       const strg = await this.findByIdAndCheck(storage);
       const collection = getStorageCollectionName(itemType);
       strg[collection].push(item);
-      // strg.usedSpace += size || this.objectServices[itemType].ITEM_WIEGTH;
       strg.usedSpace += size;
 
       return strg.save();
@@ -111,39 +110,16 @@ export class StorageService
     }
   }
 
-  // ! think в items service
-  // async searchItems(dto: SearchItemDto, user: Types.ObjectId): Promise<ItemTransferData[]> {
-  //   try {
-  //     const { text } = dto;
-  //     let allItems: ItemDocument[] = [];
-
-  //     const strg = await this.findOneByAndCheck({ user });
-  //     const populatedStrg = await this.populateCollections(strg);
-
-  //     StorageItemTypes.forEach((itemType) => {
-  //       const collectionName = getStorageCollectionName(itemType);
-  //       allItems = [...allItems, ...populatedStrg[collectionName]];
-  //     });
-
-  //     const itemDocs = allItems.filter((item) =>
-  //       item.name.toLowerCase().includes(text.toLowerCase()),
-  //     );
-
-  //     return itemDocs.map((item) => ItemTDataFactory.create(item));
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
   // ! think
-  async getOneBy(options: IUpdateStorageOptions): Promise<StorageDocument> {
+  async getOneByAndPopulate(options: IUpdateStorageOptions): Promise<StorageDocument> {
     try {
       const storage = await this.findOneByAndCheck(options);
       await storage.populate('folders');
       await storage.populate('files');
       await storage.populate('tracks');
       await storage.populate('videos');
-      return await storage.populate('iamges');
+      await storage.populate('images');
+      return storage;
     } catch (e) {
       throw e;
     }

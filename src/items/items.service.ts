@@ -8,7 +8,6 @@ import { ChangeIsTrashDto } from 'src/items/dto/change-is-trash.dto';
 import { CopyItemDto } from 'src/items/dto/copy-item.dto';
 import { CreateAccessLinkDto } from 'src/items/dto/create-access-link.dto';
 import { DeleteItemDto } from 'src/items/dto/delete-item.dto';
-import { SearchItemDto } from 'src/storage/dto/search-item.dto';
 import { StorageService } from 'src/storage/storage.service';
 import { TrackService } from 'src/track/track.service';
 import { FolderTransferData, ItemTDataFactory } from 'src/transfer';
@@ -54,6 +53,7 @@ export class ItemsService implements IItemsService {
     };
   }
 
+  // ! Fix
   async deleteItem(dto: DeleteItemDto, user: Types.ObjectId): Promise<ItemTransferData[]> {
     try {
       const itemsDto = dto.items.map((item) => dtoToOjbectId(item, ['id']));
@@ -61,11 +61,7 @@ export class ItemsService implements IItemsService {
       let deleteItems: ItemDocument[] = [];
       let sumSize = 0;
 
-      const strg = await this.storageService.getOneBy({ user });
-
-      if (!strg) {
-        throw new HttpException('Хранилище не найдено', HttpStatus.BAD_REQUEST);
-      }
+      const strg = await this.storageService.getOneByAndCheck({ user });
 
       // const prevFolderCount = strg.folders.length;
 
@@ -97,10 +93,6 @@ export class ItemsService implements IItemsService {
     } catch (e) {
       throw e;
     }
-  }
-
-  searchItems(dto: SearchItemDto, user: Types.ObjectId): Promise<ItemTransferData[]> {
-    throw new Error('Method not implemented.');
   }
 
   async changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemTransferData[]> {
@@ -169,7 +161,7 @@ export class ItemsService implements IItemsService {
   async changeLike(dto: ChangeLikeDto): Promise<ItemTransferData> {
     try {
       const { id, user, type, isLike } = dtoToOjbectId(dto, ['id', 'user']);
-      const doc = await this.objectServices[type].getOneById(id);
+      const doc = await this.objectServices[type].getOneByIdAndCheck(id);
 
       if (!doc) {
         throw new HttpException('Элемент не найден', HttpStatus.BAD_REQUEST);
@@ -247,11 +239,7 @@ export class ItemsService implements IItemsService {
   async copyItem(dto: CopyItemDto, user: Types.ObjectId): Promise<ItemTransferData[]> {
     try {
       const items = dto.items.map((item) => dtoToOjbectId(item, ['id']));
-      const strg = await this.storageService.getOneBy({ user });
-
-      if (!strg) {
-        throw new HttpException('Хранилище не найдено', HttpStatus.BAD_REQUEST);
-      }
+      const strg = await this.storageService.getOneByAndCheck({ user });
 
       const newItems: ItemDocument[] = [];
 

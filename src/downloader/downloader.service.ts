@@ -4,12 +4,12 @@ import { FileService } from 'src/file/file.service';
 import { FolderService } from 'src/folder/folder.service';
 import { ImageService } from 'src/image/image.service';
 import { TrackService } from 'src/track/track.service';
-import { ItemDto, ItemTypes, ObjectServices } from 'src/types';
+import { IDownloaderService, ItemDto, ItemTypes, ObjectServices } from 'src/types';
 import { dtoToOjbectId } from 'src/utils';
 import { VideoService } from 'src/video/video.service';
 
 @Injectable()
-export class DownloaderService {
+export class DownloaderService implements IDownloaderService {
   private readonly objectServices: ObjectServices;
 
   constructor(

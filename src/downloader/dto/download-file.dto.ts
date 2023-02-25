@@ -1,7 +1,7 @@
 import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Types } from 'mongoose';
-import { ItemFileTypes } from 'src/types';
+import { ItemTypes } from 'src/types';
 
 export class DownloadFileDto {
   @ApiProperty({
@@ -13,8 +13,8 @@ export class DownloadFileDto {
 
   @ApiProperty({
     example: 'FOLDER',
-    description: 'Тип Элемента хранилища | ItemFileTypes',
+    description: 'Тип Элемента хранилища | ItemTypes',
   })
   @IsString({ message: 'Должно быть строкой' })
-  readonly type: ItemFileTypes;
+  readonly type: ItemTypes;
 }

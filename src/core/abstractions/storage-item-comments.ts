@@ -28,11 +28,7 @@ export abstract class StorageItemComments<T, O>
 
   async deleteComment(id: Types.ObjectId, comment: Types.ObjectId): Promise<CommentDocument> {
     try {
-      const commentDoc = await this.commentService.getOneById(comment);
-
-      if (!commentDoc) {
-        throw new HttpException('Коментарий не найден', HttpStatus.BAD_REQUEST);
-      }
+      const commentDoc = await this.commentService.getOneByIdAndCheck(comment);
 
       const itemDoc: any = await this.findByIdAndCheck(id);
       const delComment = await this.commentService.delete(comment);

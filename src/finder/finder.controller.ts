@@ -10,8 +10,11 @@ import {
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/guards';
 import { ValidationPipe } from 'src/pipes';
-import { ItemTransferData } from 'src/types';
+import { ItemTransferData, UserReq } from 'src/types';
+import { stringToOjbectId } from 'src/utils';
+import { SearchItemDto } from './dto/search-item.dto';
 import { SearchItemsDto } from './dto/search-items.dto';
 import { FinderService } from './finder.service';
 
@@ -35,5 +38,13 @@ export class FinderController {
     @Body() dto: SearchItemsDto,
   ): Promise<ItemTransferData[]> {
     return this.finderService.searchPublicItems(dto.text, count, offset);
+  }
+
+  @Post('/storage/items')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  searchStorageItems(@Body() dto: SearchItemDto, @Req() req: UserReq): Promise<ItemTransferData[]> {
+    const id = stringToOjbectId(req.userTD.id);
+    return this.finderService.searchStorageItems(dto, id);
   }
 }
