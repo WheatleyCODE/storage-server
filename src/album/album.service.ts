@@ -38,23 +38,8 @@ export class AlbumService
     super(albumModel, commentService);
   }
 
+  // ! Fix
   async changeTracks(dto: ChangeTracksDto, user: Types.ObjectId): Promise<AlbumTransferData> {
-    // try {
-    //   if (isDelete) {
-    //     const delTracks = tracks.map((ids) => ids.toString());
-    //     albumDoc.tracks = albumDoc.tracks.filter((itm) => !delTracks.includes(itm.toString()));
-    //     await albumDoc.save();
-    //     return new AlbumTransferData(albumDoc);
-    //   }
-
-    //   albumDoc.tracks = [...albumDoc.tracks, ...tracks];
-    //   await albumDoc.save();
-
-    //   return new AlbumTransferData(albumDoc);
-    // } catch (e) {
-    //   throw e;
-    // }
-
     try {
       const { id, tracks } = dtoToOjbectId(dto, ['id', 'tracks']);
       let albumDoc = await this.findByIdAndCheck(id);
@@ -70,6 +55,8 @@ export class AlbumService
         doc.album = albumDoc._id;
         await doc.save();
       }
+
+      return new AlbumTransferData(albumDoc);
     } catch (e) {
       throw e;
     }

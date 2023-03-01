@@ -6,6 +6,12 @@ import { TokensModule } from 'src/tokens/tokens.module';
 import { Folder, FolderSchema } from './schemas/folder.schema';
 import { CommentModule } from 'src/comment/comment.module';
 import { StorageModule } from 'src/storage/storage.module';
+import { TrackModule } from 'src/track/track.module';
+import { FileModule } from 'src/file/file.module';
+import { AlbumModule } from 'src/album/album.module';
+import { ImageModule } from 'src/image/image.module';
+import { VideoModule } from 'src/video/video.module';
+import { FilesModule } from 'src/files/files.module';
 
 @Module({
   imports: [
@@ -13,6 +19,12 @@ import { StorageModule } from 'src/storage/storage.module';
     TokensModule,
     MongooseModule.forFeature([{ name: Folder.name, schema: FolderSchema }]),
     CommentModule,
+    TrackModule,
+    FileModule,
+    AlbumModule,
+    ImageModule,
+    VideoModule,
+    FilesModule,
   ],
   providers: [FolderService],
   controllers: [FolderController],

@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Query,
-  Req,
-  UploadedFiles,
-  UseGuards,
-  UseInterceptors,
-  UsePipes,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseGuards, UsePipes } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards';
 import { ValidationPipe } from 'src/pipes';
 import { ItemTransferData, UserReq } from 'src/types';
@@ -40,7 +29,7 @@ export class FinderController {
     return this.finderService.searchPublicItems(dto.text, count, offset);
   }
 
-  @Post('/storage/items')
+  @Get('/storage/items')
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   searchStorageItems(@Body() dto: SearchItemDto, @Req() req: UserReq): Promise<ItemTransferData[]> {

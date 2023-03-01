@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Document, Model, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ReadStream } from 'fs';
 import { StorageItemComments } from 'src/core';
 import { CommentService } from 'src/comment/comment.service';
@@ -12,25 +12,50 @@ import {
   ICreateFolderOptions,
   IUpdateFolderOptions,
   ItemTypes,
+  ItemDocument,
+  ObjectServices,
 } from 'src/types';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { FolderTransferData } from 'src/transfer';
 import { dtoToOjbectId } from 'src/utils';
 import { StorageService } from 'src/storage/storage.service';
 import { ChangeColorDto } from 'src/folder/dto/change-color.dto';
+import { TrackService } from 'src/track/track.service';
+import { FileService } from 'src/file/file.service';
+import { AlbumService } from 'src/album/album.service';
+import { ImageService } from 'src/image/image.service';
+import { VideoService } from 'src/video/video.service';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class FolderService
   extends StorageItemComments<FolderDocument, IUpdateFolderOptions>
   implements IFolderService<FolderDocument>
 {
+  private readonly objectServices: ObjectServices;
+
   constructor(
     @InjectModel(Folder.name)
     private readonly folderModel: Model<FolderDocument>,
     commentService: CommentService,
+    readonly trackService: TrackService,
+    readonly fileService: FileService,
+    readonly albumService: AlbumService,
+    readonly imageService: ImageService,
+    readonly videoService: VideoService,
+    readonly filesService: FilesService,
     private readonly storageService: StorageService,
   ) {
     super(folderModel, commentService);
+
+    this.objectServices = {
+      [ItemTypes.FOLDER]: this,
+      [ItemTypes.TRACK]: trackService,
+      [ItemTypes.FILE]: fileService,
+      [ItemTypes.ALBUM]: albumService,
+      [ItemTypes.IMAGE]: imageService,
+      [ItemTypes.VIDEO]: videoService,
+    };
   }
 
   async createFolder(dto: CreateFolderDto, user: Types.ObjectId): Promise<FolderTransferData> {
@@ -93,16 +118,67 @@ export class FolderService
     }
   }
 
-  // ! Временно
-  download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
+  private async getAllItemsByFolderId(id: Types.ObjectId): Promise<ItemDocument[]> {
+    const tracks = await this.trackService.getAllBy({ parent: id });
+    const files = await this.fileService.getAllBy({ parent: id });
+    const albums = await this.albumService.getAllBy({ parent: id });
+    const images = await this.imageService.getAllBy({ parent: id });
+    const videos = await this.videoService.getAllBy({ parent: id });
+
+    return [...tracks, ...files, ...albums, ...images, ...videos];
+  }
+
+  // ! Трабл
+  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
     throw new Error('Method not implemented.');
   }
 
-  copy(id: Types.ObjectId): Promise<Folder & Document<any, any, any> & ItemsData> {
-    throw new Error('Method not implemented.');
+  async copy(id: Types.ObjectId): Promise<FolderDocument & ItemsData> {
+    try {
+      const folderDoc = await this.findByIdAndCheck(id);
+      const { user, name, isTrash, parent } = folderDoc;
+
+      const items = await this.getAllItemsByFolderId(id);
+
+      const newFolder = await this.folderModel.create({
+        user,
+        type: ItemTypes.FOLDER,
+        parent,
+        name: `${name} copy`,
+        isTrash,
+        creationDate: Date.now(),
+        openDate: Date.now(),
+      });
+
+      const itemsData: ItemsData = {
+        count: 0,
+        items: [],
+        size: 0,
+      };
+
+      for await (const { type, _id } of items) {
+        const itemDoc = await this.objectServices[type].copy(_id);
+        itemDoc.parent = newFolder._id;
+        await itemDoc.save();
+        itemsData.count += itemDoc.count;
+        itemsData.size += itemDoc.size;
+        itemsData.items = [...itemsData.items, ...itemDoc.items];
+      }
+
+      const resItemsData: ItemsData = {
+        count: 1 + itemsData.count,
+        items: [newFolder, ...itemsData.items],
+        size: itemsData.size,
+      };
+
+      return Object.assign(newFolder, resItemsData);
+    } catch (e) {
+      throw e;
+    }
   }
 
-  getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
+  // ! Трабл
+  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
     throw new Error('Method not implemented.');
   }
 
