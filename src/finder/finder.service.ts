@@ -85,4 +85,20 @@ export class FinderService implements IFinderService {
 
     return itemDocs.map((item) => ItemTDataFactory.create(item));
   }
+
+  async getStared(user: Types.ObjectId): Promise<ItemTransferData[]> {
+    const itemDocs: ItemDocument[] = [];
+
+    const storage = await this.storageService.getOneByAndCheck({ user });
+    const stared = [...storage.staredItems];
+
+    for await (const itemId of stared) {
+      for await (const key of this.objectServicesKeys) {
+        const item = await this.objectServices[key].getOneById(itemId);
+        if (item) itemDocs.push(item);
+      }
+    }
+
+    return itemDocs.map((item) => ItemTDataFactory.create(item));
+  }
 }

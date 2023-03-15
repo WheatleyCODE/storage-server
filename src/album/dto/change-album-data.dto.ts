@@ -2,7 +2,13 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import { Types } from 'mongoose';
 
-export class CreateAlbumDto {
+export class ChangeAlbumDataDto {
+  @ApiProperty({
+    example: '507f191e810c19729de860ea',
+    description: 'ID Элемента',
+  })
+  @IsString({ message: 'Должно быть строкой' })
+  readonly id: Types.ObjectId;
   @ApiProperty({
     example: 'Название...',
     description: 'Название Альбома',
@@ -16,16 +22,4 @@ export class CreateAlbumDto {
   })
   @IsString({ message: 'Должно быть строкой' })
   readonly author: string;
-
-  @ApiProperty({
-    example: '507f191e810c19729de860ea | undefined',
-    description: 'ID папки родителя или ничего',
-  })
-  readonly parent: Types.ObjectId | undefined;
-
-  @ApiProperty({
-    example: '[507f191e810c19729de860ea] | undefined',
-    description: 'IDs треков',
-  })
-  readonly tracks: Types.ObjectId[] | undefined;
 }

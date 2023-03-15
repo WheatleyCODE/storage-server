@@ -24,3 +24,7 @@ export const dtoToOjbectId = <T>(obj: T, keys: Array<keyof T>): T => {
 
   return newObj;
 };
+
+export const isObjectId = (obj: any): boolean => {
+  return Types.ObjectId.isValid(obj);
+};

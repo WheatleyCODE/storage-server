@@ -13,7 +13,7 @@ import { UploadFilesDto } from './dto/upload-files.dto';
 @Injectable()
 export class UploaderService implements IUploaderService {
   private readonly fileExts = {
-    image: ['jpg', 'png'],
+    image: ['jpg', 'png', 'jpeg'],
     audio: ['mp3'],
     video: ['mp4'],
   };

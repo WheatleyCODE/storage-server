@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="kmRpLjEmesRpYeFqjM-m" name="База данных">
-        <mxGraphModel dx="965" dy="792" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="875" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="AtOWPyeC-1iKILgJ75GM-0"/>
                 <mxCell id="AtOWPyeC-1iKILgJ75GM-1" parent="AtOWPyeC-1iKILgJ75GM-0"/>
@@ -277,7 +277,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="o5mY_iQJMyqTgLSlLnf1" name="Схема">
-        <mxGraphModel dx="942" dy="2992" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1419" dy="3403" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="2fg47kfmbrUyRLcZdBD8-0"/>
                 <mxCell id="2fg47kfmbrUyRLcZdBD8-1" parent="2fg47kfmbrUyRLcZdBD8-0"/>
@@ -1120,9 +1120,6 @@
                 </mxCell>
                 <mxCell id="li33Vl1rDunNQSQERopc-3" value="Decorator Pattern" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;strokeColor=none;fontColor=#FF6666;" parent="2fg47kfmbrUyRLcZdBD8-1" vertex="1">
                     <mxGeometry x="2660" y="475" width="150" height="30" as="geometry"/>
-                </mxCell>
-                <mxCell id="li33Vl1rDunNQSQERopc-5" value="Midleware AntiPattern" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;strokeColor=none;fontColor=#FF66FF;" parent="2fg47kfmbrUyRLcZdBD8-1" vertex="1">
-                    <mxGeometry x="2660" y="715" width="180" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="6EylgIOCv-YedzkSTwfa-1" value="" style="group" parent="2fg47kfmbrUyRLcZdBD8-1" vertex="1" connectable="0">
                     <mxGeometry x="3240" y="280" width="300" height="200" as="geometry"/>

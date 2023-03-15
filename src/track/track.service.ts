@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ReadStream } from 'fs';
@@ -20,6 +20,7 @@ import { dtoToOjbectId } from 'src/utils';
 import { StorageService } from 'src/storage/storage.service';
 import { ChangeFileDto } from 'src/album/dto/change-file.dto';
 import { ChangeTrackDataDto } from './dto/change-track-data.dto';
+import { AlbumService } from 'src/album/album.service';
 
 @Injectable()
 export class TrackService
@@ -30,6 +31,8 @@ export class TrackService
     @InjectModel(Track.name) private readonly trackModel: Model<TrackDocument>,
     private readonly filesService: FilesService,
     private readonly storageService: StorageService,
+    @Inject(forwardRef(() => AlbumService))
+    private readonly albumService: AlbumService,
     commentService: CommentService,
   ) {
     super(trackModel, commentService);
@@ -103,8 +106,21 @@ export class TrackService
   async delete(id: Types.ObjectId): Promise<TrackDocument & ItemsData> {
     try {
       const deletedTrack = await this.trackModel.findByIdAndDelete(id);
-
       if (!deletedTrack) throw new HttpException('Трек не найден', HttpStatus.BAD_REQUEST);
+
+      const albumId = deletedTrack.album;
+
+      if (albumId) {
+        const album = await this.albumService.getOneById(deletedTrack.album);
+
+        if (album) {
+          album.tracks = [...album.tracks].filter(
+            (id) => id.toString() !== deletedTrack._id.toString(),
+          );
+
+          await album.save();
+        }
+      }
 
       await this.filesService.removeFile(deletedTrack.file);
 
@@ -131,7 +147,7 @@ export class TrackService
   ): Promise<TrackTransferData> {
     try {
       const { id } = dtoToOjbectId(dto, ['id']);
-      const trackDoc = await this.findByIdAndCheck(id);
+      const trackDoc = await this.changeDate(id, ['changeDate']);
 
       await this.storageService.changeUsedSpace(user, trackDoc.fileSize, audio.size);
 
@@ -154,7 +170,7 @@ export class TrackService
   ): Promise<TrackTransferData> {
     try {
       const { id } = dtoToOjbectId(dto, ['id']);
-      const trackDoc = await this.findByIdAndCheck(id);
+      const trackDoc = await this.changeDate(id, ['changeDate']);
 
       await this.storageService.changeUsedSpace(user, trackDoc.imageSize, image.size);
 
@@ -178,6 +194,7 @@ export class TrackService
   async changeData(dto: ChangeTrackDataDto): Promise<TrackTransferData> {
     try {
       const { id, name, author, text } = dtoToOjbectId(dto, ['id']);
+      await this.changeDate(id, ['changeDate']);
       const trackDoc = await this.update(id, { name, author, text });
       return new TrackTransferData(trackDoc);
     } catch (e) {

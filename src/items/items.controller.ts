@@ -13,6 +13,8 @@ import { ChangeLikeDto } from './dto/change-like.dto';
 import { AddListenDto } from './dto/add-listen.dto';
 import { ChangeNameDto } from './dto/change-name.dto';
 import { ChangeParentDto } from './dto/change-parent.dto';
+import { ChangeStarDto } from './dto/change-star.dto';
+import { StorageTransferData } from 'src/transfer';
 
 @Controller('/api/items')
 export class ItemsController {
@@ -29,7 +31,7 @@ export class ItemsController {
   @Post('/delete')
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
-  deleteItem(@Body() dto: DeleteItemDto, @Req() req: UserReq): Promise<ItemTransferData[]> {
+  deleteItem(@Body() dto: DeleteItemDto, @Req() req: UserReq): Promise<StorageTransferData> {
     const correctId = stringToOjbectId(req.userTD.id);
     return this.itemsService.deleteItem(dto, correctId);
   }
@@ -60,6 +62,13 @@ export class ItemsController {
   @UsePipes(ValidationPipe)
   changeLike(@Body() dto: ChangeLikeDto): Promise<ItemTransferData> {
     return this.itemsService.changeLike(dto);
+  }
+
+  @Post('/change/star')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  changeStar(@Body() dto: ChangeStarDto): Promise<ItemTransferData[]> {
+    return this.itemsService.changeStar(dto);
   }
 
   @Post('/add/listen')

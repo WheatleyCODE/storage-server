@@ -1,4 +1,3 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { CommentService } from 'src/comment/comment.service';
 import { CommentDocument } from 'src/comment/schemas/comment.schema';

@@ -9,6 +9,7 @@ export class VideoTransferData extends StorageItemCommentsTransferData {
     readonly imageSize = videoDoc.imageSize,
     readonly file = videoDoc.file,
     readonly fileSize = videoDoc.fileSize,
+    readonly fileExt = videoDoc.fileExt,
   ) {
     super(videoDoc);
   }

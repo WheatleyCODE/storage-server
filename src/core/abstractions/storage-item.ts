@@ -1,4 +1,4 @@
-import { isValidObjectId, Model, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import * as uuid from 'uuid';
 import { ReadStream } from 'fs';
 import { DefaultService } from './default-service';
@@ -18,8 +18,7 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
 
   async changeAccessType(id: Types.ObjectId, type: AccessTypes): Promise<T> {
     try {
-      const item: any = await this.findByIdAndCheck(id);
-
+      const item: any = await this.changeDate(id, ['changeDate']);
       item.accessType = type;
       return await item.save();
     } catch (e) {
@@ -29,7 +28,7 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
 
   async changeAccessLink(id: Types.ObjectId): Promise<T> {
     try {
-      const item: any = await this.findByIdAndCheck(id);
+      const item: any = await this.changeDate(id, ['changeDate']);
 
       const link = uuid.v4();
       const type = item.type.toLowerCase();
@@ -40,11 +39,21 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
     }
   }
 
-  async changeOpenDate(id: Types.ObjectId): Promise<T> {
+  async changeDate(id: Types.ObjectId, filds: DateFilds[]): Promise<T> {
     try {
       const item: any = await this.findByIdAndCheck(id);
+      filds.forEach((fild) => (item[fild] = Date.now()));
+      await item.save();
+      return item;
+    } catch (e) {
+      throw new HttpException('Ошибка при изменении даты', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
-      item.openDate = Date.now();
+  async addListen(id: Types.ObjectId): Promise<T> {
+    try {
+      const item: any = await this.findByIdAndCheck(id);
+      item.listenCount++;
       return await item.save();
     } catch (e) {
       throw e;
@@ -53,7 +62,7 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
 
   async changeIsTrash(id: Types.ObjectId, isTrash: boolean): Promise<T> {
     try {
-      const item: any = await this.findByIdAndCheck(id);
+      const item: any = await this.changeDate(id, ['changeDate']);
 
       item.isTrash = isTrash;
       return await item.save();
@@ -64,7 +73,7 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
 
   async changeName(id: Types.ObjectId, name: string): Promise<T> {
     try {
-      const item: any = await this.findByIdAndCheck(id);
+      const item: any = await this.changeDate(id, ['changeDate']);
 
       item.name = name;
       return await item.save();
@@ -75,7 +84,7 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
 
   async changeParent(id: Types.ObjectId, parent: Types.ObjectId | null): Promise<T> {
     try {
-      const item: any = await this.findByIdAndCheck(id);
+      const item: any = await this.changeDate(id, ['changeDate']);
       item.parent = parent === null ? undefined : parent;
       return item.save();
     } catch (e) {
@@ -117,19 +126,7 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
     }
   }
 
-  async addListen(id: Types.ObjectId): Promise<T> {
-    try {
-      const item: any = await this.findByIdAndCheck(id);
-      item.listenCount++;
-      return await item.save();
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  // ! Локально расширить user?: Types.ObjectId
-  // ! Придумать как реализовать звезды
-  async changeStar(id: Types.ObjectId, isStar: boolean, user?: Types.ObjectId): Promise<T> {
+  async changeStar(id: Types.ObjectId, isStar: boolean): Promise<T> {
     try {
       const item: any = await this.findByIdAndCheck(id);
 
@@ -166,18 +163,6 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
       return tracks;
     } catch (e) {
       throw new HttpException('Ошибка при поиске всех публичных', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  // ! fix
-  async changeDate(item: any, filds: DateFilds[]): Promise<T> {
-    try {
-      if (typeof item === 'object' && !isValidObjectId(item)) {
-        filds.forEach((fild) => (item[fild] = Date.now()));
-        return await item.save();
-      }
-    } catch (e) {
-      throw new HttpException('Ошибка при поиске треков', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

@@ -37,7 +37,7 @@ export abstract class IDatabase<T, O> {
 
 export interface IDefaultService<T, O> {
   getOneBy(options: { [key in keyof O]: O[key] }): Promise<T>;
-  getOneById(options: { [key in keyof O]: O[key] }): Promise<T>;
+  getOneById(id: Types.ObjectId): Promise<T>;
   getOneByIdAndCheck: (id: Types.ObjectId) => Promise<T>;
   getOneByAndCheck: (options: { [key in keyof O]: O[key] }) => Promise<T>;
   getAllBy(options: { [key in keyof O]: O[key] }): Promise<T[]>;

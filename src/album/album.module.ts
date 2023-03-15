@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FilesModule } from 'src/files/files.module';
 import { TrackModule } from 'src/track/track.module';
@@ -15,7 +15,7 @@ import { TokensModule } from 'src/tokens/tokens.module';
     TokensModule,
     MongooseModule.forFeature([{ name: Album.name, schema: AlbumSchema }]),
     FilesModule,
-    TrackModule,
+    forwardRef(() => TrackModule),
     CommentModule,
   ],
   controllers: [AlbumController],

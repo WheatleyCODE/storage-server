@@ -16,7 +16,7 @@ export interface ICreateImageOptions {
   user: Types.ObjectId;
   name: string;
   parent?: Types.ObjectId;
-  accesLink?: string;
+  accessLink?: string;
   accessType?: AccessTypes;
   creationDate: number;
   openDate: number;

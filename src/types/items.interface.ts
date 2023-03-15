@@ -9,9 +9,10 @@ import { ChangeAccessTypeDto } from 'src/items/dto/change-access-type.dto';
 import { ChangeLikeDto } from 'src/items/dto/change-like.dto';
 import { AddListenDto } from 'src/items/dto/add-listen.dto';
 import { ChangeNameDto } from 'src/items/dto/change-name.dto';
+import { StorageTransferData } from 'src/transfer';
 
 export interface IItemsService {
-  deleteItem(dto: DeleteItemDto, user: Types.ObjectId): Promise<ItemTransferData[]>;
+  deleteItem(dto: DeleteItemDto, user: Types.ObjectId): Promise<StorageTransferData>;
   changeAccessType(dto: ChangeAccessTypeDto): Promise<ItemTransferData[]>;
   changeAccessLink(dto: CreateAccessLinkDto): Promise<ItemTransferData>;
   changeIsTrash(dto: ChangeIsTrashDto): Promise<ItemTransferData[]>;

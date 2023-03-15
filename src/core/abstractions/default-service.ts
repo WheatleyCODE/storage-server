@@ -10,8 +10,8 @@ export abstract class DefaultService<T, O>
     return this.model.findOne(options);
   }
 
-  async getOneById(options: { [key in keyof O]: O[key] }): Promise<T> {
-    return this.model.findById(options);
+  async getOneById(id: Types.ObjectId): Promise<T> {
+    return this.model.findById(id);
   }
 
   async getOneByIdAndCheck(id: Types.ObjectId): Promise<T> {

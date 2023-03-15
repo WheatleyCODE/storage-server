@@ -21,7 +21,7 @@ export interface ICreateFolderOptions {
   name: string;
   parent?: Types.ObjectId;
   color?: FolderColors;
-  accesLink?: string;
+  accessLink?: string;
   accessType?: AccessTypes;
   creationDate: number;
   openDate: number;

@@ -28,7 +28,7 @@ export interface ICreateVideoOptions {
   name: string;
   parent?: Types.ObjectId;
   album?: Types.ObjectId;
-  accesLink?: string;
+  accessLink?: string;
   accessType?: AccessTypes;
   creationDate: number;
   openDate: number;

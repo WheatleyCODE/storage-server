@@ -29,6 +29,20 @@ export class Storage extends DefaultSchema {
   usedSpace: number;
 
   @ApiProperty({
+    example: true,
+    description: 'Показывать ли дополнительные модули',
+  })
+  @Prop({ default: true, type: Boolean })
+  isTools: boolean;
+
+  @ApiProperty({
+    example: true,
+    description: 'Показывать ли рекомендуемые файлы',
+  })
+  @Prop({ default: true, type: Boolean })
+  isRecommend: boolean;
+
+  @ApiProperty({
     example: '[507f191e810c19729de860ea]',
     description: 'Папки в хранилище',
   })
@@ -69,6 +83,20 @@ export class Storage extends DefaultSchema {
   })
   @Prop({ type: [Types.ObjectId], ref: 'Video' })
   videos: Types.ObjectId[];
+
+  @ApiProperty({
+    example: '[507f191e810c19729de860ea]',
+    description: 'Понравившиеся итемы в хранилище',
+  })
+  @Prop({ type: [Types.ObjectId] })
+  likedItems: Types.ObjectId[];
+
+  @ApiProperty({
+    example: '[507f191e810c19729de860ea]',
+    description: 'ИЗбранные итемы в хранилище',
+  })
+  @Prop({ type: [Types.ObjectId] })
+  staredItems: Types.ObjectId[];
 }
 
 export const StorageSchema = SchemaFactory.createForClass(Storage);

@@ -15,6 +15,7 @@ import { AlbumTransferData } from 'src/transfer';
 import { UserReq } from 'src/types';
 import { stringToOjbectId } from 'src/utils';
 import { AlbumService } from './album.service';
+import { ChangeAlbumDataDto } from './dto/change-album-data.dto';
 import { ChangeFileDto } from './dto/change-file.dto';
 import { ChangeTracksDto } from './dto/change-tracks.dto';
 import { CreateAlbumDto } from './dto/create-album.dto';
@@ -39,12 +40,8 @@ export class AlbumController {
   @Post('/change/tracks')
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
-  async changeTracks(
-    @Body() dto: ChangeTracksDto,
-    @Req() req: UserReq,
-  ): Promise<AlbumTransferData> {
-    const id = stringToOjbectId(req.userTD.id);
-    return this.albumService.changeTracks(dto, id);
+  async changeTracks(@Body() dto: ChangeTracksDto): Promise<AlbumTransferData> {
+    return this.albumService.changeTracks(dto);
   }
 
   @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 1 }]))
@@ -58,5 +55,12 @@ export class AlbumController {
   ): Promise<AlbumTransferData> {
     const id = stringToOjbectId(req.userTD.id);
     return this.albumService.changeImage(dto, id, files?.image && files.image[0]);
+  }
+
+  @Post('/change/data')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  async changeData(@Body() dto: ChangeAlbumDataDto): Promise<AlbumTransferData> {
+    return this.albumService.changeData(dto);
   }
 }

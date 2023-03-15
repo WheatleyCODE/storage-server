@@ -19,6 +19,7 @@ import { CreateVideoDto } from './dto/create-video.dto';
 import { StorageService } from 'src/storage/storage.service';
 import { dtoToOjbectId } from 'src/utils';
 import { ChangeFileDto } from 'src/album/dto/change-file.dto';
+import { ChangeVideoDataDto } from './dto/change-video-data';
 
 @Injectable()
 export class VideoService
@@ -130,7 +131,7 @@ export class VideoService
   ): Promise<VideoTransferData> {
     try {
       const { id } = dtoToOjbectId(dto, ['id']);
-      const videoDoc = await this.findByIdAndCheck(id);
+      const videoDoc = await this.changeDate(id, ['changeDate']);
 
       await this.storageService.changeUsedSpace(user, videoDoc.fileSize, video.size);
 
@@ -153,7 +154,7 @@ export class VideoService
   ): Promise<VideoTransferData> {
     try {
       const { id } = dtoToOjbectId(dto, ['id']);
-      const videoDoc = await this.findByIdAndCheck(id);
+      const videoDoc = await this.changeDate(id, ['changeDate']);
 
       await this.storageService.changeUsedSpace(user, videoDoc.imageSize, image.size);
 
@@ -168,6 +169,17 @@ export class VideoService
 
       await videoDoc.save();
 
+      return new VideoTransferData(videoDoc);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeData(dto: ChangeVideoDataDto): Promise<VideoTransferData> {
+    try {
+      const { id, name, description } = dtoToOjbectId(dto, ['id']);
+      await this.changeDate(id, ['changeDate']);
+      const videoDoc = await this.update(id, { name, description });
       return new VideoTransferData(videoDoc);
     } catch (e) {
       throw e;

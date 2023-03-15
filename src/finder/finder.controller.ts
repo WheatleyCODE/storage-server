@@ -29,11 +29,18 @@ export class FinderController {
     return this.finderService.searchPublicItems(dto.text, count, offset);
   }
 
-  @Get('/storage/items')
+  @Post('/storage/items')
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   searchStorageItems(@Body() dto: SearchItemDto, @Req() req: UserReq): Promise<ItemTransferData[]> {
     const id = stringToOjbectId(req.userTD.id);
     return this.finderService.searchStorageItems(dto, id);
+  }
+
+  @Get('/stared')
+  @UseGuards(JwtAuthGuard)
+  getStared(@Req() req: UserReq): Promise<ItemTransferData[]> {
+    const id = stringToOjbectId(req.userTD.id);
+    return this.finderService.getStared(id);
   }
 }

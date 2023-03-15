@@ -15,7 +15,7 @@ export class StorageItemTransferData {
     readonly listenCount = item.listenCount,
     readonly starredCount = item.starredCount,
     readonly accessType = item.accessType,
-    readonly accesLink = item.accessLink,
+    readonly accessLink = item.accessLink,
     readonly createDate = item.createDate,
     readonly changeDate = item.changeDate,
     readonly openDate = item.openDate,

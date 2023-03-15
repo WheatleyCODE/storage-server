@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AlbumModule } from 'src/album/album.module';
 import { CommentModule } from 'src/comment/comment.module';
 import { FilesModule } from 'src/files/files.module';
 import { StorageModule } from 'src/storage/storage.module';
@@ -15,6 +16,7 @@ import { TrackService } from './track.service';
     FilesModule,
     CommentModule,
     StorageModule,
+    forwardRef(() => AlbumModule),
   ],
   controllers: [TrackController],
   providers: [TrackService],

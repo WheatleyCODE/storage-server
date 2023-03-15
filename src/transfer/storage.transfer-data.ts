@@ -20,5 +20,9 @@ export class StorageTransferData {
     readonly albums = storage.albums.map((album) => new AlbumTransferData(album)),
     readonly images = storage.images.map((image) => new ImageTransferData(image)),
     readonly videos = storage.videos.map((video) => new VideoTransferData(video)),
+    readonly isRecommend = storage.isRecommend,
+    readonly isTools = storage.isTools,
+    readonly likedItems = storage.likedItems.map((item) => item.toString()),
+    readonly staredItems = storage.staredItems.map((item) => item.toString()),
   ) {}
 }

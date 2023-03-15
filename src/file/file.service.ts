@@ -107,7 +107,7 @@ export class FileService
 
   async changeFile(id: Types.ObjectId, file: Express.Multer.File): Promise<FileDocument> {
     try {
-      const fileDoc = await this.findByIdAndCheck(id);
+      const fileDoc = await this.changeDate(id, ['changeDate']);
 
       const newPathFile = await this.filesService.changeFile(FileType.FILE, file, fileDoc.file);
       fileDoc.file = newPathFile;

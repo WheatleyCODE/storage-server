@@ -17,6 +17,7 @@ import { ValidationPipe } from 'src/pipes';
 import { VideoTransferData } from 'src/transfer';
 import { UserReq } from 'src/types';
 import { stringToOjbectId } from 'src/utils';
+import { ChangeVideoDataDto } from './dto/change-video-data';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { VideoService } from './video.service';
 
@@ -72,5 +73,12 @@ export class VideoController {
   ): Promise<VideoTransferData> {
     const id = stringToOjbectId(req.userTD.id);
     return this.videoService.changeFile(dto, id, files?.video && files.video[0]);
+  }
+
+  @Post('/change/data')
+  @UsePipes(ValidationPipe)
+  @UseGuards(JwtAuthGuard)
+  changeData(@Body() dto: ChangeVideoDataDto): Promise<VideoTransferData> {
+    return this.videoService.changeData(dto);
   }
 }

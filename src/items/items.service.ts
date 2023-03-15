@@ -10,13 +10,12 @@ import { CreateAccessLinkDto } from 'src/items/dto/create-access-link.dto';
 import { DeleteItemDto } from 'src/items/dto/delete-item.dto';
 import { StorageService } from 'src/storage/storage.service';
 import { TrackService } from 'src/track/track.service';
-import { FolderTransferData, ItemTDataFactory } from 'src/transfer';
-import { dtoToOjbectId, getStorageCollectionName } from 'src/utils';
+import { FolderTransferData, ItemTDataFactory, StorageTransferData } from 'src/transfer';
+import { addListen, changeDate, dtoToOjbectId, getStorageCollectionName } from 'src/utils';
 import { VideoService } from 'src/video/video.service';
 import {
   AccessTypes,
   ChildrensTransferData,
-  DateFilds,
   IItemsService,
   ItemDocument,
   ItemTransferData,
@@ -29,6 +28,8 @@ import { ChangeNameDto } from './dto/change-name.dto';
 import { ChangeAccessTypeDto } from './dto/change-access-type.dto';
 import { ChangeLikeDto } from './dto/change-like.dto';
 import { AddListenDto } from './dto/add-listen.dto';
+import { ChangeStarDto } from './dto/change-star.dto';
+import { collectionTypes, storageCollectionNames } from 'src/consts/storage.consts';
 
 @Injectable()
 export class ItemsService implements IItemsService {
@@ -53,17 +54,14 @@ export class ItemsService implements IItemsService {
     };
   }
 
-  // ! Fix
-  async deleteItem(dto: DeleteItemDto, user: Types.ObjectId): Promise<ItemTransferData[]> {
+  async deleteItem(dto: DeleteItemDto, user: Types.ObjectId): Promise<StorageTransferData> {
     try {
       const itemsDto = dto.items.map((item) => dtoToOjbectId(item, ['id']));
 
       let deleteItems: ItemDocument[] = [];
       let sumSize = 0;
 
-      const strg = await this.storageService.getOneByAndCheck({ user });
-
-      // const prevFolderCount = strg.folders.length;
+      let storage = await this.storageService.getOneByAndCheck({ user });
 
       for await (const { type, id } of itemsDto) {
         const { items, size } = await this.objectServices[type].delete(id);
@@ -71,25 +69,33 @@ export class ItemsService implements IItemsService {
         sumSize += size;
       }
 
-      deleteItems.forEach((item) => {
-        const collection = getStorageCollectionName(item.type);
+      const delFolders: string[] = [...deleteItems]
+        .filter((item) => item.type === ItemTypes.FOLDER)
+        .map((item) => item._id.toString());
 
-        strg[collection] = strg[collection].filter(
-          (itm) => item._id.toString() !== itm._id.toString(),
-        );
-      });
+      for await (const name of storageCollectionNames) {
+        const type = collectionTypes[name];
+        const ids = storage[name];
 
-      strg.usedSpace -= sumSize;
-      await strg.save();
+        const items = await this.objectServices[type].getAllByIds(ids);
 
-      // if (prevFolderCount > strg.folders.length) {
-      //   const stor = await this.checkParentsAndDelete(strg._id);
-      //   const populatedStrg = await this.populateCollections(stor);
-      //   return new StorageTransferData(populatedStrg);
-      // }
+        for await (const item of items) {
+          const parentId = item?.parent;
+          const id = item._id;
 
-      // const populatedStrg = await this.storageService.populateCollections(strg);
-      return deleteItems.map((item) => ItemTDataFactory.create(item));
+          if (parentId && delFolders.includes(parentId.toString())) {
+            const { size, items } = await this.objectServices[type].delete(id);
+            deleteItems = [...deleteItems, ...items];
+            sumSize += size;
+          }
+        }
+      }
+
+      storage = await this.storageService.deleteCollectionItems(storage, deleteItems);
+      storage = await this.storageService.addUsedSpace(storage, -sumSize);
+
+      const populatedStorage = await this.storageService.populateCollections(storage);
+      return new StorageTransferData(populatedStorage);
     } catch (e) {
       throw e;
     }
@@ -102,7 +108,7 @@ export class ItemsService implements IItemsService {
 
       for await (const { type, id } of itemsDto) {
         let itemDoc = await this.objectServices[type].changeAccessType(id, dto.accessType);
-        itemDoc = await this.changeDate(itemDoc, ['changeDate']);
+        itemDoc = await changeDate(itemDoc, ['changeDate']);
         itemsDocs.push(itemDoc);
       }
 
@@ -117,7 +123,7 @@ export class ItemsService implements IItemsService {
       const { id, name, type } = dtoToOjbectId(dto, ['id']);
 
       let itemDoc = await this.objectServices[type].changeName(id, name);
-      itemDoc = await this.changeDate(itemDoc, ['changeDate']);
+      itemDoc = await changeDate(itemDoc, ['changeDate']);
 
       return ItemTDataFactory.create(itemDoc);
     } catch (e) {
@@ -132,7 +138,7 @@ export class ItemsService implements IItemsService {
       itemDoc.accessType = AccessTypes.LINK;
       await itemDoc.save();
 
-      itemDoc = await this.changeDate(itemDoc, ['changeDate']);
+      itemDoc = await changeDate(itemDoc, ['changeDate']);
       return ItemTDataFactory.create(itemDoc);
     } catch (e) {
       throw e;
@@ -148,7 +154,7 @@ export class ItemsService implements IItemsService {
 
       for await (const { id, type } of items) {
         let itemDoc = await this.objectServices[type].changeIsTrash(id, isTrash);
-        itemDoc = await this.changeDate(itemDoc, ['changeDate']);
+        itemDoc = await changeDate(itemDoc, ['changeDate']);
         itemDocs.push(itemDoc);
       }
 
@@ -161,14 +167,11 @@ export class ItemsService implements IItemsService {
   async changeLike(dto: ChangeLikeDto): Promise<ItemTransferData> {
     try {
       const { id, user, type, isLike } = dtoToOjbectId(dto, ['id', 'user']);
-      const doc = await this.objectServices[type].getOneByIdAndCheck(id);
-
-      if (!doc) {
-        throw new HttpException('Элемент не найден', HttpStatus.BAD_REQUEST);
-      }
+      await this.objectServices[type].getOneByIdAndCheck(id);
+      await this.storageService.changeLiked(user, id, isLike);
 
       let itemDoc = await this.objectServices[type].changeLike(id, user, isLike);
-      itemDoc = await this.changeDate(itemDoc, ['changeDate']);
+      itemDoc = await changeDate(itemDoc, ['changeDate']);
 
       return ItemTDataFactory.create(itemDoc);
     } catch (e) {
@@ -176,8 +179,32 @@ export class ItemsService implements IItemsService {
     }
   }
 
+  async changeStar(dto: ChangeStarDto): Promise<ItemTransferData[]> {
+    try {
+      const { user, isStar } = dtoToOjbectId(dto, ['user']);
+      const items = dto.items.map((item) => dtoToOjbectId(item, ['id']));
+      const itemDocs: ItemDocument[] = [];
+
+      for await (const { id, type } of items) {
+        await this.objectServices[type].getOneByIdAndCheck(id);
+        await this.storageService.changeStared(user, id, isStar);
+        let itemDoc = await this.objectServices[type].changeStar(id, isStar);
+        itemDoc = await changeDate(itemDoc, ['changeDate']);
+        itemDocs.push(itemDoc);
+      }
+
+      return itemDocs.map((itemDoc) => ItemTDataFactory.create(itemDoc));
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async getChildrens(id: Types.ObjectId): Promise<ChildrensTransferData> {
     try {
+      const folder = await this.folderService.getOneByIdAndCheck(id);
+      await changeDate(folder, ['openDate']);
+      await addListen(folder);
+
       let itemDocs: ItemDocument[] = [];
 
       for await (const type of StorageItemTypes) {
@@ -217,22 +244,13 @@ export class ItemsService implements IItemsService {
 
       for await (const { id, type } of items) {
         let itemDoc = await this.objectServices[type].changeParent(id, parent);
-        itemDoc = await this.changeDate(itemDoc, ['changeDate']);
+        itemDoc = await changeDate(itemDoc, ['changeDate']);
         itemDocs.push(itemDoc);
       }
 
       return itemDocs.map((itemDoc) => ItemTDataFactory.create(itemDoc));
     } catch (e) {
       throw e;
-    }
-  }
-
-  private async changeDate(itemDoc: ItemDocument, dateFild: DateFilds[]): Promise<ItemDocument> {
-    try {
-      dateFild.forEach((fild) => (itemDoc[fild] = Date.now()));
-      return itemDoc.save();
-    } catch (e) {
-      throw new HttpException('Ошибка при измении даты открытия', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -260,37 +278,5 @@ export class ItemsService implements IItemsService {
     } catch (e) {
       throw e;
     }
-  }
-
-  async checkParentsAndDelete(storage: Types.ObjectId): Promise<any> {
-    // ! Получить сторадж его содержимое и проверить есть ли элементы с уделенным родителем
-    // ! если есть удалить
-
-    // try {
-    //   const deletedTracks: Types.ObjectId[] = [];
-
-    //   let size = 0;
-    //   const strg = await this.findByIdAndCheck(storage);
-
-    //   for await (const id of strg.tracks) {
-    //     const track = await this.trackService.getOneById(id);
-    //     const parent = await this.trackService.getOneBy({ parent: track._id });
-
-    //     if (!parent) {
-    //       const deletedTrack = await this.trackService.delete(track._id);
-    //       deletedTracks.push(deletedTrack._id);
-    //       size += deletedTrack.size;
-    //     }
-    //   }
-
-    //   const delTracks = deletedTracks.map((ids) => ids.toString());
-    //   strg.tracks = strg.tracks.filter((itm) => !delTracks.includes(itm.toString()));
-
-    //   strg.usedSpace -= size;
-    //   return await strg.save();
-    // } catch (e) {
-    //   throw new HttpException('Ошибка при проверке родителей', HttpStatus.INTERNAL_SERVER_ERROR);
-    // }
-    throw new HttpException('Ошибка при проверке родителей', HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

@@ -1,10 +1,9 @@
 import { Types } from 'mongoose';
-import { AccessTypes } from 'src/types';
+import { AccessTypes, DateFilds } from 'src/types';
 
 export interface IStorageItem<T> {
   changeAccessType(id: Types.ObjectId, type: AccessTypes): Promise<T>;
   changeAccessLink(id: Types.ObjectId): Promise<T>;
-  changeOpenDate(id: Types.ObjectId): Promise<T>;
   changeIsTrash(id: Types.ObjectId, isTrash: boolean): Promise<T>;
   changeName(id: Types.ObjectId, name: string): Promise<T>;
   changeParent(id: Types.ObjectId, parent: Types.ObjectId | null): Promise<T>;
@@ -14,4 +13,5 @@ export interface IStorageItem<T> {
   changeStar(id: Types.ObjectId, isStar: boolean, user?: Types.ObjectId): Promise<T>;
   getAllPublic(count: number, offset: number): Promise<T[]>;
   searchPublic(text: string, count: number, offset: number): Promise<T[]>;
+  changeDate(id: Types.ObjectId, filds: DateFilds[]): Promise<T>;
 }

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
@@ -22,6 +22,7 @@ import {
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { StorageService } from 'src/storage/storage.service';
 import { ChangeFileDto } from './dto/change-file.dto';
+import { ChangeAlbumDataDto } from './dto/change-album-data.dto';
 
 @Injectable()
 export class AlbumService
@@ -31,6 +32,7 @@ export class AlbumService
   constructor(
     @InjectModel(Album.name) private readonly albumModel: Model<AlbumDocument>,
     private readonly filesService: FilesService,
+    @Inject(forwardRef(() => TrackService))
     private readonly trackService: TrackService,
     private readonly storageService: StorageService,
     commentService: CommentService,
@@ -38,12 +40,25 @@ export class AlbumService
     super(albumModel, commentService);
   }
 
-  // ! Fix
-  async changeTracks(dto: ChangeTracksDto, user: Types.ObjectId): Promise<AlbumTransferData> {
+  async changeData(dto: ChangeAlbumDataDto): Promise<AlbumTransferData> {
+    try {
+      const { id, name, author } = dtoToOjbectId(dto, ['id']);
+      await this.changeDate(id, ['changeDate']);
+
+      const albumDoc = await this.update(id, { name, author });
+      await albumDoc.populate('tracks');
+      return new AlbumTransferData(albumDoc);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async changeTracks(dto: ChangeTracksDto): Promise<AlbumTransferData> {
     try {
       const { id, tracks } = dtoToOjbectId(dto, ['id', 'tracks']);
-      let albumDoc = await this.findByIdAndCheck(id);
-      albumDoc = await albumDoc.populate('tracks');
+      const albumDoc = await this.changeDate(id, ['changeDate']);
+
+      await albumDoc.populate('tracks');
       const trackDocs: TrackDocument[] = [];
 
       for await (const track of tracks) {
@@ -56,7 +71,25 @@ export class AlbumService
         await doc.save();
       }
 
+      albumDoc.tracks = [...trackDocs] as any;
+      await albumDoc.save();
+      await albumDoc.populate('tracks');
+
       return new AlbumTransferData(albumDoc);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getChildrens(parent: Types.ObjectId): Promise<AlbumDocument[]> {
+    try {
+      const albumDoc = await this.findAllBy({ parent } as any);
+
+      for await (const album of albumDoc) {
+        await album.populate('tracks');
+      }
+
+      return await albumDoc;
     } catch (e) {
       throw e;
     }
@@ -69,7 +102,7 @@ export class AlbumService
   ): Promise<AlbumTransferData> {
     try {
       const { id } = dtoToOjbectId(dto, ['id']);
-      const albumDoc = await this.findByIdAndCheck(id);
+      const albumDoc = await this.changeDate(id, ['changeDate']);
 
       await this.storageService.changeUsedSpace(user, albumDoc.imageSize, file.size);
 
@@ -77,6 +110,7 @@ export class AlbumService
       albumDoc.image = newPathImage;
       albumDoc.imageSize = file.size;
 
+      await albumDoc.populate('tracks');
       await albumDoc.save();
 
       return new AlbumTransferData(albumDoc);
@@ -93,7 +127,7 @@ export class AlbumService
     try {
       const storage = await this.storageService.getOneByAndCheck({ user });
 
-      const correctDto = dtoToOjbectId(dto, ['parent']);
+      const correctDto = dtoToOjbectId(dto, ['parent', 'tracks']);
 
       const album = await this.create({
         ...correctDto,
@@ -103,6 +137,8 @@ export class AlbumService
         imageSize: image.size,
         user,
       });
+
+      await album.populate('tracks');
 
       await this.storageService.addItem(
         {
@@ -254,5 +290,21 @@ export class AlbumService
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async changeStar(id: Types.ObjectId, isStar: boolean): Promise<AlbumDocument> {
+    const album = await super.changeStar(id, isStar);
+    await album.populate('tracks');
+    return album;
+  }
+
+  async changeLike(
+    id: Types.ObjectId,
+    user: Types.ObjectId,
+    isLike: boolean,
+  ): Promise<AlbumDocument> {
+    const album = await super.changeLike(id, user, isLike);
+    await album.populate('tracks');
+    return album;
   }
 }
