@@ -1,7 +1,6 @@
 import { Prop } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
-// ! Придумать как бы оно изменялось без кодинга
 export class DefaultSchema {
   @ApiProperty({
     example: 123456789012345,

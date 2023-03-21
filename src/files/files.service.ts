@@ -81,16 +81,16 @@ export class FilesService implements IFilesService {
     }
   }
 
-  async downloadFile(pathDB: string): Promise<fs.ReadStream> {
-    try {
-      const srcPath = path.resolve(__dirname, '..', 'static', pathDB);
-      const file = fs.createReadStream(srcPath);
+  // async downloadFile(pathDB: string): Promise<fs.ReadStream> {
+  //   try {
+  //     const srcPath = path.resolve(__dirname, '..', 'static', pathDB);
+  //     const file = fs.createReadStream(srcPath);
 
-      return file;
-    } catch (e) {
-      throw new HttpException('Ошибка при скачке файла', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
+  //     return file;
+  //   } catch (e) {
+  //     throw new HttpException('Ошибка при скачке файла', HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
 
   getFilePath(pathDB: string): string {
     const srcPath = path.resolve(__dirname, '..', 'static', pathDB);

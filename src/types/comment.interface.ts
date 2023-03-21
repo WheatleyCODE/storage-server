@@ -13,10 +13,9 @@ export interface IStorageItemComments {
 }
 
 export interface ICreateCommentOptions {
-  title: string;
   text: string;
   user: Types.ObjectId;
-  answer?: Types.ObjectId;
+  answerFor: Types.ObjectId;
 }
 
 export interface IUpdateCommentOptions extends DeepPartial<ICreateCommentOptions> {}

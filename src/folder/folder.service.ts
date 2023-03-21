@@ -14,6 +14,7 @@ import {
   ItemTypes,
   ItemDocument,
   ObjectServices,
+  IDownloadData,
 } from 'src/types';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { FolderTransferData } from 'src/transfer';
@@ -128,11 +129,6 @@ export class FolderService
     return [...tracks, ...files, ...albums, ...images, ...videos];
   }
 
-  // ! Трабл
-  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
-    throw new Error('Method not implemented.');
-  }
-
   async copy(id: Types.ObjectId): Promise<FolderDocument & ItemsData> {
     try {
       const folderDoc = await this.findByIdAndCheck(id);
@@ -146,8 +142,9 @@ export class FolderService
         parent,
         name: `${name} copy`,
         isTrash,
-        creationDate: Date.now(),
+        createDate: Date.now(),
         openDate: Date.now(),
+        changeDate: Date.now(),
       });
 
       const itemsData: ItemsData = {
@@ -177,9 +174,8 @@ export class FolderService
     }
   }
 
-  // ! Трабл
-  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
-    throw new Error('Method not implemented.');
+  async getFilePath(id: Types.ObjectId): Promise<IDownloadData[]> {
+    return [];
   }
 
   async delete(id: Types.ObjectId): Promise<FolderDocument & ItemsData> {

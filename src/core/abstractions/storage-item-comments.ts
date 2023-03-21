@@ -27,23 +27,28 @@ export abstract class StorageItemComments<T, O>
 
   async deleteComment(id: Types.ObjectId, comment: Types.ObjectId): Promise<CommentDocument> {
     try {
-      const commentDoc = await this.commentService.getOneByIdAndCheck(comment);
-
       const itemDoc: any = await this.findByIdAndCheck(id);
       const delComment = await this.commentService.delete(comment);
       const { items } = delComment;
 
-      items.forEach((item) => {
-        itemDoc.comments = itemDoc.comments.filter(
-          (itm) => item._id.toString() !== itm._id.toString(),
-        );
-      });
+      const ids = items.map((item) => item._id.toString());
 
-      console.log('4');
+      itemDoc.comments = [...itemDoc.comments].filter((com) => !ids.includes(com.toString()));
 
       await itemDoc.save();
 
       return delComment;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getComments(id: Types.ObjectId): Promise<CommentDocument[]> {
+    try {
+      const item: any = await this.findByIdAndCheck(id);
+      await item.populate('comments');
+
+      return [...item.comments];
     } catch (e) {
       throw e;
     }

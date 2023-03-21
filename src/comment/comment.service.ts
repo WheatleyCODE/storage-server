@@ -34,30 +34,18 @@ export class CommentService
     }
   }
 
-  // ! Fix
   async delete(id: Types.ObjectId): Promise<CommentDocument & ItemsData> {
     try {
-      const deletedComments: CommentDocument[] = [];
-      const firstComment = await this.findByIdAndCheck(id);
-      deletedComments.push(firstComment);
+      let deletedComments: CommentDocument[] = [];
 
-      const firstChildrens = await this.commentModel.find({ answer: id });
+      const comment = await this.model.findByIdAndDelete(id);
+      const comments = await this.model.find({ answerFor: comment._id });
+      deletedComments.push(comment);
+      deletedComments = [...deletedComments, ...comments];
 
-      const reqDel = async (childrens: CommentDocument[]) => {
-        for await (const children of childrens) {
-          deletedComments.push(children);
-
-          const childs = await this.commentModel.find({ answer: children._id });
-
-          if (childs.length !== 0) {
-            await reqDel(childs);
-          }
-        }
-      };
-
-      await reqDel(firstChildrens);
-
-      await this.deleteByIds(deletedComments.map((comment) => comment._id));
+      for await (const delComment of deletedComments) {
+        await delComment.delete();
+      }
 
       const itemsData = {
         count: deletedComments.length,
@@ -65,7 +53,7 @@ export class CommentService
         size: 0,
       };
 
-      return Object.assign(firstComment, itemsData);
+      return Object.assign(comment, itemsData);
     } catch (e) {
       throw new HttpException('Ошибка при удалении', HttpStatus.INTERNAL_SERVER_ERROR);
     }

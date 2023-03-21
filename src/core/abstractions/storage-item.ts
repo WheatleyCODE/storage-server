@@ -1,8 +1,7 @@
 import { Model, Types } from 'mongoose';
 import * as uuid from 'uuid';
-import { ReadStream } from 'fs';
 import { DefaultService } from './default-service';
-import { AccessTypes, ItemsData, IStorageItem, DateFilds } from 'src/types';
+import { AccessTypes, ItemsData, IStorageItem, DateFilds, IDownloadData } from 'src/types';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export abstract class StorageItem<T, O> extends DefaultService<T, O> implements IStorageItem<T> {
@@ -11,9 +10,8 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
   }
 
   abstract deleteByIds(ids: Types.ObjectId[]): Promise<T[]>;
-  abstract download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }>;
+  abstract getFilePath(id: Types.ObjectId): Promise<IDownloadData[]>;
   abstract copy(id: Types.ObjectId): Promise<T & ItemsData>;
-  abstract getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }>;
   abstract delete(id: Types.ObjectId): Promise<T & ItemsData>;
 
   async changeAccessType(id: Types.ObjectId, type: AccessTypes): Promise<T> {

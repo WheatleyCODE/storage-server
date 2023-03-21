@@ -16,6 +16,7 @@ import {
   ICreateImageOptions,
   IUpdateImageOptions,
   ItemTypes,
+  IDownloadData,
 } from 'src/types';
 import { dtoToOjbectId } from 'src/utils';
 @Injectable()
@@ -103,25 +104,13 @@ export class ImageService
     }
   }
 
-  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
-    try {
-      const { name, file, fileExt } = await this.findByIdAndCheck(id);
-      const fileStream = await this.filesService.downloadFile(file);
-      const filename = `${name}.${fileExt}`;
-
-      return { file: fileStream, filename };
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
+  async getFilePath(id: Types.ObjectId): Promise<IDownloadData[]> {
     try {
       const { name, file, fileExt } = await this.findByIdAndCheck(id);
       const path = await this.filesService.getFilePath(file);
       const filename = `${name}.${fileExt}`;
 
-      return { path, filename };
+      return [{ path, name: filename }];
     } catch (e) {
       throw e;
     }
@@ -130,19 +119,22 @@ export class ImageService
   async copy(id: Types.ObjectId): Promise<ImageDocument & ItemsData> {
     try {
       const imageDoc = await this.findByIdAndCheck(id);
-      const { user, name, isTrash, file, fileSize, parent } = imageDoc;
+      const { user, name, isTrash, file, fileSize, parent, fileExt, type } = imageDoc;
 
       const imageNewPath = await this.filesService.copyFile(file, FileType.IMAGE);
 
       const newImage = await this.imageModel.create({
+        type,
         user,
         name: `${name} copy`,
         isTrash,
         parent,
-        image: imageNewPath,
+        file: imageNewPath,
         fileSize,
-        creationDate: Date.now(),
+        fileExt,
+        createDate: Date.now(),
         openDate: Date.now(),
+        changeDate: Date.now(),
       });
 
       const itemsData: ItemsData = {

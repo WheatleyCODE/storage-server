@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ReadStream } from 'fs';
 import { Model, Types } from 'mongoose';
 import { CommentService } from 'src/comment/comment.service';
 import { StorageItemComments } from 'src/core';
@@ -13,6 +12,7 @@ import {
   ICreateFileOptions,
   IUpdateFileOptions,
   ItemTypes,
+  IDownloadData,
 } from 'src/types';
 import { FileTransferData } from 'src/transfer';
 import { CreateFileDto } from './dto/create-file.dto';
@@ -119,27 +119,13 @@ export class FileService
     }
   }
 
-  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
+  async getFilePath(id: Types.ObjectId): Promise<IDownloadData[]> {
     try {
-      const fileDoc = await this.findByIdAndCheck(id);
-      const file = await this.filesService.downloadFile(fileDoc.file);
-      const ext = fileDoc.file.split('.')[1];
-      const filename = `${fileDoc.name}.${ext}`;
+      const { name, file, fileExt } = await this.findByIdAndCheck(id);
+      const path = await this.filesService.getFilePath(file);
+      const filename = `${name}.${fileExt}`;
 
-      return { file, filename };
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
-    try {
-      const fileDoc = await this.findByIdAndCheck(id);
-      const path = await this.filesService.getFilePath(fileDoc.file);
-      const ext = fileDoc.file.split('.')[1];
-      const filename = `${fileDoc.name}.${ext}`;
-
-      return { path, filename };
+      return [{ path, name: filename }];
     } catch (e) {
       throw e;
     }
@@ -148,19 +134,22 @@ export class FileService
   async copy(id: Types.ObjectId): Promise<FileDocument & ItemsData> {
     try {
       const fileDoc = await this.findByIdAndCheck(id);
-      const { user, name, isTrash, file, fileSize, parent } = fileDoc;
+      const { user, name, isTrash, file, fileSize, parent, type, fileExt } = fileDoc;
 
       const fileNewPath = await this.filesService.copyFile(file, FileType.FILE);
 
       const newFile = await this.fileModel.create({
+        type,
         user,
         parent,
         name: `${name} copy`,
         isTrash,
+        fileExt,
         file: fileNewPath,
         fileSize,
-        creationDate: Date.now(),
+        createDate: Date.now(),
         openDate: Date.now(),
+        changeDate: Date.now(),
       });
 
       const itemsData: ItemsData = {

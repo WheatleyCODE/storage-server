@@ -1,10 +1,19 @@
-import { Injectable, StreamableFile } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import * as uuid from 'uuid';
 import { AlbumService } from 'src/album/album.service';
 import { FileService } from 'src/file/file.service';
 import { FolderService } from 'src/folder/folder.service';
 import { ImageService } from 'src/image/image.service';
 import { TrackService } from 'src/track/track.service';
-import { IDownloaderService, ItemDto, ItemTypes, ObjectServices } from 'src/types';
+import {
+  IDownloadData,
+  IDownloaderService,
+  ItemDocument,
+  ItemDto,
+  ItemTypes,
+  ObjectServices,
+  StorageItemTypes,
+} from 'src/types';
 import { dtoToOjbectId } from 'src/utils';
 import { VideoService } from 'src/video/video.service';
 
@@ -30,27 +39,33 @@ export class DownloaderService implements IDownloaderService {
     };
   }
 
-  async downloadFile(dto: ItemDto): Promise<{ file: StreamableFile; filename: string }> {
+  async downloadArchive(dto: ItemDto[]): Promise<{ files: IDownloadData[]; archiveName: string }> {
     try {
-      const { id, type } = dtoToOjbectId(dto, ['id']);
-      const { file, filename } = await this.objectServices[type].download(id);
-      return { file: new StreamableFile(file), filename };
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async downloadArchive(dto: ItemDto[]): Promise<{ path: string; name: string }[]> {
-    try {
-      const pathArr: { path: string; name: string }[] = [];
+      let files: IDownloadData[] = [];
       const items = dto.map((item) => dtoToOjbectId(item, ['id']));
 
       for await (const { id, type } of items) {
-        const { path, filename } = await this.objectServices[type].getFilePath(id);
-        pathArr.push({ path, name: filename });
+        if (type === ItemTypes.FOLDER) {
+          let downloadItem: ItemDocument[] = [];
+
+          for await (const itemType of StorageItemTypes) {
+            const items = await this.objectServices[itemType].getAllBy({ parent: id });
+            downloadItem = [...downloadItem, ...items];
+          }
+
+          for await (const { id, type } of downloadItem) {
+            const data = await this.objectServices[type].getFilePath(id);
+            files = [...files, ...data];
+          }
+        } else {
+          const downloadDataArr = await this.objectServices[type].getFilePath(id);
+          files = [...files, ...downloadDataArr];
+        }
       }
 
-      return pathArr;
+      const archiveName = uuid.v4();
+
+      return { files, archiveName };
     } catch (e) {
       throw e;
     }

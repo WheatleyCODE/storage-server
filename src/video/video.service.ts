@@ -14,6 +14,7 @@ import {
   ICreateVideoOptions,
   IVideoService,
   ItemTypes,
+  IDownloadData,
 } from 'src/types';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { StorageService } from 'src/storage/storage.service';
@@ -229,25 +230,20 @@ export class VideoService
     }
   }
 
-  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
+  async getFilePath(id: Types.ObjectId): Promise<IDownloadData[]> {
     try {
-      const { name, file, fileExt } = await this.findByIdAndCheck(id);
-      const fileStream = await this.filesService.downloadFile(file);
-      const filename = `${name}.${fileExt}`;
+      const { name, file, fileExt, image } = await this.findByIdAndCheck(id);
+      const imagePath = await this.filesService.getFilePath(image);
+      const imageExt = imagePath.split('.').pop();
+      const imageName = `${name}-img.${imageExt}`;
 
-      return { file: fileStream, filename };
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
-    try {
-      const { name, file, fileExt } = await this.findByIdAndCheck(id);
       const path = await this.filesService.getFilePath(file);
       const filename = `${name}.${fileExt}`;
 
-      return { path, filename };
+      return [
+        { path, name: filename },
+        { path: imagePath, name: imageName },
+      ];
     } catch (e) {
       throw e;
     }

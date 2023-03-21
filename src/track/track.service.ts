@@ -14,6 +14,7 @@ import {
   FileType,
   ITrackService,
   ItemTypes,
+  IDownloadData,
 } from 'src/types';
 import { CreateTrackDto } from './dto/create-track-dto';
 import { dtoToOjbectId } from 'src/utils';
@@ -205,7 +206,8 @@ export class TrackService
   async copy(id: Types.ObjectId): Promise<TrackDocument & ItemsData> {
     try {
       const track = await this.findByIdAndCheck(id);
-      const { user, name, author, isTrash, text, imageSize, fileSize, parent } = track;
+      const { user, name, author, isTrash, text, imageSize, fileSize, parent, fileExt, type } =
+        track;
 
       let imageNewPath;
 
@@ -216,6 +218,7 @@ export class TrackService
       const audioNewPath = await this.filesService.copyFile(track.file, FileType.AUDIO);
 
       const newTrack = await this.trackModel.create({
+        type,
         user,
         name: `${name} copy`,
         author,
@@ -223,11 +226,13 @@ export class TrackService
         parent,
         imageSize,
         fileSize,
+        fileExt,
         isTrash,
-        audio: audioNewPath,
+        file: audioNewPath,
         image: imageNewPath,
-        creationDate: Date.now(),
+        createDate: Date.now(),
         openDate: Date.now(),
+        changeDate: Date.now(),
       });
 
       const itemsData: ItemsData = {
@@ -242,25 +247,20 @@ export class TrackService
     }
   }
 
-  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
+  async getFilePath(id: Types.ObjectId): Promise<IDownloadData[]> {
     try {
-      const { name, file, fileExt } = await this.findByIdAndCheck(id);
-      const fileStream = await this.filesService.downloadFile(file);
-      const filename = `${name}.${fileExt}`;
+      const { name, file, fileExt, image } = await this.findByIdAndCheck(id);
+      const imagePath = await this.filesService.getFilePath(image);
+      const imageExt = imagePath.split('.').pop();
+      const imageName = `${name}-img.${imageExt}`;
 
-      return { file: fileStream, filename };
-    } catch (e) {
-      throw e;
-    }
-  }
+      const filePath = await this.filesService.getFilePath(file);
+      const fileName = `${name}.${fileExt}`;
 
-  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
-    try {
-      const { name, file, fileExt } = await this.findByIdAndCheck(id);
-      const path = await this.filesService.getFilePath(file);
-      const filename = `${name}.${fileExt}`;
-
-      return { path, filename };
+      return [
+        { path: filePath, name: fileName },
+        { path: imagePath, name: imageName },
+      ];
     } catch (e) {
       throw e;
     }

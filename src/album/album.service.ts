@@ -18,6 +18,7 @@ import {
   ICreateAlbumOptions,
   IUpdateAlbumOptions,
   ItemTypes,
+  IDownloadData,
 } from 'src/types';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { StorageService } from 'src/storage/storage.service';
@@ -199,28 +200,24 @@ export class AlbumService
     }
   }
 
-  // ! Fix Альбом должен скачиваться адним архивом, с треками
-  async download(id: Types.ObjectId): Promise<{ file: ReadStream; filename: string }> {
+  async getFilePath(id: Types.ObjectId): Promise<IDownloadData[]> {
     try {
       const albumDoc = await this.findByIdAndCheck(id);
-      const file = await this.filesService.downloadFile(albumDoc.image);
-      const ext = albumDoc.image.split('.')[1];
-      const filename = `${albumDoc.name}.${ext}`;
+      const { name, image, tracks } = albumDoc;
 
-      return { file, filename };
-    } catch (e) {
-      throw e;
-    }
-  }
+      let trackDatas: IDownloadData[] = [];
 
-  async getFilePath(id: Types.ObjectId): Promise<{ path: string; filename: string }> {
-    try {
-      const albumDoc = await this.findByIdAndCheck(id);
-      const path = await this.filesService.getFilePath(albumDoc.image);
-      const ext = albumDoc.image.split('.')[1];
-      const filename = `${albumDoc.name}.${ext}`;
+      for await (const track of tracks) {
+        const trackData = await this.trackService.getFilePath(track);
+        trackDatas = [...trackDatas, ...trackData];
+      }
 
-      return { path, filename };
+      const path = await this.filesService.getFilePath(image);
+      const ext = image.split('.').pop();
+
+      const imageName = `${name}.${ext}`;
+
+      return [{ path, name: imageName }, ...trackDatas];
     } catch (e) {
       throw e;
     }
@@ -229,11 +226,12 @@ export class AlbumService
   async copy(id: Types.ObjectId): Promise<AlbumDocument & ItemsData> {
     try {
       const album = await this.findByIdAndCheck(id);
-      const { user, name, isTrash, image, imageSize, author, parent } = album;
+      const { user, name, isTrash, image, imageSize, author, parent, type } = album;
 
       const imageNewPath = await this.filesService.copyFile(image, FileType.IMAGE);
 
       const newAlbum = await this.albumModel.create({
+        type,
         user,
         author,
         parent,
@@ -241,8 +239,9 @@ export class AlbumService
         isTrash,
         image: imageNewPath,
         imageSize,
-        creationDate: Date.now(),
+        createDate: Date.now(),
         openDate: Date.now(),
+        changeDate: Date.now(),
       });
 
       let size = 0;
@@ -260,6 +259,7 @@ export class AlbumService
 
       newAlbum.tracks = newTracks.map((track) => track._id);
       await newAlbum.save();
+      await newAlbum.populate('tracks');
 
       const itemsData: ItemsData = {
         count: newTracks.length + 1,
