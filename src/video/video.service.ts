@@ -15,10 +15,12 @@ import {
   IVideoService,
   ItemTypes,
   IDownloadData,
+  AccessTypes,
+  DeepPartial,
 } from 'src/types';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { StorageService } from 'src/storage/storage.service';
-import { dtoToOjbectId } from 'src/utils';
+import { delFildsByObj, dtoToOjbectId } from 'src/utils';
 import { ChangeFileDto } from 'src/album/dto/change-file.dto';
 import { ChangeVideoDataDto } from './dto/change-video-data';
 
@@ -262,6 +264,19 @@ export class VideoService
       return deletedVideos;
     } catch (e) {
       throw new HttpException('Ошибка при удалении видео по IDS', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async restore(id: Types.ObjectId, options: DeepPartial<VideoDocument>): Promise<VideoDocument> {
+    try {
+      const updateData = delFildsByObj<
+        DeepPartial<VideoDocument>,
+        'file' | 'fileExt' | 'fileSize' | 'image' | 'imageSize' | 'album'
+      >(options, ['file', 'fileExt', 'fileSize', 'image', 'imageSize']);
+
+      return await this.update(id, updateData);
+    } catch (e) {
+      throw e;
     }
   }
 }

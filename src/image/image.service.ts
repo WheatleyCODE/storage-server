@@ -17,8 +17,9 @@ import {
   IUpdateImageOptions,
   ItemTypes,
   IDownloadData,
+  DeepPartial,
 } from 'src/types';
-import { dtoToOjbectId } from 'src/utils';
+import { delFildsByObj, dtoToOjbectId } from 'src/utils';
 @Injectable()
 export class ImageService
   extends StorageItemComments<ImageDocument, IUpdateImageOptions>
@@ -164,6 +165,19 @@ export class ImageService
         'Ошибка при удалении картинок по IDS',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  async restore(id: Types.ObjectId, options: DeepPartial<ImageDocument>): Promise<ImageDocument> {
+    try {
+      const updateData = delFildsByObj<DeepPartial<ImageDocument>, 'file' | 'fileExt' | 'fileSize'>(
+        options,
+        ['file', 'fileExt', 'fileSize'],
+      );
+
+      return await this.update(id, updateData);
+    } catch (e) {
+      throw e;
     }
   }
 }

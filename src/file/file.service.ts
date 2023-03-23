@@ -13,10 +13,11 @@ import {
   IUpdateFileOptions,
   ItemTypes,
   IDownloadData,
+  DeepPartial,
 } from 'src/types';
 import { FileTransferData } from 'src/transfer';
 import { CreateFileDto } from './dto/create-file.dto';
-import { dtoToOjbectId } from 'src/utils';
+import { delFildsByObj, dtoToOjbectId } from 'src/utils';
 import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
@@ -180,6 +181,19 @@ export class FileService
         'Ошибка при удалении файлов по IDS',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  async restore(id: Types.ObjectId, options: DeepPartial<FileDocument>): Promise<FileDocument> {
+    try {
+      const updateData = delFildsByObj<DeepPartial<FileDocument>, 'file' | 'fileExt' | 'fileSize'>(
+        options,
+        ['file', 'fileExt', 'fileSize'],
+      );
+
+      return await this.update(id, updateData);
+    } catch (e) {
+      throw e;
     }
   }
 }

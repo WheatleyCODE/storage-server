@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-export const stringToOjbectId = (id: string): Types.ObjectId => {
+export const stringToOjbectId = (id: string | Types.ObjectId): Types.ObjectId => {
   return new Types.ObjectId(id);
 };
 

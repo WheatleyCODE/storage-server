@@ -10,7 +10,7 @@ import { TrackService } from 'src/track/track.service';
 import { Album, AlbumDocument } from './schemas/album.schema';
 import { ChangeTracksDto } from './dto/change-tracks.dto';
 import { AlbumTransferData } from 'src/transfer';
-import { dtoToOjbectId } from 'src/utils';
+import { delFildsByObj, dtoToOjbectId } from 'src/utils';
 import {
   ItemsData,
   FileType,
@@ -19,6 +19,7 @@ import {
   IUpdateAlbumOptions,
   ItemTypes,
   IDownloadData,
+  DeepPartial,
 } from 'src/types';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { StorageService } from 'src/storage/storage.service';
@@ -306,5 +307,18 @@ export class AlbumService
     const album = await super.changeLike(id, user, isLike);
     await album.populate('tracks');
     return album;
+  }
+
+  async restore(id: Types.ObjectId, options: DeepPartial<AlbumDocument>): Promise<AlbumDocument> {
+    try {
+      const updateData = delFildsByObj<
+        DeepPartial<AlbumDocument>,
+        'image' | 'imageSize' | 'tracks'
+      >(options, ['image', 'imageSize', 'tracks']);
+
+      return await this.update(id, updateData);
+    } catch (e) {
+      throw e;
+    }
   }
 }

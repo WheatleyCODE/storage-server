@@ -116,6 +116,7 @@ export type ItemTransferData =
   | VideoTransferData;
 
 export type Modify<T, R> = Omit<T, keyof R> & R;
+
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };

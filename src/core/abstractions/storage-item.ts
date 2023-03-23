@@ -14,6 +14,11 @@ export abstract class StorageItem<T, O> extends DefaultService<T, O> implements 
   abstract copy(id: Types.ObjectId): Promise<T & ItemsData>;
   abstract delete(id: Types.ObjectId): Promise<T & ItemsData>;
 
+  abstract restore(
+    id: Types.ObjectId,
+    options: { [key in keyof T]: T[key] | undefined },
+  ): Promise<T>;
+
   async changeAccessType(id: Types.ObjectId, type: AccessTypes): Promise<T> {
     try {
       const item: any = await this.changeDate(id, ['changeDate']);

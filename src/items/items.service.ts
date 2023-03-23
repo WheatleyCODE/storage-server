@@ -1,3 +1,4 @@
+import { stringToOjbectId } from './../utils/object-id.utils';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { AlbumService } from 'src/album/album.service';
@@ -11,7 +12,13 @@ import { DeleteItemDto } from 'src/items/dto/delete-item.dto';
 import { StorageService } from 'src/storage/storage.service';
 import { TrackService } from 'src/track/track.service';
 import { FolderTransferData, ItemTDataFactory, StorageTransferData } from 'src/transfer';
-import { addListen, changeDate, dtoToOjbectId, getStorageCollectionName } from 'src/utils';
+import {
+  addListen,
+  changeDate,
+  delFildsByObj,
+  dtoToOjbectId,
+  getStorageCollectionName,
+} from 'src/utils';
 import { VideoService } from 'src/video/video.service';
 import {
   AccessTypes,
@@ -30,6 +37,7 @@ import { ChangeLikeDto } from './dto/change-like.dto';
 import { AddListenDto } from './dto/add-listen.dto';
 import { ChangeStarDto } from './dto/change-star.dto';
 import { collectionTypes, storageCollectionNames } from 'src/consts/storage.consts';
+import { RestoreItemsDto } from './dto/restore-items.dto';
 
 @Injectable()
 export class ItemsService implements IItemsService {
@@ -96,6 +104,51 @@ export class ItemsService implements IItemsService {
 
       const populatedStorage = await this.storageService.populateCollections(storage);
       return new StorageTransferData(populatedStorage);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async restoreItems(dto: RestoreItemsDto): Promise<ItemTransferData[]> {
+    try {
+      console.log(dto);
+
+      const itemsTD = dto.items.map((item) => dtoToOjbectId(item, ['id']));
+      const itemDocs: ItemDocument[] = [];
+
+      for await (const item of itemsTD) {
+        const id = stringToOjbectId(item.id);
+
+        const obj = delFildsByObj<
+          ItemTransferData,
+          | 'changeDate'
+          | 'comments'
+          | 'createDate'
+          | 'openDate'
+          | 'user'
+          | 'listenCount'
+          | 'likeCount'
+          | 'likedUsers'
+          | 'starredCount'
+        >(item, [
+          'changeDate',
+          'comments',
+          'createDate',
+          'openDate',
+          'user',
+          'listenCount',
+          'likeCount',
+          'likedUsers',
+          'starredCount',
+        ]);
+
+        const updateItem = { ...obj, _id: id };
+
+        const itemDoc = await this.objectServices[item.type].restore(id, updateItem);
+        itemDocs.push(itemDoc);
+      }
+
+      return itemDocs.map((item) => ItemTDataFactory.create(item));
     } catch (e) {
       throw e;
     }

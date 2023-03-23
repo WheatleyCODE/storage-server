@@ -15,10 +15,11 @@ import {
   ItemDocument,
   ObjectServices,
   IDownloadData,
+  DeepPartial,
 } from 'src/types';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { FolderTransferData } from 'src/transfer';
-import { dtoToOjbectId } from 'src/utils';
+import { delFildsByObj, dtoToOjbectId } from 'src/utils';
 import { StorageService } from 'src/storage/storage.service';
 import { ChangeColorDto } from 'src/folder/dto/change-color.dto';
 import { TrackService } from 'src/track/track.service';
@@ -264,6 +265,14 @@ export class FolderService
 
       folder.color = color;
       return folder.save();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async restore(id: Types.ObjectId, options: DeepPartial<FolderDocument>): Promise<FolderDocument> {
+    try {
+      return await this.update(id, options);
     } catch (e) {
       throw e;
     }

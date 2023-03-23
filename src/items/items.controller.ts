@@ -15,6 +15,7 @@ import { ChangeNameDto } from './dto/change-name.dto';
 import { ChangeParentDto } from './dto/change-parent.dto';
 import { ChangeStarDto } from './dto/change-star.dto';
 import { StorageTransferData } from 'src/transfer';
+import { RestoreItemsDto } from './dto/restore-items.dto';
 
 @Controller('/api/items')
 export class ItemsController {
@@ -97,5 +98,12 @@ export class ItemsController {
   getChildrens(@Param() param): Promise<ChildrensTransferData> {
     const correctId = stringToOjbectId(param.id);
     return this.itemsService.getChildrens(correctId);
+  }
+
+  @Post('/restore')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  restoreItem(@Body() dto: RestoreItemsDto): Promise<ItemTransferData[]> {
+    return this.itemsService.restoreItems(dto);
   }
 }

@@ -15,9 +15,10 @@ import {
   ITrackService,
   ItemTypes,
   IDownloadData,
+  DeepPartial,
 } from 'src/types';
 import { CreateTrackDto } from './dto/create-track-dto';
-import { dtoToOjbectId } from 'src/utils';
+import { delFildsByObj, dtoToOjbectId } from 'src/utils';
 import { StorageService } from 'src/storage/storage.service';
 import { ChangeFileDto } from 'src/album/dto/change-file.dto';
 import { ChangeTrackDataDto } from './dto/change-track-data.dto';
@@ -282,6 +283,23 @@ export class TrackService
         'Ошибка при удалении треков по IDS',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  async restore(id: Types.ObjectId, options: DeepPartial<TrackDocument>): Promise<TrackDocument> {
+    try {
+      const updateData = delFildsByObj<
+        DeepPartial<TrackDocument>,
+        'file' | 'fileExt' | 'fileSize' | 'image' | 'imageSize' | 'album'
+      >(options, ['file', 'fileExt', 'fileSize', 'image', 'imageSize', 'album']);
+
+      console.log(updateData);
+      const newdd = await this.update(id, updateData);
+      console.log(newdd);
+
+      return newdd;
+    } catch (e) {
+      throw e;
     }
   }
 }
